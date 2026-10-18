@@ -74,11 +74,9 @@ export async function openRound() {
       `expires ${market.expiresAt.toISOString().slice(11, 19)}  ` +
       `yesBid=${market.yesBid ? fmtProb(market.yesBid) : "-"} yesAsk=${market.yesAsk ? fmtProb(market.yesAsk) : "-"}`);
 
-  // Mirror the window on-chain so the reactive handler has something to settle.
-  // Best-effort: the game does not wait on the public log to be correct.
-  if (registry.enabled) {
-    await registry.openRound(market.pool, BigInt(market.onchain.nonce ?? 0), market.marketId);
-  }
+  // The scoreboard learns about a round only when someone enters it (see
+  // enterRound): an empty minute needs no public record, and skipping it
+  // halves the gas an idle wall burns.
   return { round, market };
 }
 
@@ -114,6 +112,8 @@ function sideFor(run: { pendingSide: string | null; autoPick: string | null }): 
  * number of retries a pick gets inside the window it was placed for.
  */
 export const ENTRY_WINDOW_S = 35;
+/** Rounds already registered on the scoreboard by this process. */
+const registered = new Set<number>();
 let lockedLogFor = -1;
 
 export async function enterRound(roundId: string, market: LiveMarket) {
@@ -233,6 +233,11 @@ export async function enterRound(roundId: string, market: LiveMarket) {
     }
 
     // One transaction for the side, matching how the orders were batched.
+    // The round is registered on its first entry (idempotent on-chain).
+    if (registry.enabled && rows.length && !registered.has(round.index)) {
+      await registry.openRound(market.pool, BigInt(market.onchain.nonce ?? 0), market.marketId);
+      registered.add(round.index);
+    }
     if (registry.enabled && rows.length) {
       const ok = await registry.enterMany(market.pool, BigInt(market.onchain.nonce ?? 0), side, rows);
       log(`      registry ${ok ? "mirrored" : "MIRROR FAILED"} ${side} x${rows.length}`);

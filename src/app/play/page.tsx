@@ -515,7 +515,9 @@ export default function Game() {
           className="chamfer-sm mt-2 shrink-0 border px-4 py-2 text-center text-[10px] font-black tracking-[0.25em]"
           style={{ borderColor: "var(--gold)", background: "#241c07", color: "var(--gold)" }}
         >
-          RECONNECTING — THE MARKET CLOCK IS AHEAD OF US. NOTHING IS LOST; PICKS AND STACKS ARE SAFE.
+          {pollAge > 25
+            ? "RECONNECTING — THE MARKET CLOCK IS AHEAD OF US. NOTHING IS LOST; PICKS AND STACKS ARE SAFE."
+            : "THE WALL WAS ASLEEP — YOU WOKE IT. THE NEXT ROUND STRIKES AT THE TOP OF THE MINUTE."}
         </div>
       )}
       </div>

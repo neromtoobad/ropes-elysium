@@ -78,11 +78,32 @@ async function preflight() {
   if (collateral === 0n) throw new Error("no tUSDC collateral");
 }
 
+/**
+ * Idle: nobody seated and nobody has had the page open for IDLE_AFTER_MS.
+ * Then the executor stops opening rounds — an empty wall striking a round
+ * every minute all night is two transactions a minute of testnet gas for no
+ * one. The first visitor's page wakes it; the next minute opens as normal.
+ */
+const IDLE_AFTER_MS = 10 * 60_000;
+let idleLogged = false;
+async function isIdle(): Promise<boolean> {
+  const alive = await db.run.count({ where: { status: "alive" } });
+  if (alive > 0) return false;
+  const hb = await db.heartbeat.findUnique({ where: { id: "viewer" } });
+  return !hb || Date.now() - hb.at.getTime() > IDLE_AFTER_MS;
+}
+
 async function tick() {
+  const idle = await isIdle();
+  if (idle !== idleLogged) {
+    log(idle ? "idle — nobody seated, nobody watching: pausing new rounds" : "someone is here — rounds resume at the top of the minute");
+    idleLogged = idle;
+  }
+
   // 0. Strike the new minute. The strike must be the mark at the OPEN, and the
   //    contract refuses one sampled more than a few seconds late — so this
   //    comes before anything that can take time.
-  const opened = await openRound();
+  const opened = idle ? null : await openRound();
 
   // 1. Settle anything that has expired, before entering, so survivors'
   //    stacks are free to ride the new window.

@@ -238,3 +238,11 @@ model Position {
   @@unique([runId, roundId])
   @@index([roundId])
 }
+
+/// "Someone is looking." The web app touches this while the page is open;
+/// the executor stops opening rounds when nobody is seated and nobody has
+/// looked for a while, so an empty wall does not burn testnet gas all night.
+model Heartbeat {
+  id String   @id
+  at DateTime
+}
