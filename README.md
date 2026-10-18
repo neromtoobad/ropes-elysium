@@ -90,7 +90,15 @@ Hyperliquid's public API, and the contract fences in what it will accept.
 
 ## Proof
 
-_Testnet contract addresses, explorer links and a recorded round go here at deploy._
+**Elysium testnet (chain 99801)** — sources verified on the explorer:
+
+| | |
+|---|---|
+| RopeMarket (HYPE) | [`0x62C4b522Bf76422E77CEdA22E94e0540f9422d1D`](https://elysium.kinetiq.xyz/testnet-explorer/address/0x62C4b522Bf76422E77CEdA22E94e0540f9422d1D) |
+| ArenaRegistry | [`0xDBd28A7AacD7228edDef44c177C195878DfCa858`](https://elysium.kinetiq.xyz/testnet-explorer/address/0xDBd28A7AacD7228edDef44c177C195878DfCa858) |
+| tUSDC (test dollars) | [`0x46397dA50c05AfA43cBfcA712215eD1E02A9F57d`](https://elysium.kinetiq.xyz/testnet-explorer/address/0x46397dA50c05AfA43cBfcA712215eD1E02A9F57d) |
+
+The house vault is seeded with 100,000 tUSDC, so each round may risk up to 25,000.
 
 Local rehearsal at live HYPE prices, 18 Oct 2026, through the same code the executor runs
 (`scripts/rehearse.ts`):
