@@ -73,15 +73,15 @@ contract ArenaRegistryTest is Test {
         assertEq(reg.stackOf(BRAM), 24_900, "remainder was never at risk");
     }
 
-    function test_void_pays_both_sides_half_and_kills_nobody() public {
+    function test_void_refunds_both_sides_and_kills_nobody() public {
         bytes32 key = _openWithTwo();
 
         vm.expectEmit(true, true, true, true);
         emit RoundSettled(key, 0, true, 2, 0);
         _fire(POOL, NONCE, true, 0);
 
-        assertEq(reg.stackOf(ADA), 16_233_700 / 2);
-        assertEq(reg.stackOf(BRAM), 19_455_000 / 2 + 24_900);
+        assertEq(reg.stackOf(ADA), 10_000_000, "a void refunds the stake");
+        assertEq(reg.stackOf(BRAM), 10_000_000, "a void refunds the stake");
         assertEq(reg.statusOf(ADA), 0, "void eliminates nobody");
         assertEq(reg.statusOf(BRAM), 0, "void eliminates nobody");
     }

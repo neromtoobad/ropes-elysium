@@ -69,6 +69,7 @@ contract RopeMarket {
         uint128 downShares;
         uint128 cap; // the most this round may ever owe one side
         uint128 reserved; // what this round currently holds back from the vault
+        uint128 costIn; // net premium still riding: what a void refunds, in total
     }
 
     /* -------------------------------------------------------------- storage */
@@ -112,6 +113,15 @@ contract RopeMarket {
     mapping(uint64 => Round) public rounds;
     /// roundId => holder => [upShares, downShares]
     mapping(uint64 => mapping(address => uint256[2])) internal _shares;
+    /// roundId => holder => [upCost, downCost]: premium paid for the shares
+    /// still held. A void refunds exactly this.
+    mapping(uint64 => mapping(address => uint256[2])) internal _cost;
+
+    /// Gas the scoreboard hook is guaranteed inside `settle`. Without a floor,
+    /// gas estimation finds the cheapest limit at which `settle` succeeds —
+    /// and because the hook's failure is caught, that is a limit at which the
+    /// hook silently runs out of gas.
+    uint256 public constant HOOK_GAS = 1_500_000;
 
     /// Everything the vault currently owes or holds back: open rounds' worst
     /// case plus settled rounds' unredeemed winnings.
@@ -271,7 +281,8 @@ contract RopeMarket {
             upShares: 0,
             downShares: 0,
             cap: cap,
-            reserved: 0
+            reserved: 0,
+            costIn: 0
         });
         emit RoundOpened(id, opensAt, expiresAt, strikeMark, cap);
     }
@@ -279,8 +290,10 @@ contract RopeMarket {
     /**
      * Settle on the mark at the bell. The close must be sampled in the
      * `sampleWindowSecs` after expiry; a keeper that was down for the bell
-     * cannot settle on a price taken later, and the round is voided instead
-     * (every share pays half), which is the honest result when we don't know.
+     * cannot settle on a price taken later, and the round is voided instead.
+     * A void REFUNDS every holder what they paid for the shares they still
+     * hold — when we don't know the result, nobody wins or loses on it. (A
+     * close exactly on the strike is also a void: nobody beat the line.)
      */
     function settle(uint64 id, uint128 closeMark, uint64 sourceMs) external onlyOperator {
         Round storage r = rounds[id];
@@ -321,17 +334,22 @@ contract RopeMarket {
 
     function _void(uint64 id, Round storage r) internal {
         r.status = VOIDED;
-        uint256 owed = (uint256(r.upShares) + uint256(r.downShares)) / 2;
+        uint256 owed = r.costIn;
         liability = liability - r.reserved + owed;
         r.reserved = uint128(owed);
         emit RoundSettled(id, r.close, 0, true);
         _callHook(id, true, 0);
     }
 
+    error HookGas();
+
     function _callHook(uint64 id, bool voided, uint8 winner) internal {
         if (hook == address(0)) return;
-        // The scoreboard must never be able to block the money.
-        try ISettlementHook(hook).onRoundSettled(id, voided, winner) {} catch {}
+        // Refuse to run without the hook's full budget, so a caller can never
+        // settle the money while starving the scoreboard...
+        if (gasleft() < HOOK_GAS + 20_000) revert HookGas();
+        // ...but a hook that fails WITH its budget must never block the money.
+        try ISettlementHook(hook).onRoundSettled{gas: HOOK_GAS}(id, voided, winner) {} catch {}
     }
 
     /* --------------------------------------------------------------- quotes */
@@ -407,6 +425,8 @@ contract RopeMarket {
         _reserve(r);
 
         _shares[id][msg.sender][side] += shares;
+        _cost[id][msg.sender][side] += cost;
+        r.costIn += uint128(cost);
         _pull(msg.sender, cost);
         emit Traded(id, msg.sender, side, true, shares, price, cost);
     }
@@ -431,6 +451,11 @@ contract RopeMarket {
         proceeds = (shares * price) / ONE; // round DOWN
 
         _shares[id][msg.sender][side] = held - shares;
+        // The cost basis leaves with the shares, pro rata.
+        uint256 c = _cost[id][msg.sender][side];
+        uint256 basis = (c * shares) / held;
+        _cost[id][msg.sender][side] = c - basis;
+        r.costIn -= uint128(basis);
         if (side == UP) r.upShares -= uint128(shares);
         else r.downShares -= uint128(shares);
         _reserve(r);
@@ -439,22 +464,25 @@ contract RopeMarket {
         emit Traded(id, msg.sender, side, false, shares, price, proceeds);
     }
 
-    /// Winning shares pay ONE each; a void pays half a share each side.
+    /// Winning shares pay ONE each; a void refunds the premium paid.
     function redeem(uint64 id) external returns (uint256 amount) {
         Round storage r = rounds[id];
         uint256[2] storage s = _shares[id][msg.sender];
+        uint256[2] storage c = _cost[id][msg.sender];
         if (r.status == SETTLED) {
             amount = s[r.winner];
         } else if (r.status == VOIDED) {
-            amount = (s[UP] + s[DOWN]) / 2;
+            amount = c[UP] + c[DOWN];
         } else {
             revert NotTrading();
         }
         s[UP] = 0;
         s[DOWN] = 0;
+        c[UP] = 0;
+        c[DOWN] = 0;
         if (amount == 0) return 0;
-        // Rounding in the void halving can leave `reserved` a unit short of the
-        // sum of individual claims; never underflow on it.
+        // Pro-rata rounding can leave `reserved` a unit off the sum of the
+        // individual claims; never underflow on it.
         uint256 take = amount > r.reserved ? r.reserved : amount;
         r.reserved -= uint128(take);
         liability -= take;
@@ -510,6 +538,11 @@ contract RopeMarket {
     function sharesOf(uint64 id, address holder) external view returns (uint256 up, uint256 down) {
         uint256[2] storage s = _shares[id][holder];
         return (s[UP], s[DOWN]);
+    }
+
+    function costOf(uint64 id, address holder) external view returns (uint256 up, uint256 down) {
+        uint256[2] storage c = _cost[id][holder];
+        return (c[UP], c[DOWN]);
     }
 
     function roundStatus(uint64 id) external view returns (uint8) {

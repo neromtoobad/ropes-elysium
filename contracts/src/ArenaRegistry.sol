@@ -244,8 +244,9 @@ contract ArenaRegistry {
             if (statusOf[e.runId] != ALIVE) continue;
 
             if (voided) {
-                // A void pays both sides 0.5 and eliminates nobody.
-                uint128 next = e.contracts / 2 + e.remainder;
+                // A void refunds the stake and eliminates nobody: the stack
+                // goes back to exactly what it was before the round.
+                uint128 next = e.stackBefore;
                 stackOf[e.runId] = next;
                 ++survivors;
                 emit RunAdvanced(e.runId, key, e.stackBefore, next);

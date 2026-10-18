@@ -226,23 +226,53 @@ contract RopeMarketTest is Test {
 
     function test_round_cap_bounds_the_vault_loss() public {
         uint64 id = _open();
-        (,,,,,,,, uint128 cap,) = m.rounds(id);
+        (,,,,,,,, uint128 cap,,) = m.rounds(id);
         assertEq(cap, 10_000e6);
         vm.prank(OP);
         vm.expectRevert(RopeMarket.OverCap.selector);
         m.buy(id, UP, 6_000e6, 900_000, K, _ms(t0) + 1); // 11.7k shares > 10k cap
     }
 
-    function test_late_close_voids_and_pays_half() public {
+    function test_late_close_voids_and_refunds_the_premium() public {
         uint64 id = _open();
         vm.prank(OP);
-        (uint256 shares,,) = m.buy(id, UP, 10e6, 900_000, K, _ms(t0) + 1);
+        (, uint256 cost,) = m.buy(id, UP, 10e6, 900_000, K, _ms(t0) + 1);
         vm.warp(t0 + 90);
         vm.prank(OP);
         m.settle(id, K + 5, _ms(t0 + 90)); // sampled 30s after the bell: not the bell's price
         assertEq(m.roundStatus(id), 3, "voided, not settled on a late price");
         vm.prank(OP);
-        assertEq(m.redeem(id), shares / 2);
+        assertEq(m.redeem(id), cost, "a void refunds exactly what was paid");
+        assertEq(m.liability(), 0);
+    }
+
+    function test_void_refund_follows_a_partial_bail() public {
+        uint64 id = _open();
+        vm.prank(OP);
+        (uint256 shares, uint256 cost,) = m.buy(id, DOWN, 10e6, 900_000, K, _ms(t0) + 1);
+        vm.warp(t0 + 20);
+        vm.prank(OP);
+        m.sell(id, DOWN, shares / 4, 0, K, _ms(t0 + 20));
+        (, uint256 left) = m.costOf(id, OP);
+        assertApproxEqAbs(left, (cost * 3) / 4, 1, "a quarter of the basis left with a quarter of the shares");
+        vm.warp(t0 + 60);
+        vm.prank(OP);
+        m.settle(id, K, _ms(t0 + 60)); // closed ON the line: nobody beat it
+        assertEq(m.roundStatus(id), 3);
+        vm.prank(OP);
+        assertEq(m.redeem(id), left);
+    }
+
+    function test_settle_refuses_to_starve_the_scoreboard() public {
+        uint64 id = _open();
+        vm.warp(t0 + 60);
+        vm.prank(OP);
+        vm.expectRevert(RopeMarket.HookGas.selector);
+        m.settle{gas: 400_000}(id, K + 1, _ms(t0 + 60));
+        // with the budget, it settles
+        vm.prank(OP);
+        m.settle(id, K + 1, _ms(t0 + 60));
+        assertEq(m.roundStatus(id), 2);
     }
 
     function test_anyone_can_void_a_round_the_keeper_abandoned() public {

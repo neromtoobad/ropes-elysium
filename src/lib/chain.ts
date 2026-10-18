@@ -27,7 +27,13 @@ export const INTERVAL_SEC = 60;
  */
 export const CADENCES = [60] as const;
 
-export const publicClient = createPublicClient({ chain: elysium, transport: http(RPC_URL) });
+/**
+ * Poll receipts every 200ms, not viem's default 4s. Elysium makes a block
+ * every ~115ms; at 4s a strike transaction that landed in a tenth of a second
+ * was only SEEN five seconds into the minute — right at the edge of the
+ * window the contract accepts a strike in.
+ */
+export const publicClient = createPublicClient({ chain: elysium, transport: http(RPC_URL), pollingInterval: 200 });
 
 const pk = (process.env.PRIVATE_KEY ?? "").trim() as Hex;
 const account = pk && pk !== "0x" ? privateKeyToAccount(pk, { nonceManager }) : null;

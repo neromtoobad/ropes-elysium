@@ -14,10 +14,11 @@ export const ropeAbi = parseAbi([
   "function liability() view returns (uint256)",
   "function freeBalance() view returns (uint256)",
   "function totalLpShares() view returns (uint256)",
-  "function rounds(uint64) view returns (uint64 opensAt, uint64 expiresAt, uint8 status, uint8 winner, uint128 strike, uint128 close, uint128 upShares, uint128 downShares, uint128 cap, uint128 reserved)",
+  "function rounds(uint64) view returns (uint64 opensAt, uint64 expiresAt, uint8 status, uint8 winner, uint128 strike, uint128 close, uint128 upShares, uint128 downShares, uint128 cap, uint128 reserved, uint128 costIn)",
   "function quote(uint64 id) view returns (uint256 yesBid, uint256 yesAsk, uint256 fair)",
   "function fairUpAt(uint256 s, uint256 k, uint256 tau, uint256 sigma) pure returns (uint256)",
   "function sharesOf(uint64 id, address holder) view returns (uint256 up, uint256 down)",
+  "function costOf(uint64 id, address holder) view returns (uint256 up, uint256 down)",
   "function pushMark(uint128 mark, uint64 sourceMs)",
   "function setSigma(uint256 sigmaWad)",
   "function openRound(uint64 opensAt, uint64 expiresAt, uint128 strikeMark, uint64 sourceMs) returns (uint64)",
@@ -46,6 +47,7 @@ export const ropeAbi = parseAbi([
   "error Insufficient()",
   "error TransferFailed()",
   "error BadParam()",
+  "error HookGas()",
 ]);
 
 export const TRADING = 1;

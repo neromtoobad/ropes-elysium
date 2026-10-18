@@ -15,6 +15,7 @@ import { openRound, enterRound, closeRound, processBails, armAutoBails, db } fro
 import { manageTables } from "./tables";
 import { processPayouts, processWithdrawals } from "../lib/payments";
 import { startHealthServer } from "./health";
+import { refreshSigma } from "../lib/market";
 
 const TICK_MS = 1000;
 const log = (...a: unknown[]) => console.log(new Date().toISOString().slice(11, 19), ...a);
@@ -104,6 +105,9 @@ async function tick() {
   //     wallet has one nonce and this loop is its only writer.
   await processPayouts();
   await processWithdrawals();
+
+  // 2.6 Re-measure volatility (hourly; a no-op every other tick).
+  await refreshSigma();
 
   // 3. Enter the live window.
   if (!opened) return;

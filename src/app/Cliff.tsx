@@ -34,7 +34,14 @@ export function liveMultipleOf(
   price: TableState["price"],
 ) {
   if (!seat || seat.buyIn <= 0) return 1;
-  const live = seat.pick === "UP" ? price.up : seat.pick === "DOWN" ? price.down : null;
+  // Mark at what a BAIL would actually be PAID: the bid for your side. The
+  // prices on the table are what each side costs to BUY (the ask), and an UP
+  // share sells for one minus what DOWN costs — so marking at the ask
+  // overstated every KEEP number by the whole spread.
+  const live =
+    seat.pick === "UP" ? (price.down != null ? 1 - price.down : null)
+    : seat.pick === "DOWN" ? (price.up != null ? 1 - price.up : null)
+    : null;
   const positionLive =
     seat.inRound && seat.fillPrice && live
       ? seat.costInRound * (live / seat.fillPrice)

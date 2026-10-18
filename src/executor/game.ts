@@ -25,8 +25,15 @@ const FREE_ALIVE_MAX = 12;
 const FREE_PER_10_ROUNDS = 12;
 const HOUSE_FLOOR = 150n * ONE;
 
-/** Don't try to enter a window with less runway than this — it can lock mid-send. */
-const MIN_ENTRY_SECONDS = 12;
+/**
+ * How close to the bell the live round is still handed to the tick. It was 12s
+ * — a guard for a venue whose windows could lock mid-send — and that made
+ * BAIL dead for the last 12 seconds of every round, exactly when a player
+ * most wants out. RopeMarket buys back until the bell, entries have their own
+ * window (ENTRY_WINDOW_S), and the contract refuses buys in its last seconds
+ * on its own, so the round stays live to the final second.
+ */
+const MIN_ENTRY_SECONDS = 1;
 
 /**
  * Record the live window as a round, if it isn't already.
@@ -274,8 +281,9 @@ export async function closeRound(roundId: string) {
     // A bailed position was sold back mid-round; it is not in this settlement.
     if (pos.outcome) continue;
     const won = !s.voided && (pos.side === "UP" ? 0 : 1) === s.winningOutcome;
-    // Void: every contract pays 0.5. Win: every contract pays 1. Loss: 0.
-    const payout = s.voided ? pos.contracts / 2n : won ? pos.contracts : 0n;
+    // Void: the stake comes back exactly (RopeMarket refunds the premium
+    // paid). Win: every contract pays 1. Loss: 0.
+    const payout = s.voided ? pos.cost : won ? pos.contracts : 0n;
     const stackAfter = pos.run.stack + payout;
     const outcome = s.voided ? "push" : won ? "won" : "lost";
 

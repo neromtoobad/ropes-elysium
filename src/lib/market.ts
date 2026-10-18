@@ -15,7 +15,7 @@
 import { pad, toHex, decodeErrorResult, BaseError, ContractFunctionRevertedError } from "viem";
 import { publicClient, wallet, MARKET, ASSET, INTERVAL_SEC, ONE } from "./chain";
 import { ropeAbi, TRADING, SETTLED, VOIDED } from "./ropeAbi";
-import { readMark } from "./hyperliquid";
+import { readMark, sigmaWad } from "./hyperliquid";
 
 export interface Onchain {
   roundId: bigint;
@@ -56,8 +56,8 @@ const log = (...a: unknown[]) => console.log(new Date().toISOString().slice(11, 
 /** The latest round's on-chain row. */
 export async function readRound(id: bigint) {
   const r = await publicClient.readContract({ address: MARKET, abi: ropeAbi, functionName: "rounds", args: [id] });
-  const [opensAt, expiresAt, status, winner, strike, close, upShares, downShares, cap, reserved] = r;
-  return { opensAt, expiresAt, status, winner, strike, close, upShares, downShares, cap, reserved };
+  const [opensAt, expiresAt, status, winner, strike, close, upShares, downShares, cap, reserved, costIn] = r;
+  return { opensAt, expiresAt, status, winner, strike, close, upShares, downShares, cap, reserved, costIn };
 }
 
 /**
@@ -69,6 +69,21 @@ const SAMPLE_WINDOW_S = 8;
 const OPEN_GRACE_S = SAMPLE_WINDOW_S - 2;
 
 let current: { windowStart: number; id: bigint; strike: number } | null = null;
+
+/**
+ * ONE Hyperliquid read per minute boundary, shared by the round that ends and
+ * the round that begins: the bell price of minute N is the strike of minute
+ * N+1, which is both what the game means and what keeps either from being
+ * sampled late. Taken the first time anything asks after the boundary.
+ */
+let boundary: { at: number; mark: Awaited<ReturnType<typeof readMark>> } | null = null;
+
+async function boundaryMark(at: number) {
+  if (boundary?.at === at) return boundary.mark;
+  const mark = await readMark(ASSET);
+  boundary = { at, mark };
+  return mark;
+}
 let missedLoggedFor = 0;
 
 /**
@@ -101,7 +116,7 @@ export async function currentMarket(minSecondsLeft = 5): Promise<LiveMarket | nu
       }
       return null;
     }
-    const m = await readMark(ASSET);
+    const m = await boundaryMark(windowStart);
     const hash = await wallet().writeContract({
       address: MARKET,
       abi: ropeAbi,
@@ -185,7 +200,7 @@ export async function settlement(marketId: `0x${string}`) {
     let mark = 0n;
     let sourceMs = 0n;
     try {
-      const m = await readMark(ASSET);
+      const m = await boundaryMark(Number(r.expiresAt));
       if (Number(m.sourceMs) >= bellMs && Number(m.sourceMs) <= bellMs + SAMPLE_WINDOW_S * 1000) {
         mark = m.raw;
         sourceMs = m.sourceMs;
@@ -243,4 +258,34 @@ export function revertName(err: unknown): string | null {
     }
   }
   return null;
+}
+
+/**
+ * Re-measure σ from the last hour of Hyperliquid one-minute candles and push
+ * it on-chain when it has moved more than 10%. Hourly: volatility regimes
+ * change over hours, and a quote priced on a stale σ either gives options
+ * away (σ too low) or prices every round as a coin flip (σ too high).
+ */
+const SIGMA_EVERY_MS = 60 * 60_000;
+let sigmaCheckedAt = 0;
+
+export async function refreshSigma() {
+  if (Date.now() - sigmaCheckedAt < SIGMA_EVERY_MS) return;
+  sigmaCheckedAt = Date.now();
+  try {
+    const next = await sigmaWad(ASSET);
+    const cur = await publicClient.readContract({ address: MARKET, abi: ropeAbi, functionName: "sigmaWad" });
+    const drift = Number(next > cur ? next - cur : cur - next) / Number(cur);
+    const perMin = ((Number(next) / 1e18) * Math.sqrt(60) * 100).toFixed(3);
+    if (drift < 0.1) {
+      log(`σ ${ASSET} ≈ ${perMin}% a minute — unchanged on-chain`);
+      return;
+    }
+    const hash = await wallet().writeContract({ address: MARKET, abi: ropeAbi, functionName: "setSigma", args: [next] });
+    await publicClient.waitForTransactionReceipt({ hash });
+    log(`σ ${ASSET} set to ≈ ${perMin}% a minute (was ${((Number(cur) / 1e18) * Math.sqrt(60) * 100).toFixed(3)}%)  tx ${hash.slice(0, 10)}…`);
+  } catch (err) {
+    // Keep the last σ; a missed refresh is not worth a stalled round.
+    log(`σ refresh failed: ${String(err).slice(0, 120)}`);
+  }
 }
