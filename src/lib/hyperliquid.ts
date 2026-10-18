@@ -4,11 +4,14 @@
  *
  * Until Elysium's HyperCore read precompile ships (Kinetiq: ~4 weeks after
  * mainnet), the only way to get a Hyperliquid price into an Elysium contract
- * is to carry it there. This module reads Hyperliquid's public info API; the
- * executor pushes what it reads on-chain with every trade, open and settle,
- * stamped with the moment it was read. Every one of those pushes is a
- * `MarkPushed` event, so the relay can be audited against Hyperliquid's own
- * candles after the fact (scripts/doctor.ts does exactly that).
+ * is to carry it there. This module reads Hyperliquid's public info API.
+ *
+ * Two prices, two jobs:
+ *   - the live MID (allMids) prices every trade between bells — it is what the
+ *     book says right now;
+ *   - the minute CANDLE OPEN (first trade of the minute) is what every round
+ *     is struck at and settled on — a published Hyperliquid number that
+ *     scripts/audit.ts checks every strike and close against, for equality.
  */
 const INFO = process.env.HL_INFO_URL ?? "https://api.hyperliquid.xyz/info";
 
@@ -82,4 +85,30 @@ export async function sigmaWad(asset: string): Promise<bigint> {
   const perMinute = Math.max(Math.sqrt(varMin), 0.0004); // floor: 0.04% a minute
   const perRootSecond = perMinute / Math.sqrt(60);
   return BigInt(Math.round(perRootSecond * 1e18));
+}
+
+/**
+ * The OPEN of Hyperliquid's own one-minute candle for the minute starting at
+ * `minuteStartMs`: the first trade of that minute. This is what a round is
+ * struck at and settled on. Unlike a book mid, it is a published, permanent
+ * Hyperliquid number, so anyone can check a strike or a close for exact
+ * equality against `candleSnapshot` (scripts/audit.ts does).
+ *
+ * The candle appears with the minute's first trade, normally within a second
+ * or two. Polls until it does, up to `waitMs`; null if it never does (the
+ * round then voids rather than settling on something else).
+ */
+export async function candleOpen(asset: string, minuteStartMs: number, waitMs = 5000): Promise<Mark | null> {
+  const until = Date.now() + waitMs;
+  for (;;) {
+    try {
+      const cs = await candles(asset, minuteStartMs, Date.now() + 1000);
+      const c = cs.find((x) => x.t === minuteStartMs);
+      if (c) return { price: Number(c.o), raw: toE8(c.o), sourceMs: BigInt(Date.now()) };
+    } catch {
+      /* retry */
+    }
+    if (Date.now() > until) return null;
+    await new Promise((r) => setTimeout(r, 300));
+  }
 }

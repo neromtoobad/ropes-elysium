@@ -51,10 +51,10 @@ that re-quote several times a second. ROPES is one of those, for one-minute bina
 
 | | |
 |---|---|
-| **00:00.6** | `openRound`, struck at the Hyperliquid mark read at the top of the minute |
+| **00:00 + ~2 s** | `openRound`, struck at the **open of Hyperliquid's own 1-minute candle**: the minute's first trade |
 | **00:01–00:35** | entries: `buy(side, budget)`, which carries a fresh mark, so every fill is priced at the moment it lands |
 | **any second** | BAIL: `sell(side, shares)` at the live bid, right up to the bell |
-| **01:00 + ~3 s** | `settle` on the mark at the bell. **The same read becomes the next round's strike.** Inside that same transaction the market calls the scoreboard (`ArenaRegistry.onRoundSettled`), so eliminations land in the settlement transaction itself |
+| **01:00 + ~3 s** | `settle` on the open of the candle that starts at the bell. **The same price becomes the next round's strike.** Inside that same transaction the market calls the scoreboard (`ArenaRegistry.onRoundSettled`), so eliminations land in the settlement transaction itself |
 | **then** | `redeem`: winners compound into the next minute |
 
 ## The trust model, stated plainly
@@ -76,11 +76,18 @@ Hyperliquid's public API, and the contract fences in what it will accept.
 
 **How you can audit it:**
 
-- Every relayed price is an on-chain event (`MarkPushed`, `RoundOpened`, `RoundSettled`).
-- `npx tsx scripts/audit.ts` checks every strike and close against Hyperliquid's own 1-minute
-  candles for that moment. Local rehearsal: **13 of 13 inside the candle**.
+- Every strike and close is a published Hyperliquid number: the open of that minute's candle.
+  `npx tsx scripts/audit.ts` checks each one for **exact equality** against Hyperliquid's own
+  `candleSnapshot`. A relay that invented, rounded or delayed a price fails.
+- Every relayed price is also an on-chain event (`MarkPushed`, `RoundOpened`, `RoundSettled`).
+- Live quotes between bells use Hyperliquid's book mid, which is what the book says at that moment.
 - Trading is operator-only in this version. An open market fed by a relay could be picked off by
   anyone with a faster feed than the relay.
+
+> Why the candle open, not the mid: the first testnet rounds were struck at the `allMids` book mid.
+> A full-history audit found 18 of 81 of those prices outside Hyperliquid's trade candle for the
+> minute, by up to $0.036. A mid is the middle of the book, not a trade, and nobody can look one up
+> later. So rounds now strike and settle on the candle open, which anyone can check exactly.
 
 **The roadmap removes the trust:**
 
@@ -160,7 +167,7 @@ npx prisma db push                # the ledger
 npm run dev                       # the wall on :3000
 npm run executor                  # the game loop + Hyperliquid relay
 npx tsx scripts/rehearse.ts       # one round, end to end, with every tx printed
-npx tsx scripts/audit.ts          # every strike and close vs Hyperliquid's candles
+npx tsx scripts/audit.ts          # every strike and close == Hyperliquid's candle open
 npm run doctor                    # does the money add up?
 ```
 

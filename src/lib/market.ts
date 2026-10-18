@@ -15,7 +15,7 @@
 import { pad, toHex, decodeErrorResult, BaseError, ContractFunctionRevertedError } from "viem";
 import { publicClient, wallet, MARKET, ASSET, INTERVAL_SEC, ONE } from "./chain";
 import { ropeAbi, TRADING, SETTLED, VOIDED } from "./ropeAbi";
-import { readMark, sigmaWad } from "./hyperliquid";
+import { readMark, sigmaWad, candleOpen } from "./hyperliquid";
 
 export interface Onchain {
   roundId: bigint;
@@ -71,16 +71,20 @@ const OPEN_GRACE_S = SAMPLE_WINDOW_S - 2;
 let current: { windowStart: number; id: bigint; strike: number } | null = null;
 
 /**
- * ONE Hyperliquid read per minute boundary, shared by the round that ends and
- * the round that begins: the bell price of minute N is the strike of minute
- * N+1, which is both what the game means and what keeps either from being
- * sampled late. Taken the first time anything asks after the boundary.
+ * ONE price per minute boundary, shared by the round that ends and the round
+ * that begins: the bell price of minute N is the strike of minute N+1.
+ *
+ * That price is the OPEN of Hyperliquid's own one-minute candle for the new
+ * minute (its first trade), not a book mid. A mid is a moment of an order book
+ * nobody can look up later; the candle open is a permanent Hyperliquid number,
+ * so every strike and every close can be checked for exact equality.
  */
-let boundary: { at: number; mark: Awaited<ReturnType<typeof readMark>> } | null = null;
+let boundary: { at: number; mark: Awaited<ReturnType<typeof readMark>> | null } | null = null;
 
 async function boundaryMark(at: number) {
   if (boundary?.at === at) return boundary.mark;
-  const mark = await readMark(ASSET);
+  const mark = await candleOpen(ASSET, at * 1000);
+  if (!mark) log(`no Hyperliquid candle for ${new Date(at * 1000).toISOString().slice(11, 19)} in time`);
   boundary = { at, mark };
   return mark;
 }
@@ -117,6 +121,7 @@ export async function currentMarket(minSecondsLeft = 5): Promise<LiveMarket | nu
       return null;
     }
     const m = await boundaryMark(windowStart);
+    if (!m) return null; // no candle open to strike at; this minute is skipped
     const hash = await wallet().writeContract({
       address: MARKET,
       abi: ropeAbi,
@@ -201,7 +206,7 @@ export async function settlement(marketId: `0x${string}`) {
     let sourceMs = 0n;
     try {
       const m = await boundaryMark(Number(r.expiresAt));
-      if (Number(m.sourceMs) >= bellMs && Number(m.sourceMs) <= bellMs + SAMPLE_WINDOW_S * 1000) {
+      if (m && Number(m.sourceMs) >= bellMs && Number(m.sourceMs) <= bellMs + SAMPLE_WINDOW_S * 1000) {
         mark = m.raw;
         sourceMs = m.sourceMs;
       }
