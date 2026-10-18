@@ -1,15 +1,21 @@
 #!/usr/bin/env bash
-# Railway boot: the EXECUTOR only.
+# Railway boot. Two services share this repo and this script:
 #
-# The web app lives on Vercel and the ledger in Postgres, so this box has
-# exactly one job — run the game loop, supervised, 24/7. No next start (Vercel
-# serves it). Railway sets PORT, which turns on the loop's /health endpoint;
-# railway.json points the platform health check at it, so a wedged loop shows
-# as unhealthy.
+#   ROLE=web       the Next app (pages + API), on Railway's PORT
+#   (otherwise)    the EXECUTOR — the game loop and the Hyperliquid relay,
+#                  supervised, 24/7
+#
+# Both answer /health, which railway.json points the platform health check
+# at: the web app's says the server is up, the executor's says the loop is
+# still ticking (503 once it goes stale), so a wedged loop shows as unhealthy.
 #
 # ONE EXECUTOR AT A TIME. Stop the laptop's before this one goes live — two
 # executors on one wallet race the nonce and poison every measured number.
 set -e
+
+if [ "${ROLE:-}" = "web" ]; then
+  exec npx next start -p "${PORT:-3000}"
+fi
 
 # Make sure the schema is there before the loop asks for it.
 #
