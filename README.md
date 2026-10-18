@@ -99,6 +99,10 @@ Hyperliquid's public API, and the contract fences in what it will accept.
 | tUSDC (test dollars) | [`0x46397dA50c05AfA43cBfcA712215eD1E02A9F57d`](https://elysium.kinetiq.xyz/testnet-explorer/address/0x46397dA50c05AfA43cBfcA712215eD1E02A9F57d) |
 
 The house vault is seeded with 100,000 tUSDC, so each round may risk up to 25,000.
+The **owner** (deployer, kept offline) and the **operator** (the keeper) are separate keys: the
+keeper's key was generated inside the hosting environment and has never left it, and the owner
+can rotate it with `setOperator` if it is ever compromised. Operator:
+[`0x1fABaEb15bcdf03f87A2821e46f182A401C9dD60`](https://elysium.kinetiq.xyz/testnet-explorer/address/0x1fABaEb15bcdf03f87A2821e46f182A401C9dD60).
 
 Local rehearsal at live HYPE prices, 18 Oct 2026, through the same code the executor runs
 (`scripts/rehearse.ts`):
