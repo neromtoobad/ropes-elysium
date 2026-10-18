@@ -1,5 +1,5 @@
 /**
- * THE CLIMB — doctor.
+ * ROPES — doctor.
  *
  * One command that answers "does the money add up and is the ledger sane".
  * Run it before any real session, and any time something feels off.
@@ -26,9 +26,10 @@ const ok = (msg: string) => console.log(`  ✓ ${msg}`);
 console.log("── wallet");
 const gas = await houseGas();
 const collateral = await houseCollateral();
-console.log(`  gas        ${(Number(gas) / 1e18).toFixed(4)} STT`);
+console.log(`  gas        ${(Number(gas) / 1e18).toFixed(6)} HYPE`);
 console.log(`  collateral ${fmtUsd(collateral)} tUSDC`);
-if (gas < 2n * 10n ** 18n) bad("below 2 STT — the executor will start failing writes");
+// Elysium gas is ~0.1 gwei: a write costs ~0.00002 HYPE, so 0.05 is weeks of play.
+if (gas < 5n * 10n ** 16n) bad("below 0.05 HYPE — top up from the Elysium faucet before writes start failing");
 if (collateral < 50n * ONE) bad("below 50 tUSDC — a few buy-ins from insolvency");
 
 console.log("── ledger");
