@@ -65,7 +65,7 @@ function check(label: string, priceE8: bigint, atMs: number) {
   const tick = p >= 1000 ? 0.1 : p >= 10 ? 0.001 : 0.00001;
   const off = p < c.l ? c.l - p : p > c.h ? p - c.h : 0;
   worst = Math.max(worst, off);
-  if (off <= tick) ok++;
+  if (off <= tick * 1.000001) ok++; // one tick, with room for float rounding
   else {
     bad++;
     console.log(`  ✗ ${label} ${p} outside the candle [${c.l}, ${c.h}] by ${off}`);
