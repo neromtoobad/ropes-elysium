@@ -277,7 +277,7 @@ export async function closeRound(roundId: string) {
 
   // The registry settles inside the market's own settle transaction — we
   // never push it. Reading it back is how we know that path actually ran.
-  if (registry.enabled) {
+  if (registry.enabled && registered.has(round.index)) {
     const onchain = await registry.roundState(round.pool as `0x${string}`, BigInt(s.onchain.nonce ?? 0));
     log(`  registry: ${onchain?.settled ? "already settled itself on-chain ✓" : "not settled on-chain (callback missed?)"}`);
   }
