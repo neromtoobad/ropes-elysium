@@ -105,6 +105,9 @@ Hyperliquid's public API, and the contract fences in what it will accept.
 | ArenaRegistry | [`0xDBd28A7AacD7228edDef44c177C195878DfCa858`](https://elysium.kinetiq.xyz/testnet-explorer/address/0xDBd28A7AacD7228edDef44c177C195878DfCa858) |
 | tUSDC (test dollars) | [`0x46397dA50c05AfA43cBfcA712215eD1E02A9F57d`](https://elysium.kinetiq.xyz/testnet-explorer/address/0x46397dA50c05AfA43cBfcA712215eD1E02A9F57d) |
 
+**Audit, 18 Oct (rounds 47–60, `npx tsx scripts/audit.ts <block> 47 -v`):** 27 of 27 strikes and
+closes **exactly equal** Hyperliquid's published 1-minute candle open, with 0 voids.
+
 The house vault is seeded with 100,000 tUSDC, so each round may risk up to 25,000.
 The **owner** (deployer, kept offline) and the **operator** (the keeper) are separate keys: the
 keeper's key was generated inside the hosting environment and has never left it, and the owner
