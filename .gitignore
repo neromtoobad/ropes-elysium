@@ -1,0 +1,34 @@
+node_modules/
+.env
+.env.*
+!.env.example
+*.key
+*.log
+.DS_Store
+dist/
+.next/
+# TypeScript's incremental build cache. It was committed, and Railway's
+# Nixpacks build mounts a cache directory at that exact path — mounting a
+# directory over a real file fails the image build outright ("not a directory"),
+# which is what broke the first GitHub-sourced deploy on 13 sep.
+tsconfig.tsbuildinfo
+prisma/*.db
+prisma/*.db-journal
+prisma/*.db-shm
+prisma/*.db-wal
+contracts/out/
+contracts/cache/
+
+# local pointer to AGENTS.md, never committed
+CLAUDE.md
+.vercel
+
+# macOS AppleDouble sidecars on the external volume
+._*
+
+broadcast/
+cache/
+foundry-pp/
+
+# raw sprite generations (81 MB); the shipped sprites are in public/
+design/gen/

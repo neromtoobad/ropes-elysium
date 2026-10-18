@@ -1,0 +1,565 @@
+@import "tailwindcss";
+
+/*
+ * ROPES — the look.
+ *
+ * One rule above all: things are either HUGE or tiny. A screen where everything
+ * is 14px reads as a dashboard no matter what the numbers say. The countdown,
+ * the price and the multipliers are the only things allowed to be big, and
+ * everything else gets out of their way.
+ */
+:root {
+  /*
+   * SYNTH — deep indigo violet.
+   *
+   * Chosen over flat black and over navy for one reason: a violet-leaning
+   * surface sits opposite BOTH green and red on the wheel, so neither semantic
+   * colour has to fight it. On navy the green multiplier washed out to
+   * near-white; on black everything was legible but inert.
+   *
+   * Held at roughly half the chroma of a true synthwave violet: enough hue to
+   * keep that separation and stop the page reading as a terminal, not enough to
+   * make the surface itself something you notice.
+   */
+  --bg: #0d0a1c;
+  --panel: #161329;
+  --panel-2: #1d1936;
+  --edge: #332c52;
+  --dim: #8d8ab0;
+  --text: #eeecf5;
+  --ambient: #251d45;
+  /* Atmosphere only — never on text or semantics. The sky's own colours. */
+  --aurora-a: #c44dff;
+  --aurora-b: #2de2ff;
+  --aurora-c: #ff2f8a;
+  /* The chosen climber's colour: selection chrome, tabs, corner ticks and
+     the whole sky retint per character. NEVER money (gold) or sides. */
+  --accent: #e8b33d;
+  --accent-glow: #e8b33d66;
+
+  /* Semantic. Identical across every surface palette — UP is always this
+     green, DOWN is always this red, and the line to beat is always gold. */
+  --up: #00e58a;
+  --up-glow: #00e58a55;
+  --down: #ff2f52;
+  --down-glow: #ff2f5255;
+  --gold: #ffc94d;
+  --gold-glow: #ffc94d55;
+}
+
+/* VOID — flat near-black. Kept for comparison. */
+:root[data-bg="void"] {
+  --bg: #050608;
+  --panel: #0c0e14;
+  --panel-2: #11141c;
+  --edge: #1c212c;
+  --dim: #5d6675;
+  --text: #eef1f6;
+  --ambient: #131826;
+}
+
+/* ARCADE — deep navy slate. The palette the design system returns for
+   "arcade & retro game": neon red + blue on dark, with score green. */
+:root[data-bg="arcade"] {
+  --bg: #0b1220;
+  --panel: #131c2e;
+  --panel-2: #1a2438;
+  --edge: #2a3750;
+  --dim: #7d8aa3;
+  --text: #f2f6ff;
+  --ambient: #1d2b44;
+}
+
+html,
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+
+/* A phone page must never pan sideways. Layout bugs are fixed at the
+   source (grid columns are minmax(0,1fr)); this is the belt to that brace. */
+body {
+  overflow-x: clip;
+}
+
+/* Anything the player shouts about wears the display face. */
+.display {
+  font-family: var(--font-display), var(--font-body), system-ui, sans-serif;
+  letter-spacing: 0.02em;
+}
+
+/* Not a vignette — a sky. Three aurora glows drifting slowly behind the
+   whole page, so the surface breathes instead of sitting there. The drift
+   dies under prefers-reduced-motion and the static gradient stays. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: -12%;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(52% 38% at 82% 6%, color-mix(in srgb, var(--aurora-a) 16%, transparent) 0%, transparent 70%),
+    radial-gradient(46% 34% at 10% 84%, color-mix(in srgb, var(--aurora-b) 12%, transparent) 0%, transparent 70%),
+    radial-gradient(60% 42% at 46% 108%, color-mix(in srgb, var(--aurora-c) 14%, transparent) 0%, transparent 72%),
+    radial-gradient(120% 90% at 50% 0%, var(--ambient) 0%, transparent 62%);
+  animation: aurora-drift 26s ease-in-out infinite alternate;
+}
+@keyframes aurora-drift {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(2.5%, -2%, 0) scale(1.06); }
+}
+
+/*
+ * CRT scanlines. Kept at 3% so it reads as texture rather than an effect —
+ * enough to make the screen feel like a cabinet, not enough to fight the data.
+ */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 60;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.03) 0px,
+    rgba(255, 255, 255, 0.03) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* Numbers that matter get a glow, so the eye lands on them first. */
+.glow-up { color: var(--up); text-shadow: 0 0 24px var(--up-glow); }
+.glow-down { color: var(--down); text-shadow: 0 0 24px var(--down-glow); }
+.glow-gold { color: var(--gold); text-shadow: 0 0 24px var(--gold-glow); }
+
+/* ── the clock ─────────────────────────────────────────────────────────── */
+
+@keyframes clock-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.06); opacity: 0.82; }
+}
+.clock-urgent {
+  animation: clock-pulse 1s ease-in-out infinite;
+  color: var(--down);
+  text-shadow: 0 0 40px var(--down-glow), 0 0 80px var(--down-glow);
+}
+
+/* The last ten seconds should be felt at the edge of vision, not read. */
+@keyframes danger-edge {
+  0%, 100% { box-shadow: inset 0 0 0 0 transparent; }
+  50% { box-shadow: inset 0 0 140px -40px var(--down); }
+}
+.danger {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 40;
+  animation: danger-edge 1s ease-in-out infinite;
+}
+
+/* ── the bell ──────────────────────────────────────────────────────────── */
+
+@keyframes bell-in {
+  0% { opacity: 0; transform: scale(1.35); filter: blur(12px); }
+  12% { opacity: 1; transform: scale(1); filter: blur(0); }
+  78% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(0.96); }
+}
+.bell { animation: bell-in 2.6s cubic-bezier(0.2, 0.9, 0.2, 1) forwards; }
+
+/* Half the table dying should move the whole screen. */
+@keyframes screen-shake {
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(-9px, 4px); }
+  22% { transform: translate(8px, -5px); }
+  36% { transform: translate(-6px, -3px); }
+  52% { transform: translate(5px, 4px); }
+  70% { transform: translate(-3px, 2px); }
+  86% { transform: translate(2px, -1px); }
+}
+.shake { animation: screen-shake 0.6s cubic-bezier(0.36, 0.07, 0.19, 0.97); }
+
+/* ── seats ─────────────────────────────────────────────────────────────── */
+
+@keyframes seat-die {
+  0% { transform: scale(1); filter: none; }
+  18% { transform: scale(1.06) rotate(-1.5deg); filter: brightness(2.4) saturate(0); }
+  100% { transform: scale(0.94) rotate(0.5deg); filter: grayscale(1) brightness(0.42); opacity: 0.45; }
+}
+.dying { animation: seat-die 1s cubic-bezier(0.3, 0, 0.2, 1) forwards; }
+
+@keyframes seat-win {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.08); box-shadow: 0 0 44px -6px var(--up-glow); }
+  100% { transform: scale(1); }
+}
+.winning { animation: seat-win 0.9s ease-out; }
+
+/* A live seat should breathe, so the table never looks like a static list. */
+@keyframes alive-breathe {
+  0%, 100% { border-color: var(--edge); }
+  50% { border-color: #2a3140; }
+}
+.alive { animation: alive-breathe 3.4s ease-in-out infinite; }
+
+/* Every grip state animates around the hands (origin near the top of the
+   sprite), so the body swings below the hold instead of the whole figure
+   floating. All of these ARE the character holding the rope. */
+.climbing,
+.sliding,
+.dangling,
+.hanging { transform-origin: 50% 12%; }
+
+/* Hand over hand: two reaches per cycle, the body kicking slightly. */
+@keyframes rope-climb {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  25% { transform: translateY(-5px) rotate(0.5deg); }
+  50% { transform: translateY(-1px) rotate(2deg); }
+  75% { transform: translateY(-6px) rotate(-0.5deg); }
+}
+.climbing { animation: rope-climb 0.7s ease-in-out infinite; }
+
+/* Losing rope: the mirror is baked in because the slip pose faces the other
+   way — an inline scaleX would be clobbered by the running animation. */
+@keyframes rope-slide {
+  0%, 100% { transform: scaleX(-1) translateY(0) rotate(2deg); }
+  50% { transform: scaleX(-1) translateY(5px) rotate(-1.5deg); }
+}
+.sliding { animation: rope-slide 0.45s ease-in-out infinite; }
+
+/* Holding steady between moves: a slow pendulum under the grip. */
+@keyframes rope-dangle {
+  0%, 100% { transform: rotate(-2deg); }
+  50% { transform: rotate(2deg); }
+}
+.dangling { animation: rope-dangle 2.8s ease-in-out infinite; }
+
+/* Barely holding on: a tight scrabble at the hold, mirrored like the slip
+   pose it always wears. Covers the honest stillness of a deep-underwater
+   position with motion that says the run is not over. */
+@keyframes hang-scrabble {
+  0%, 100% { transform: scaleX(-1) translate(0, 0) rotate(0deg); }
+  20% { transform: scaleX(-1) translate(-1px, 1px) rotate(-2.5deg); }
+  45% { transform: scaleX(-1) translate(1px, -1px) rotate(2deg); }
+  70% { transform: scaleX(-1) translate(-1px, 0) rotate(-1.5deg); }
+}
+.hanging { animation: hang-scrabble 0.5s ease-in-out infinite; }
+
+/* ── the cabinet ───────────────────────────────────────────────────────── */
+
+/*
+ * Chamfered corners. One detail does more than anything else to move a panel
+ * from "web card" to "HUD element": cut two opposing corners so the shape is
+ * not a rounded rectangle.
+ */
+.chamfer {
+  clip-path: polygon(
+    18px 0,
+    100% 0,
+    100% calc(100% - 18px),
+    calc(100% - 18px) 100%,
+    0 100%,
+    0 18px
+  );
+}
+.chamfer-sm {
+  clip-path: polygon(
+    10px 0,
+    100% 0,
+    100% calc(100% - 10px),
+    calc(100% - 10px) 100%,
+    0 100%,
+    0 10px
+  );
+}
+
+/* An outlined numeral reads as arcade; a solid one reads as a dashboard. */
+.outline-num {
+  /*
+   * -webkit-text-fill-color, NOT color: transparent. Setting `color` also makes
+   * `currentColor` transparent, which turns the stroke invisible too — the
+   * numeral disappears entirely.
+   */
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 2px currentColor;
+  paint-order: stroke fill;
+}
+@media (min-width: 640px) {
+  .outline-num { -webkit-text-stroke-width: 3px; }
+}
+
+/* On short windows the wall loses height first (its wrapper's flex slot
+   shrinks), so its chrome slims with it — the nameplate at full HUD scale
+   would swallow a 250px wall. !important outranks the Tailwind size utils. */
+@media (max-height: 820px) {
+  .plate-name { font-size: 1.5rem !important; }
+}
+
+/* A SHORT desktop: a 13" laptop running Chrome with a tab strip, a bookmarks
+   bar and the dock has ~680-800px of viewport. The layout is one viewport
+   on lg, so every pixel of chrome comes straight out of the wall — and the
+   wall is the product. Below 820px tall the numbers around it step down a
+   size; the wall keeps its floor (play/page.tsx)
+   and the page scrolls rather than clip if it still cannot fit. */
+@media (max-height: 820px) and (min-width: 1024px) {
+  .clock-num { font-size: 3.5rem !important; }
+  .pays-num { font-size: 2.75rem !important; margin-top: 0.5rem !important; }
+  .pays-wait { height: 44px !important; margin-top: 0.5rem !important; }
+  .side { padding: 14px 18px !important; }
+}
+
+/* ── side buttons ──────────────────────────────────────────────────────── */
+
+.side {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.12s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+@media (hover: hover) {
+  .side:not(:disabled):hover { transform: translateY(-2px); }
+}
+.side:not(:disabled):active { transform: translateY(0); }
+.side-up.picked { border-color: var(--up); box-shadow: 0 0 50px -12px var(--up); }
+.side-down.picked { border-color: var(--down); box-shadow: 0 0 50px -12px var(--down); }
+
+/* The press must land in the hand: a real push-down, then a lock-in pop the
+   moment the pick takes. The unchosen side steps back so commitment reads. */
+.side:not(:disabled):active { transform: translateY(1px) scale(0.97); transition-duration: 0.06s; }
+@keyframes pick-lock {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.03); }
+  100% { transform: scale(1); }
+}
+.side.picked { animation: pick-lock 0.32s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.side.unpicked { opacity: 0.45; filter: saturate(0.6); }
+
+/* A sweep across the button makes a static panel feel powered. */
+@keyframes sweep {
+  0% { transform: translateX(-120%); }
+  100% { transform: translateX(220%); }
+}
+.side::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 40%;
+  background: linear-gradient(90deg, transparent, #ffffff0d, transparent);
+  animation: sweep 4.5s linear infinite;
+}
+
+/* ── game chrome (the technical garnish that reads as a game, not a site) ── */
+
+/* Corner ticks: four L-marks that frame a panel like a targeting reticle. */
+.ticks { position: relative; }
+.ticks::before,
+.ticks::after {
+  content: "";
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--accent);
+  opacity: 0.55;
+  pointer-events: none;
+  z-index: 30;
+}
+.ticks::before { top: 6px; left: 6px; border-right: 0; border-bottom: 0; }
+.ticks::after { bottom: 6px; right: 6px; border-left: 0; border-top: 0; }
+
+/* Diagonal hatching — the caution-tape strip from mech UI. */
+.hatch {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    var(--accent) 0 6px,
+    transparent 6px 14px
+  );
+  opacity: 0.14;
+}
+
+/* An RPG stat bar: thin track, hard accent fill, no rounding. */
+.statbar {
+  height: 4px;
+  background: #ffffff0e;
+  overflow: hidden;
+}
+.statbar > div {
+  height: 100%;
+  background: var(--gold);
+  box-shadow: 0 0 10px var(--gold-glow);
+  transition: width 700ms cubic-bezier(0.3, 0.9, 0.3, 1);
+}
+
+/* Roster slot: a character thumbnail in the selection rail. */
+.slot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--edge);
+  background: linear-gradient(180deg, var(--panel-2), var(--panel));
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+  cursor: pointer;
+}
+@media (hover: hover) {
+  .slot:hover { border-color: var(--dim); }
+}
+.slot.sel {
+  border-color: var(--accent);
+  box-shadow: 0 0 22px -8px var(--accent), inset 0 0 14px -8px var(--accent);
+}
+.slot.sel::after {
+  content: "";
+  position: absolute;
+  left: -1px;
+  top: 10%;
+  bottom: 10%;
+  width: 2px;
+  background: var(--accent);
+}
+
+/* Game-tab nav. One active pill, everything else recedes. */
+.gametab {
+  /* 44px is the smallest reliable touch target; the nav sits right under the
+     clock on a phone, where a mis-tap costs you the round you're watching. */
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 8px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  color: var(--dim);
+  border: 1px solid transparent;
+  transition: color 150ms ease;
+}
+@media (min-width: 640px) {
+  .gametab { padding: 8px 12px; }
+}
+.gametab.active {
+  color: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 16px -8px var(--accent);
+}
+
+/* ── the feed ──────────────────────────────────────────────────────────── */
+
+@keyframes feed-in {
+  0% { opacity: 0; transform: translateX(-14px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+.feed-row { animation: feed-in 0.35s ease-out backwards; }
+
+/* ── accessibility ─────────────────────────────────────────────────────── */
+
+button:not(:disabled),
+a[href] {
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+.chamfer:focus-visible,
+.chamfer-sm:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--gold), inset 0 0 18px -6px var(--gold);
+}
+
+/*
+ * Respect the system motion preference. This screen has a pulsing clock, a
+ * breathing table, a sweeping button highlight and a shaking bell — exactly the
+ * stack that triggers motion sickness. The game stays fully playable without
+ * any of it, so all of it goes.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .side::after {
+    display: none;
+  }
+
+  /* The bell still has to communicate the result, just without the motion. */
+  .bell {
+    opacity: 1;
+  }
+}
+
+/* ── character themes ──────────────────────────────────────────────────
+   Picking a climber retints the WORLD: chrome accent + the three aurora
+   tokens that drive the page glow, the wall nebulas, the star tints and
+   the grid floor. Money stays gold, UP stays green, DOWN stays red. */
+[data-climber="green"]  { --accent:#3ddc84; --accent-glow:#3ddc8466; --aurora-a:#2fbf71; --aurora-b:#2de2ff; --aurora-c:#a3ff5d; --ambient:#143523; }
+[data-climber="red"]    { --accent:#ff5d6e; --accent-glow:#ff5d6e66; --aurora-a:#ff2f5e; --aurora-b:#ff8a2d; --aurora-c:#c44dff; --ambient:#361420; }
+[data-climber="gold"]   { --accent:#e8b33d; --accent-glow:#e8b33d66; --aurora-a:#ffb32d; --aurora-b:#ff6b2d; --aurora-c:#ffe23d; --ambient:#342a12; }
+[data-climber="blue"]   { --accent:#5db8ff; --accent-glow:#5db8ff66; --aurora-a:#2d7bff; --aurora-b:#2de2ff; --aurora-c:#7a5dff; --ambient:#13223d; }
+[data-climber="violet"] { --accent:#a86bff; --accent-glow:#a86bff66; --aurora-a:#c44dff; --aurora-b:#2de2ff; --aurora-c:#ff2f8a; --ambient:#251d45; }
+[data-climber="orange"] { --accent:#ff8a3d; --accent-glow:#ff8a3d66; --aurora-a:#ff5e2d; --aurora-b:#ffc44d; --aurora-c:#ff2f8a; --ambient:#342112; }
+[data-climber="teal"]   { --accent:#2de2c8; --accent-glow:#2de2c866; --aurora-a:#2de2c8; --aurora-b:#2d8aff; --aurora-c:#7dffb0; --ambient:#103430; }
+[data-climber="pink"]   { --accent:#ff5dd6; --accent-glow:#ff5dd666; --aurora-a:#ff2f8a; --aurora-b:#c44dff; --aurora-c:#2de2ff; --ambient:#34142c; }
+
+/* ── the sky inside the wall ───────────────────────────────────────────
+   Two star layers at different parallax speeds (driven from Cliff via
+   background-position, like the old rope knots) plus nebulas that breathe.
+   This is what makes the wall a PLACE — altitude you can see. */
+.stars-far {
+  background-image:
+    radial-gradient(1px 1px at 22% 31%, #ffffffcc 50%, transparent 51%),
+    radial-gradient(1px 1px at 71% 12%, color-mix(in srgb, var(--aurora-a) 48%, transparent) 50%, transparent 51%),
+    radial-gradient(1px 1px at 47% 74%, #ffffff55 50%, transparent 51%),
+    radial-gradient(1px 1px at 89% 56%, color-mix(in srgb, var(--aurora-b) 42%, transparent) 50%, transparent 51%),
+    radial-gradient(1px 1px at 9% 88%, #ffffff4a 50%, transparent 51%),
+    radial-gradient(1px 1px at 33% 52%, #ffffff40 50%, transparent 51%);
+  background-size: 260px 260px;
+}
+.stars-near {
+  background-image:
+    radial-gradient(1.5px 1.5px at 66% 43%, #ffffffcc 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 14% 64%, color-mix(in srgb, var(--gold) 55%, transparent) 50%, transparent 51%),
+    radial-gradient(2px 2px at 38% 16%, #ffffffa0 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 84% 85%, color-mix(in srgb, var(--aurora-c) 52%, transparent) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 55% 92%, #ffffff70 50%, transparent 51%);
+  background-size: 340px 340px;
+}
+.nebula {
+  background:
+    radial-gradient(60% 45% at 78% 18%, color-mix(in srgb, var(--aurora-a) 14%, transparent) 0%, transparent 70%),
+    radial-gradient(55% 40% at 18% 72%, color-mix(in srgb, var(--aurora-b) 11%, transparent) 0%, transparent 70%),
+    radial-gradient(70% 55% at 50% 105%, color-mix(in srgb, var(--aurora-c) 12%, transparent) 0%, transparent 70%);
+  animation: nebula-breathe 14s ease-in-out infinite alternate;
+}
+@keyframes nebula-breathe {
+  from { opacity: 0.65; }
+  to { opacity: 1; }
+}
+
+/* The synthwave floor: a perspective grid glowing up from the base of the
+   wall. Pure arcade — the depth you would fall into. */
+.grid-floor {
+  background:
+    repeating-linear-gradient(90deg, color-mix(in srgb, var(--aurora-a) 26%, transparent) 0 1px, transparent 1px 42px),
+    repeating-linear-gradient(0deg, color-mix(in srgb, var(--aurora-b) 18%, transparent) 0 1px, transparent 1px 26px),
+    linear-gradient(to top, color-mix(in srgb, var(--aurora-c) 16%, transparent), transparent 75%);
+  transform: perspective(340px) rotateX(58deg);
+  transform-origin: 50% 100%;
+  mask-image: linear-gradient(to top, black 30%, transparent 95%);
+  -webkit-mask-image: linear-gradient(to top, black 30%, transparent 95%);
+}

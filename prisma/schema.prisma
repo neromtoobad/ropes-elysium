@@ -1,0 +1,240 @@
+// LAST CANDLE — the ledger.
+//
+// The executor wallet is a POOLED account: every player's collateral and every
+// player's outcome tokens sit in one wallet. This database is the ledger that
+// says whose is whose. Never infer a player's position from the wallet.
+//
+// All money is raw collateral units (tUSDC, 6 decimals on testnet). Never floats.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  // Hosted Postgres so the web app can live on Vercel while the executor runs
+  // wherever it runs — they share this one ledger.
+  //
+  // Supabase, and the free plan's two-active-project limit is a live hazard:
+  // on 16 sep a third project was created, this one was paused to make room,
+  // and the whole game went down. It briefly moved to Railway Postgres and
+  // then came back here — because Vercel's env vars point at Supabase and
+  // nobody could edit them from a phone. Read AGENTS.md before moving it
+  // again: the database and the web app's env vars have to move together.
+  //
+  // The executor connects as `ropes_exec`, a role granted membership in
+  // `climb` (which owns the tables). The web app keeps using `climb` directly.
+  // Two roles, one ledger — so either side can be re-credentialed without
+  // touching the other.
+  //
+  // DATABASE_URL is a long-lived connection (executor, local dev). On
+  // serverless, point it at a pooled URL with ?pgbouncer=true.
+  // DIRECT_URL is for migrations/db push.
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+/// A cohort. This is what makes the game finite: a table fills, SEALS, and then
+/// its roster is fixed until one player is left. New arrivals go to the next
+/// table, so nobody waits behind a match that is already running.
+model Table {
+  id     String @id @default(cuid())
+  index  Int    @unique
+  /// filling -> sealed -> finished
+  status String @default("filling")
+
+  opensAt    DateTime  @default(now())
+  /// Seals at this time if at least MIN_SEATS are in. Extended while short.
+  sealsAt    DateTime
+  sealedAt   DateTime?
+  finishedAt DateTime?
+
+  /// Held back from every seat. The last player standing takes it all.
+  pot BigInt @default(0)
+
+  /// The run that outlasted the rest. Null when the whole table died together.
+  championRunId String?
+
+  runs Run[]
+
+  @@index([status])
+}
+
+model Player {
+  id          String   @id @default(cuid())
+  wallet      String   @unique
+  displayName String
+  createdAt   DateTime @default(now())
+
+  // Banking ends a run. The player then sits out one full round before they may
+  // buy a new seat — this is the round index they become eligible again.
+  eligibleFromRoundIndex Int @default(0)
+
+  /// The bankroll: real tUSDC credit held by the house for this player.
+  /// Deposits and paid-run proceeds credit it; seats debit it; withdrawals
+  /// drain it back on-chain. ONLY real money ever lands here — free play
+  /// stakes the house directly and never touches a balance.
+  balance BigInt @default(0)
+  /// Where withdrawals go. Set from the sender of the first verified
+  /// deposit — never from anything the browser claims.
+  address String?
+  /// Player asked to cash the balance out. The executor sends it (one-nonce
+  /// rule: the API only raises the flag).
+  withdrawRequested Boolean @default(false)
+
+  runs  Run[]
+  flows CashFlow[]
+}
+
+/// Every movement of real money in or out of a player's bankroll — the
+/// wallet page's history, and the audit trail for the balance.
+model CashFlow {
+  id       String   @id @default(cuid())
+  playerId String
+  player   Player   @relation(fields: [playerId], references: [id])
+  /// deposit | seat | win | withdrawal
+  kind     String
+  amount   BigInt
+  /// A deposit's on-chain hash, a withdrawal's hash once sent. UNIQUE at the
+  /// database, not just checked in code: two simultaneous credits of the same
+  /// deposit tx both passed an application-level "already seen?" check before
+  /// either had written, and the second credit was free money.
+  tx       String?  @unique
+  createdAt DateTime @default(now())
+
+  @@index([playerId, createdAt])
+}
+
+model Round {
+  id       String @id @default(cuid())
+  // bytes32 marketId. THE key for a round — never the pool, which is recycled.
+  marketId String @unique
+  // Recorded for debugging only. A pool address is a time-varying binding.
+  pool     String
+  // Monotonic game clock. Round N+1 is the successor window of round N.
+  index    Int    @unique
+
+  opensAt   DateTime
+  expiresAt DateTime
+  /// This round's cadence in seconds. 60 is the game; 300 is the fallback the
+  /// executor takes only while the venue publishes no 1m window. Stored per
+  /// round because the entry window and the countdown are derived from it.
+  intervalSec Int @default(60)
+
+  // open -> locked -> settled | voided
+  status         String    @default("open")
+  winningOutcome Int? // 0 = UP/YES, 1 = DOWN/NO. null while unsettled
+  settledAt      DateTime?
+
+  // The two numbers the market actually settled on, from getMarketResolution.
+  // Kept so a death can be shown for what it was: "you missed by $3.20".
+  strike Float?
+  close  Float?
+
+  // The book, mirrored by the executor each tick. The web app reads ONLY the
+  // database: a second SomniaMarkets instance in the Next server means a second
+  // WebSocket that can die silently, and when it did the whole table went blank
+  // while the game carried on fine.
+  yesBid          Float?
+  yesAsk          Float?
+  oracleQuestionId String?
+  redeemTx       String? // one redemption tx covers every winner in the round
+
+  positions Position[]
+
+  @@index([status])
+}
+
+model Run {
+  id       String @id @default(cuid())
+  playerId String
+  player   Player @relation(fields: [playerId], references: [id])
+
+  /// The cohort this run belongs to. A run only plays once its table seals.
+  tableId String?
+  table   Table?  @relation(fields: [tableId], references: [id])
+
+  /// Outlasted everyone else at the table and took the pot.
+  isChampion Boolean @default(false)
+
+  buyIn BigInt // what they paid for the seat
+  stack BigInt // current value. grows by 1/p each surviving round
+
+  // alive -> banked | eliminated
+  status String @default("alive")
+
+  startedRoundIndex Int
+  endedRoundIndex   Int?
+  // Final stack / buyIn, as a float, for the leaderboard. Set when the run ends.
+  finalMultiple Float?
+
+  // Headless testing only: lets the executor pick for this run with no UI.
+  // "UP" | "DOWN" | "RANDOM" | null. Real players pick through the web app.
+  autoPick String?
+
+  /// True when the sweep ended this run, not the player. A stack this small
+  /// cannot come back, so it is cashed out rather than left to rot at the table.
+  bankedAuto Boolean @default(false)
+
+  /// Rounds survived. The headline number of a run — a battle royale is about
+  /// how long you lasted, not just what you made.
+  roundsSurvived Int @default(0)
+
+  /// The player asked to bail. Orders go through the executor's single nonce,
+  /// so the API only raises this flag; the executor sells and banks on its
+  /// next tick. The leap animation plays instantly; the money follows.
+  bailRequested Boolean @default(false)
+
+  /// The discipline tool: bail automatically the tick the run's SELLABLE value
+  /// crosses this multiple of the buy-in. Persists across rounds until the run
+  /// ends or the player clears it; the executor arms bailRequested, so the sale
+  /// takes the exact same path as the button.
+  autoBailAt Float?
+
+  // The side chosen for the CURRENT round, before the order is placed.
+  // Cleared once the position exists. No pick by lock time = sit the round out.
+  pendingSide String?
+  /// The round index a QUEUED pick is for. Set only when the player picks
+  /// while already riding: the bell rolls their stack straight into the next
+  /// window with no dead time. null = enter the open window now.
+  pickedForRound Int?
+
+  /// Paid seats. A run with a payoutAddress bought its seat with a real
+  /// 10 tUSDC transfer (depositTx, replay-proof via unique) and gets its
+  /// proceeds sent back on-chain when it banks (payoutTx). All three null =
+  /// walletless free play on the house bankroll, exactly as before.
+  payoutAddress String?
+  depositTx     String? @unique
+  /// null = nothing owed yet · "sending" = claimed by the executor mid-send
+  /// (doctor flags stale ones) · 0x… = paid, verifiable on the explorer.
+  payoutTx      String?
+
+  positions Position[]
+
+  @@index([status])
+}
+
+model Position {
+  id      String @id @default(cuid())
+  runId   String
+  run     Run    @relation(fields: [runId], references: [id])
+  roundId String
+  round   Round  @relation(fields: [roundId], references: [id])
+
+  side  String // "UP" | "DOWN"
+  // Raw units. contracts is what we hold; priceRaw is what we actually paid per
+  // contract (the FILL price, not the price we offered).
+  contracts BigInt
+  priceRaw  BigInt
+  cost      BigInt
+
+  stackBefore BigInt
+  stackAfter  BigInt? // null until the round settles
+
+  // won | lost | push (voided, pays 0.5) | skipped (no fill)
+  outcome String?
+  orderTx String?
+
+  @@unique([runId, roundId])
+  @@index([roundId])
+}

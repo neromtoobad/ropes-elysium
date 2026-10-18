@@ -1,0 +1,53 @@
+import { parseAbi } from "viem";
+
+/** RopeMarket — see contracts/src/RopeMarket.sol. */
+export const ropeAbi = parseAbi([
+  "function ONE() view returns (uint256)",
+  "function asset() view returns (bytes32)",
+  "function operator() view returns (address)",
+  "function mark() view returns (uint128)",
+  "function markSourceMs() view returns (uint64)",
+  "function sigmaWad() view returns (uint256)",
+  "function halfSpread() view returns (uint256)",
+  "function lateSecs() view returns (uint64)",
+  "function roundCount() view returns (uint64)",
+  "function liability() view returns (uint256)",
+  "function freeBalance() view returns (uint256)",
+  "function totalLpShares() view returns (uint256)",
+  "function rounds(uint64) view returns (uint64 opensAt, uint64 expiresAt, uint8 status, uint8 winner, uint128 strike, uint128 close, uint128 upShares, uint128 downShares, uint128 cap, uint128 reserved)",
+  "function quote(uint64 id) view returns (uint256 yesBid, uint256 yesAsk, uint256 fair)",
+  "function fairUpAt(uint256 s, uint256 k, uint256 tau, uint256 sigma) pure returns (uint256)",
+  "function sharesOf(uint64 id, address holder) view returns (uint256 up, uint256 down)",
+  "function pushMark(uint128 mark, uint64 sourceMs)",
+  "function setSigma(uint256 sigmaWad)",
+  "function openRound(uint64 opensAt, uint64 expiresAt, uint128 strikeMark, uint64 sourceMs) returns (uint64)",
+  "function settle(uint64 id, uint128 closeMark, uint64 sourceMs)",
+  "function buy(uint64 id, uint8 side, uint256 budget, uint256 maxPrice, uint128 mark, uint64 sourceMs) returns (uint256 shares, uint256 cost, uint256 price)",
+  "function sell(uint64 id, uint8 side, uint256 shares, uint256 minPrice, uint128 mark, uint64 sourceMs) returns (uint256 proceeds, uint256 price)",
+  "function redeem(uint64 id) returns (uint256)",
+  "function deposit(uint256 assets) returns (uint256)",
+  "event MarkPushed(uint128 mark, uint64 sourceMs)",
+  "event RoundOpened(uint64 indexed roundId, uint64 opensAt, uint64 expiresAt, uint128 strike, uint128 cap)",
+  "event Traded(uint64 indexed roundId, address indexed trader, uint8 side, bool isBuy, uint256 shares, uint256 price, uint256 amount)",
+  "event RoundSettled(uint64 indexed roundId, uint128 close, uint8 winner, bool voided)",
+  "event Redeemed(uint64 indexed roundId, address indexed holder, uint256 amount)",
+  "error NotOwner()",
+  "error NotOperator()",
+  "error StaleMark()",
+  "error BadMark()",
+  "error NotTrading()",
+  "error BuyLocked()",
+  "error TooLate()",
+  "error TooEarly()",
+  "error PriceLimit(uint256 price)",
+  "error OverCap()",
+  "error NothingToSell()",
+  "error AlreadyFinal()",
+  "error Insufficient()",
+  "error TransferFailed()",
+  "error BadParam()",
+]);
+
+export const TRADING = 1;
+export const SETTLED = 2;
+export const VOIDED = 3;
