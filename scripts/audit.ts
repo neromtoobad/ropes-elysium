@@ -23,6 +23,7 @@ import { candles, toE8 } from "../src/lib/hyperliquid";
 
 const from = BigInt(process.argv[2] ?? "0");
 const fromRound = Number(process.argv[3] ?? "0");
+const VERBOSE = process.argv.includes("-v");
 const opened = parseAbiItem("event RoundOpened(uint64 indexed roundId, uint64 opensAt, uint64 expiresAt, uint128 strike, uint128 cap)");
 const settled = parseAbiItem("event RoundSettled(uint64 indexed roundId, uint128 close, uint8 winner, bool voided)");
 
@@ -59,7 +60,10 @@ function check(label: string, priceE8: bigint, minuteMs: number) {
   const o = book.get(minuteMs);
   if (!o) return console.log(`  ? ${label}: no Hyperliquid candle for that minute`);
   const want = toE8(o);
-  if (priceE8 === want) ok++;
+  if (priceE8 === want) {
+    ok++;
+    if (VERBOSE) console.log(`  ✓ ${label} ${(Number(priceE8) / 1e8).toFixed(4)} = Hyperliquid candle open ${o}`);
+  }
   else {
     bad++;
     console.log(`  ✗ ${label} ${Number(priceE8) / 1e8} ≠ Hyperliquid's candle open ${o}`);
