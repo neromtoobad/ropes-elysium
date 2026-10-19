@@ -145,9 +145,9 @@ and the share card.
 
 ## The token (for the Ascend launch)
 
-`$ROPE` launches through Ascend after Elysium mainnet:
+`$ROPES` launches through Ascend after Elysium mainnet:
 
-- **Holders earn from the vault.** Spread income from the house vault goes to $ROPE buybacks.
+- **Holders earn from the vault.** Spread income from the house vault goes to $ROPES buybacks.
   The vault's edge is the spread, so volume drives the buybacks.
 - **Seasons and skins.** Seasonal leaderboards and climber skins.
 - **Holders pick the next rope.** Which Hyperliquid market gets one next: BTC, SOL, the
