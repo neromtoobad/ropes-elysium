@@ -15,7 +15,7 @@ height **is** your position's live value, second by second.
 - If your side is wrong when the bell rings, you fall.
 - If you survive, your winnings are already staked in the next minute.
 
-> **Play:** [ropes.nerom.site](https://ropes.nerom.site) (free seat, no wallet) · **Chain:** Elysium testnet (99801), Kinetiq's
+> **Play:** [ropes.nerom.site](https://ropes.nerom.site) (free seat, no wallet) · **Demo:** [1:53 on X](https://x.com/playropes/status/2112265424243188011) · **Chain:** Elysium testnet (99801), Kinetiq's
 > Hyperliquid L2 · Built for the **Ascend Builder Program**. A port of ROPES, the
 > Somnia × dreamDEX Event Contracts Hackathon entry.
 
