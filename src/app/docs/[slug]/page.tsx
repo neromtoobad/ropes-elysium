@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const d = loadDoc(slug);
   if (!d) return {};
-  return { title: `${d.title} · ROPES Docs`, description: d.description, openGraph: { title: `${d.title} · ROPES Docs`, description: d.description } };
+  return { title: `${d.title} · ROPES Docs`, description: d.description, openGraph: { title: `${d.title} · ROPES Docs`, description: d.description, images: ["/og/og-home.png"] } };
 }
 
 export default async function DocPage({ params }: { params: Promise<{ slug: string }> }) {

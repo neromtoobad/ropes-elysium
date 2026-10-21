@@ -7,7 +7,8 @@ import { DocsHeader, DocsFooter } from "../docs/DocsChrome";
 export const metadata: Metadata = {
   title: "$ROPES · ROPES",
   description: "The plan for $ROPES: backed by game volume, launching on Ascend after Elysium mainnet. Not launched yet.",
-  openGraph: { title: "$ROPES", description: "Backed by game volume. Launching on Ascend after Elysium mainnet. Not launched yet." },
+  openGraph: { title: "$ROPES", description: "Backed by game volume. Launching on Ascend after Elysium mainnet. Not launched yet.", images: [{ url: "/og/og-token.png", width: 1200, height: 630, alt: "$ROPES, not launched yet" }] },
+  twitter: { card: "summary_large_image", site: "@PlayRopes", images: ["/og/og-token.png"] },
 };
 
 const ROLE = [

@@ -732,3 +732,4 @@ a[href] {
   .mn-clock div { padding: 14px 4px 10px; border-radius: 14px; }
   .mn-proof, .mn-split, .tk-role { grid-template-columns: minmax(0, 1fr); }
 }
+.doc img { display: block; width: 100%; height: auto; border-radius: 16px; border: 1px solid var(--edge); margin: 18px 0; }

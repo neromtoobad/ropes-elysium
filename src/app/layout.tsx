@@ -31,8 +31,9 @@ export const metadata: Metadata = {
   openGraph: {
     title: "ROPES",
     description: "One minute of Hyperliquid, on a rope. Bet the next sixty seconds of HYPE, bail any second, last one holding takes the pot. On Elysium.",
-    images: ["/logo-full.png"],
+    images: [{ url: "/og/og-home.png", width: 1200, height: 630, alt: "ROPES: one minute of Hyperliquid, on a rope" }],
   },
+  twitter: { card: "summary_large_image", site: "@PlayRopes", images: ["/og/og-home.png"] },
 };
 
 /**

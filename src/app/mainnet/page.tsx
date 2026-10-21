@@ -11,7 +11,8 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Mainnet · ROPES",
   description: `Elysium mainnet goes live ${MAINNET_LABEL}. What ROPES ships, in what order, and what works today.`,
-  openGraph: { title: "ROPES → mainnet", description: `Elysium mainnet goes live ${MAINNET_LABEL}. Here's the ROPES plan.` },
+  openGraph: { title: "ROPES → mainnet", description: `Elysium mainnet goes live ${MAINNET_LABEL}. Here's the ROPES plan.`, images: [{ url: "/og/og-mainnet.png", width: 1200, height: 630, alt: "Elysium mainnet, Nov 9" }] },
+  twitter: { card: "summary_large_image", site: "@PlayRopes", images: ["/og/og-mainnet.png"] },
 };
 
 const STEPS: { when: string; what: string; detail: string; state: "done" | "next" | "later" }[] = [
