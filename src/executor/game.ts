@@ -321,8 +321,10 @@ export async function closeRound(roundId: string) {
     }
   }
 
-  // Stacks are final for this round — clear out anyone who can no longer play.
+  // Stacks are final for this round — clear out anyone who can no longer play,
+  // and anyone who has walked away from the wall.
   await sweepZombies(round.index);
+  await retireIdleRuns(round.index);
 
   await db.round.update({
     where: { id: roundId },
@@ -497,6 +499,45 @@ export async function sweepZombies(currentRoundIndex: number) {
     }
   }
   return zombies.length;
+}
+
+/**
+ * A seat nobody is playing is not a player either.
+ *
+ * Found on testnet: seven seats taken, then abandoned — the players closed the
+ * tab without picking. A seat that only ever "sits out" never ends, and an
+ * alive seat keeps the wall awake, so the executor struck and settled a round
+ * every minute for three days (4,130 rounds) and burned most of the keeper's
+ * gas on an empty game. After IDLE_ROUNDS rounds with no pick and nothing in
+ * flight, the run is banked: its stack is already cash, so it keeps every
+ * cent (a paid seat's proceeds go back to the bankroll as usual).
+ */
+export const IDLE_ROUNDS = 10;
+
+export async function retireIdleRuns(currentRoundIndex: number) {
+  const idle = await db.run.findMany({
+    where: {
+      status: "alive",
+      pendingSide: null,
+      autoPick: null,
+      startedRoundIndex: { lt: currentRoundIndex - IDLE_ROUNDS },
+      positions: { none: { outcome: null } },
+    },
+    include: { player: true, positions: { include: { round: { select: { index: true } } } } },
+  });
+  let n = 0;
+  for (const r of idle) {
+    const last = Math.max(r.startedRoundIndex, ...r.positions.map((p) => p.round.index));
+    if (currentRoundIndex - last < IDLE_ROUNDS) continue;
+    try {
+      await bank(r.id, currentRoundIndex, true);
+      n++;
+    } catch (err) {
+      log(`  idle retire failed for ${r.player.displayName}: ${String(err).slice(0, 100)}`);
+    }
+  }
+  if (n) log(`  🪑 retired ${n} idle seat${n > 1 ? "s" : ""} (no pick for ${IDLE_ROUNDS} rounds)`);
+  return n;
 }
 
 /**
