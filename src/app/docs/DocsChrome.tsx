@@ -14,13 +14,16 @@ export function DocsHeader({ section }: { section: string }) {
         <nav className="docs-top-nav">
           <Link href="/docs/overview">Docs</Link>
           <Link href="/transparency">Transparency</Link>
+          <Link href="/mainnet">Mainnet</Link>
+          <Link href="/token">$ROPES</Link>
           <a href="https://github.com/neromtoobad/ropes-elysium" target="_blank" rel="noreferrer">GitHub</a>
           <a href="https://x.com/PlayRopes" target="_blank" rel="noreferrer">X</a>
           <Link href="/play" className="docs-cta">Play →</Link>
         </nav>
       </div>
       <div className="docs-banner">
-        <span className="dot" /> Elysium mainnet goes live <b>Nov 9, 2026</b>. ROPES is live on testnet now.
+        <span className="dot" /> Elysium mainnet goes live <b>Nov 9, 2026</b>. ROPES is live on testnet now.{" "}
+        <Link href="/mainnet" className="docs-banner-link">Countdown →</Link>
       </div>
     </header>
   );

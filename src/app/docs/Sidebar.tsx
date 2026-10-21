@@ -31,6 +31,8 @@ export function Sidebar() {
         <div className="docs-side-group">
           <p>Live</p>
           <Link href="/transparency" className={path === "/transparency" ? "active" : ""}>Transparency ↗</Link>
+          <Link href="/mainnet" className={path === "/mainnet" ? "active" : ""}>Mainnet countdown ↗</Link>
+          <Link href="/token" className={path === "/token" ? "active" : ""}>$ROPES ↗</Link>
           <Link href="/play">Play ↗</Link>
         </div>
       </nav>

@@ -16,3 +16,5 @@
 - **Why Ascend:** ROPES is a game with many small repeat players and steady volume, the kind of "PVE coin" Ascend's holder and volume metrics reward.
 
 Supply, launch-pool size and the exact buyback routing are still being designed.
+
+The full plan, with the road to launch, is on [/token](/token). The mainnet countdown is on [/mainnet](/mainnet).

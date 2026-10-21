@@ -132,6 +132,8 @@ export default function Landing() {
         <span className="mt-1 block space-x-3 font-bold">
           <Link href="/docs/overview" className="hover:text-[var(--text)]">DOCS</Link>
           <Link href="/transparency" className="hover:text-[var(--text)]">TRANSPARENCY</Link>
+          <Link href="/mainnet" className="hover:text-[var(--text)]">MAINNET</Link>
+          <Link href="/token" className="hover:text-[var(--text)]">$ROPES</Link>
           <a href="https://github.com/neromtoobad/ropes-elysium" target="_blank" rel="noreferrer" className="hover:text-[var(--text)]">GITHUB</a>
         </span>
       </footer>
