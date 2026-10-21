@@ -129,6 +129,11 @@ export default function Landing() {
       <footer className="mt-8 shrink-0 border-t border-[var(--edge)] pt-3 pb-1 text-center text-[9px] leading-relaxed tracking-wide text-[var(--dim)] lg:mt-0">
         EVERY ROUND IS AN ON-CHAIN MARKET ON ELYSIUM, KINETIQ&apos;S HYPERLIQUID L2 · PRICED FROM THE LIVE
         HYPERLIQUID MARK EVERY TRADE · ELIMINATIONS LAND IN THE SETTLEMENT TRANSACTION
+        <span className="mt-1 block space-x-3 font-bold">
+          <Link href="/docs/overview" className="hover:text-[var(--text)]">DOCS</Link>
+          <Link href="/transparency" className="hover:text-[var(--text)]">TRANSPARENCY</Link>
+          <a href="https://github.com/neromtoobad/ropes-elysium" target="_blank" rel="noreferrer" className="hover:text-[var(--text)]">GITHUB</a>
+        </span>
       </footer>
     </main>
   );

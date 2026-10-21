@@ -211,6 +211,7 @@ export function SiteNav() {
     { href: "/play", label: "CLIMB" },
     { href: "/leaders", label: "LEADERS" },
     { href: "/wallet", label: "WALLET" },
+    { href: "/docs/overview", label: "DOCS" },
   ];
   return (
     <nav className="flex items-center gap-1" aria-label="sections">
