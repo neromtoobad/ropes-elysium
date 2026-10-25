@@ -331,8 +331,11 @@ export default function Game() {
   // down to — say so.
   const stalled = Boolean(state) && (!state?.round || roundAge > 90 || pollAge > 25);
   // The bell has rung and the keeper is settling it on-chain; the next round
-  // appears in a few seconds. Say so instead of sitting on 00.
-  const settling = !stalled && Boolean(state?.round) && secs <= 0;
+  // appears in a few seconds. Say so instead of sitting on 00. "Under one
+  // second" rather than "zero": the server's clock trails ours a little, so
+  // frames in the gap still report a fraction of a second left, and testing
+  // for zero made the label flicker between SETTLING and 00.
+  const settling = !stalled && Boolean(state?.round) && secs < 1;
 
   /** What the children render: the newest state, with the clock replaced by
    *  the locally-run one so nothing on screen disagrees about the time. */
