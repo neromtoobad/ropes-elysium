@@ -316,6 +316,20 @@ export async function connect(): Promise<Address> {
 }
 
 /**
+ * A signer that is on Elysium right now. `connect` switches once, but a
+ * wallet restored on page load never went through it, and a player can flip
+ * networks at any time after — viem then refuses the write with "the current
+ * chain of the wallet (id: …) does not match". So every write switches first;
+ * on the right chain this is a no-op with no popup.
+ */
+async function elysiumWallet(account: Address) {
+  const w = activeWallet();
+  if (!w) throw new Error("no wallet in this browser");
+  await ensureChain(w.provider);
+  return createWalletClient({ account, chain: CHAIN, transport: custom(w.provider) });
+}
+
+/**
  * Pay for the seat: a plain ERC-20 transfer of 10 tUSDC to the house.
  * Resolves once the transfer is MINED — the server verifies the receipt, so
  * handing it an unmined hash would just bounce.
@@ -326,9 +340,7 @@ export async function paySeat(
   house: Address,
   amount: bigint,
 ): Promise<`0x${string}`> {
-  const w = activeWallet();
-  if (!w) throw new Error("no wallet in this browser");
-  const wallet = createWalletClient({ account, chain: CHAIN, transport: custom(w.provider) });
+  const wallet = await elysiumWallet(account);
   const hash = await wallet.writeContract({
     address: collateral,
     abi: erc20Abi,
@@ -364,9 +376,7 @@ const faucetAbi = parseAbi(["function mint(address to, uint256 amount)"]);
 export const FAUCET_TUSDC = 10_000n * 1_000_000n;
 
 export async function mintTestUsdc(account: Address, collateral: Address): Promise<`0x${string}`> {
-  const w = activeWallet();
-  if (!w) throw new Error("no wallet in this browser");
-  const wallet = createWalletClient({ account, chain: CHAIN, transport: custom(w.provider) });
+  const wallet = await elysiumWallet(account);
   const hash = await wallet.writeContract({
     address: collateral,
     abi: faucetAbi,
