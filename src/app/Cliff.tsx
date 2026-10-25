@@ -97,6 +97,7 @@ export function Cliff({
   secondsLeft,
   clockUrgent,
   stalled,
+  settling = false,
   intervalSec,
   myRunId,
   falling,
@@ -113,6 +114,8 @@ export function Cliff({
   /** Last ten seconds / clock lost: the wall draws the clock below lg. */
   clockUrgent: boolean;
   stalled: boolean;
+  /** The bell has rung and the next round is a few seconds away. */
+  settling?: boolean;
   /** The window's full length, so the drain bar empties over the real round. */
   intervalSec: number;
   myRunId: string | null;
@@ -716,13 +719,13 @@ export function Cliff({
           the stage. From lg the header's outlined 7xl numeral carries it. */}
       <div className="pointer-events-none absolute left-1/2 top-2 z-10 -translate-x-1/2 text-center lg:hidden">
         <div
-          className={`display tabular outline-num text-4xl leading-none sm:text-5xl ${clockUrgent && !stalled ? "clock-urgent" : ""}`}
-          style={stalled ? { color: "var(--dim)" } : undefined}
+          className={`display tabular outline-num text-4xl leading-none sm:text-5xl ${clockUrgent && !stalled ? "clock-urgent" : ""} ${settling ? "animate-pulse" : ""}`}
+          style={stalled ? { color: "var(--dim)" } : settling ? { color: "var(--gold)" } : undefined}
         >
-          {stalled ? "··" : bigClock(secondsLeft)}
+          {stalled || settling ? "··" : bigClock(secondsLeft)}
         </div>
         <p className="mt-0.5 text-[8px] font-bold tracking-[0.3em] text-[var(--dim)]">
-          {stalled ? "CLOCK PAUSED" : "TO THE BELL"}
+          {stalled ? "CLOCK PAUSED" : settling ? "SETTLING · NEXT ROPE" : "TO THE BELL"}
         </p>
       </div>
 

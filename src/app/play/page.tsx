@@ -95,53 +95,71 @@ export default function Game() {
     if (saved && CAST.some((c) => c.id === saved)) setClimber(saved as ClimberId);
   }, []);
 
+  /**
+   * One request at a time, newest frame wins.
+   *
+   * This was a 750 ms setInterval, but a state response takes 0.8–1.2 s, so
+   * two were usually in flight and around the bell they landed out of order:
+   * the wall flipped between the old round and the new one, the bell overlay
+   * fired twice and the climber jumped. Now the next poll starts only when
+   * the last one is done, and a frame for an older round than the one on
+   * screen is dropped. Near the bell — while the keeper settles and opens the
+   * next round, 2–4 s — it polls faster so the new round shows up promptly.
+   */
+  const newestRound = useRef<number>(-1);
   useEffect(() => {
     let alive = true;
+    let timer: ReturnType<typeof setTimeout> | undefined;
     const tick = async () => {
+      let next: TableState | null = null;
       try {
         const res = await fetch("/api/state", { cache: "no-store" });
         // A 500 can still carry a JSON body, and storing THAT as the game
         // state was fatal: `state.seats.find(...)` on an undefined `seats`
         // threw, and the whole page became "Application error: a client-side
-        // exception has occurred". This poll runs every second, so it will
-        // meet a blip eventually — keep the last good frame instead.
-        if (!res.ok) return;
-        const next: TableState = await res.json();
-        // `mark` is read unguarded in two places below; a frame without it
-        // took the whole page down with "Cannot read properties of undefined
-        // (reading 'oracleQuestionId')". Validate the SHAPE, not just seats.
-        if (!alive || !Array.isArray(next?.seats) || !next.mark || !next.price) return;
+        // exception has occurred". Keep the last good frame instead.
+        if (res.ok) next = await res.json();
+      } catch {
+        /* keep the last good frame rather than blanking the wall */
+      }
+      // `mark` is read unguarded in two places below; a frame without it
+      // took the whole page down. Validate the SHAPE, not just seats.
+      const good = alive && next && Array.isArray(next.seats) && next.mark && next.price;
+      const idx = next?.round?.index ?? -1;
+      if (good && idx >= newestRound.current) {
+        newestRound.current = idx;
         stateAt.current = Date.now();
         setState(next);
 
-        const idx = next.lastResult?.index ?? null;
-        if (idx !== null && lastBellIndex.current !== null && idx !== lastBellIndex.current) {
-          setBell(next.lastResult);
+        const bellIdx = next!.lastResult?.index ?? null;
+        if (bellIdx !== null && lastBellIndex.current !== null && bellIdx > lastBellIndex.current) {
+          setBell(next!.lastResult);
           setTimeout(() => setBell(null), 3400);
-          const r = next.lastResult!;
+          const r = next!.lastResult!;
           const id = runIdRef.current;
           if (id) {
             if (r.killed.some((k) => k.runId === id)) {
               setVerdict({ kind: "lost", closedBy: r.closedBy, winner: r.winner });
             } else {
-              const s = r.survived.find((x) => x.runId === id);
-              if (s) setVerdict(r.voided ? { kind: "push", to: s.to } : { kind: "won", from: s.from, to: s.to });
+              const sv = r.survived.find((x) => x.runId === id);
+              if (sv) setVerdict(r.voided ? { kind: "push", to: sv.to } : { kind: "won", from: sv.from, to: sv.to });
             }
           }
           // A bell consumes every pick — showing the old one as "YOUR BET"
           // would claim a stake that is not on the table.
           setOptimisticPick(null);
         }
-        lastBellIndex.current = idx;
-      } catch {
-        /* keep the last good frame rather than blanking the wall */
+        if (lastBellIndex.current === null || (bellIdx !== null && bellIdx > lastBellIndex.current)) lastBellIndex.current = bellIdx;
       }
+      if (!alive) return;
+      // Seconds until this round's bell, as of now.
+      const left = next?.round ? next.round.secondsLeft : 99;
+      timer = setTimeout(tick, left < 2 ? 250 : POLL_MS);
     };
     tick();
-    const id = setInterval(tick, POLL_MS);
     return () => {
       alive = false;
-      clearInterval(id);
+      clearTimeout(timer);
     };
   }, []);
 
@@ -312,6 +330,9 @@ export default function Game() {
   // 00 reading TO THE BELL with no bell coming. There is nothing to count
   // down to — say so.
   const stalled = Boolean(state) && (!state?.round || roundAge > 90 || pollAge > 25);
+  // The bell has rung and the keeper is settling it on-chain; the next round
+  // appears in a few seconds. Say so instead of sitting on 00.
+  const settling = !stalled && Boolean(state?.round) && secs <= 0;
 
   /** What the children render: the newest state, with the clock replaced by
    *  the locally-run one so nothing on screen disagrees about the time. */
@@ -484,7 +505,7 @@ export default function Game() {
       {secs > 0 && secs < 10 && <div className="danger" />}
 
       <div ref={topRef}>
-      <TopBar state={view} urgent={urgent} sound={sound} me={me} stalled={stalled} />
+      <TopBar state={view} urgent={urgent} sound={sound} me={me} stalled={stalled} settling={settling} />
 
       {/* Desktop only. On a phone the money is drawn on the wall itself
           (top-left HUD) and the bankroll lives on the wallet page. */}
@@ -549,6 +570,7 @@ export default function Game() {
             secondsLeft={secs}
             clockUrgent={urgent}
             stalled={stalled}
+            settling={settling}
             intervalSec={state?.round?.intervalSec ?? 60}
             myRunId={runId}
             falling={(bell?.killed ?? []).map((k) => k.runId)}
@@ -680,12 +702,14 @@ function TopBar({
   sound,
   me,
   stalled,
+  settling,
 }: {
   state: TableState | null;
   urgent: boolean;
   sound: ReturnType<typeof useSound>;
   me: TableState["seats"][number] | null;
   stalled: boolean;
+  settling: boolean;
 }) {
   const secs = Math.floor(state?.round?.secondsLeft ?? 0);
   const t = state?.table;
@@ -734,12 +758,12 @@ function TopBar({
       {/* lg and up only: below that the clock is drawn ON the wall, where
           the crash games put the number that matters */}
       <div className="hidden text-right lg:block">
-        <div className={`display tabular outline-num clock-num text-5xl leading-[0.85] sm:text-7xl ${urgent && !stalled ? "clock-urgent" : ""}`}
-          style={stalled ? { color: "var(--dim)" } : undefined}>
-          {stalled ? "··" : bigClock(secs)}
+        <div className={`display tabular outline-num clock-num text-5xl leading-[0.85] sm:text-7xl ${urgent && !stalled ? "clock-urgent" : ""} ${settling ? "animate-pulse" : ""}`}
+          style={stalled ? { color: "var(--dim)" } : settling ? { color: "var(--gold)" } : undefined}>
+          {stalled || settling ? "··" : bigClock(secs)}
         </div>
         <p className="mt-0.5 text-[9px] font-bold tracking-[0.3em] text-[var(--dim)]">
-          {stalled ? "CLOCK PAUSED" : "TO THE BELL"}
+          {stalled ? "CLOCK PAUSED" : settling ? "SETTLING · NEXT ROPE" : "TO THE BELL"}
         </p>
       </div>
     </header>
