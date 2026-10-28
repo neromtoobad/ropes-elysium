@@ -126,6 +126,12 @@ contract RopeMarket {
     /// Everything the vault currently owes or holds back: open rounds' worst
     /// case plus settled rounds' unredeemed winnings.
     uint256 public liability;
+    /// Across open rounds: what each holds back minus the least it could end
+    /// up owing. Deposits are priced as if every open round goes the vault's
+    /// way, withdrawals as if every one goes against it, so nobody can buy in
+    /// cheap and leave rich around a bell.
+    uint256 public openSlack;
+    mapping(uint64 => uint256) internal _slack;
 
     /// The house vault. Non-transferable shares for now; the token is roadmap.
     uint256 public totalLpShares;
@@ -318,6 +324,7 @@ contract RopeMarket {
         uint256 owed = r.winner == UP ? r.upShares : r.downShares;
         liability = liability - r.reserved + owed;
         r.reserved = uint128(owed);
+        _close(id);
 
         emit RoundSettled(id, closeMark, r.winner, false);
         _callHook(id, false, r.winner);
@@ -337,6 +344,7 @@ contract RopeMarket {
         uint256 owed = r.costIn;
         liability = liability - r.reserved + owed;
         r.reserved = uint128(owed);
+        _close(id);
         emit RoundSettled(id, r.close, 0, true);
         _callHook(id, true, 0);
     }
@@ -422,11 +430,11 @@ contract RopeMarket {
 
         if (side == UP) r.upShares += uint128(shares);
         else r.downShares += uint128(shares);
-        _reserve(r);
+        r.costIn += uint128(cost);
+        _reserve(id, r);
 
         _shares[id][msg.sender][side] += shares;
         _cost[id][msg.sender][side] += cost;
-        r.costIn += uint128(cost);
         _pull(msg.sender, cost);
         emit Traded(id, msg.sender, side, true, shares, price, cost);
     }
@@ -458,7 +466,7 @@ contract RopeMarket {
         r.costIn -= uint128(basis);
         if (side == UP) r.upShares -= uint128(shares);
         else r.downShares -= uint128(shares);
-        _reserve(r);
+        _reserve(id, r);
 
         _send(msg.sender, proceeds);
         emit Traded(id, msg.sender, side, false, shares, price, proceeds);
@@ -496,12 +504,28 @@ contract RopeMarket {
         if (block.timestamp > uint256(markAt) + maxStaleSecs) revert StaleMark();
     }
 
-    /// Hold back the round's worst case: whichever side, if it won, owes more.
-    function _reserve(Round storage r) internal {
-        uint256 worst = r.upShares > r.downShares ? r.upShares : r.downShares;
+    /// Hold back the round's worst case over every way it can end: UP wins,
+    /// DOWN wins, or a void refunds the premium. The reserve can then only
+    /// shrink when the round is final, never grow.
+    function _reserve(uint64 id, Round storage r) internal {
+        uint256 up = r.upShares;
+        uint256 down = r.downShares;
+        uint256 refund = r.costIn;
+        uint256 worst = up > down ? up : down;
+        if (refund > worst) worst = refund;
+        uint256 best = up < down ? up : down;
+        if (refund < best) best = refund;
         if (worst > r.cap) revert OverCap();
         liability = liability - r.reserved + worst;
         r.reserved = uint128(worst);
+        openSlack = openSlack - _slack[id] + (worst - best);
+        _slack[id] = worst - best;
+    }
+
+    /// The round is final: it no longer has a best and a worst case.
+    function _close(uint64 id) internal {
+        openSlack -= _slack[id];
+        _slack[id] = 0;
     }
 
     /* ---------------------------------------------------------------- vault */
@@ -512,8 +536,16 @@ contract RopeMarket {
         return bal > liability ? bal - liability : 0;
     }
 
+    /// What the vault is worth if every open round goes its way: the price a
+    /// new LP pays, so a deposit timed around a bell can't skim the release.
+    function depositNav() public view returns (uint256) {
+        uint256 bal = collateral.balanceOf(address(this));
+        uint256 owed = liability - openSlack;
+        return bal > owed ? bal - owed : 0;
+    }
+
     function deposit(uint256 assets) external returns (uint256 shares) {
-        uint256 nav = freeBalance();
+        uint256 nav = depositNav();
         shares = totalLpShares == 0 || nav == 0 ? assets : (assets * totalLpShares) / nav;
         if (shares == 0) revert Insufficient();
         _pull(msg.sender, assets);
