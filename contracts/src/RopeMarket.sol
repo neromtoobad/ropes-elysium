@@ -110,6 +110,8 @@ contract RopeMarket {
     uint256 public roundCapBps = 2_500;
 
     uint64 public roundCount;
+    /// The first round id this contract opened (1 unless it replaced another).
+    uint64 public firstRound = 1;
     mapping(uint64 => Round) public rounds;
     /// roundId => holder => [upShares, downShares]
     mapping(uint64 => mapping(address => uint256[2])) internal _shares;
@@ -199,6 +201,14 @@ contract RopeMarket {
 
     function setHook(address next) external onlyOwner {
         hook = next;
+    }
+
+    /// A replacement market carries on its predecessor's round numbers, so a
+    /// round id stays unique across contracts. Only before the first round.
+    function startAt(uint64 lastRound) external onlyOwner {
+        if (roundCount != 0) revert BadParam();
+        roundCount = lastRound;
+        firstRound = lastRound + 1;
     }
 
     function setParams(

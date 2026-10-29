@@ -108,4 +108,21 @@ contract VaultTimingTest is Test {
         assertLe(m.liability(), before, "a void releases or keeps the reserve, never adds to it");
         assertEq(m.openSlack(), 0, "no open rounds left");
     }
+
+    /// The replacement market carries on the old round numbers, once.
+    function test_start_at_continues_numbering_once() public {
+        m.startAt(5_100);
+        assertEq(m.firstRound(), 5_101);
+        vm.prank(OP);
+        uint64 id = m.openRound(t0, t0 + 60, K, _ms(t0));
+        assertEq(id, 5_101);
+        vm.expectRevert(RopeMarket.BadParam.selector);
+        m.startAt(9_000);
+    }
+
+    function test_start_at_is_owner_only() public {
+        vm.prank(LATE);
+        vm.expectRevert(RopeMarket.NotOwner.selector);
+        m.startAt(5_100);
+    }
 }

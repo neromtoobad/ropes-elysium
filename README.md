@@ -101,8 +101,8 @@ Hyperliquid's public API, and the contract fences in what it will accept.
 
 | | |
 |---|---|
-| RopeMarket (HYPE) | [`0x62C4b522Bf76422E77CEdA22E94e0540f9422d1D`](https://elysium.kinetiq.xyz/testnet-explorer/address/0x62C4b522Bf76422E77CEdA22E94e0540f9422d1D) |
-| ArenaRegistry | [`0xDBd28A7AacD7228edDef44c177C195878DfCa858`](https://elysium.kinetiq.xyz/testnet-explorer/address/0xDBd28A7AacD7228edDef44c177C195878DfCa858) |
+| RopeMarket (HYPE) | [`0xB425550958863472D351F17575B6b8F0C3a525D6`](https://elysium.kinetiq.xyz/testnet-explorer/address/0xB425550958863472D351F17575B6b8F0C3a525D6) |
+| ArenaRegistry | [`0x0D8b61252d631D3483DD10C5725ecf9F7f314262`](https://elysium.kinetiq.xyz/testnet-explorer/address/0x0D8b61252d631D3483DD10C5725ecf9F7f314262) |
 | tUSDC (test dollars) | [`0x46397dA50c05AfA43cBfcA712215eD1E02A9F57d`](https://elysium.kinetiq.xyz/testnet-explorer/address/0x46397dA50c05AfA43cBfcA712215eD1E02A9F57d) |
 
 **Audit, 18 Oct (rounds 47–60, `npx tsx scripts/audit.ts <block> 47 -v`):** 27 of 27 strikes and

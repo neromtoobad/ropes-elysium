@@ -5,9 +5,11 @@
 
 | Contract | Address | Role |
 |---|---|---|
-| `RopeMarket` (HYPE) | [`0x62C4b522Bf76422E77CEdA22E94e0540f9422d1D`](https://elysium.kinetiq.xyz/testnet-explorer/address/0x62C4b522Bf76422E77CEdA22E94e0540f9422d1D) | pricing, rounds, trades, settlement, redemption, house vault |
-| `ArenaRegistry` | [`0xDBd28A7AacD7228edDef44c177C195878DfCa858`](https://elysium.kinetiq.xyz/testnet-explorer/address/0xDBd28A7AacD7228edDef44c177C195878DfCa858) | public scoreboard, settled inside `RopeMarket.settle` |
+| `RopeMarket` (HYPE) | [`0xB425550958863472D351F17575B6b8F0C3a525D6`](https://elysium.kinetiq.xyz/testnet-explorer/address/0xB425550958863472D351F17575B6b8F0C3a525D6) | pricing, rounds, trades, settlement, redemption, house vault |
+| `ArenaRegistry` | [`0x0D8b61252d631D3483DD10C5725ecf9F7f314262`](https://elysium.kinetiq.xyz/testnet-explorer/address/0x0D8b61252d631D3483DD10C5725ecf9F7f314262) | public scoreboard, settled inside `RopeMarket.settle` |
 | `MockUSDC` (tUSDC) | [`0x46397dA50c05AfA43cBfcA712215eD1E02A9F57d`](https://elysium.kinetiq.xyz/testnet-explorer/address/0x46397dA50c05AfA43cBfcA712215eD1E02A9F57d) | test dollars, 6 decimals, open mint (10,000 per call) |
+
+Every round before 5,151 ran on the first market, [`0x62C4b522Bf76422E77CEdA22E94e0540f9422d1D`](https://elysium.kinetiq.xyz/testnet-explorer/address/0x62C4b522Bf76422E77CEdA22E94e0540f9422d1D) (scoreboard [`0xDBd28A7AacD7228edDef44c177C195878DfCa858`](https://elysium.kinetiq.xyz/testnet-explorer/address/0xDBd28A7AacD7228edDef44c177C195878DfCa858)). It was replaced on Oct 29 2026 to fix a vault timing issue reported to us: deposits are now priced at the vault's best case and withdrawals at its worst, so a deposit timed around the bell can't take value from other depositors. Round numbers carry on from 5,151.
 
 ## Key functions
 

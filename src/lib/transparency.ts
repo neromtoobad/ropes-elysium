@@ -18,7 +18,11 @@ const extra = parseAbi([
   "function sampleWindowSecs() view returns (uint64)",
   "function roundCapBps() view returns (uint256)",
   "function HOOK_GAS() view returns (uint256)",
+  "function firstRound() view returns (uint64)",
 ]);
+
+/** The market before the Oct 29 vault fix. Rounds below the live one's firstRound ran there. */
+export const PREVIOUS_MARKET = "0x62C4b522Bf76422E77CEdA22E94e0540f9422d1D";
 
 /** Round 47 is the first struck at Hyperliquid's candle open; earlier ones used the book mid. */
 export const CANDLE_RULE_FROM = 47;
@@ -51,6 +55,7 @@ export interface Transparency {
   operator: string;
   hook: string;
   roundCount: number;
+  firstRound: number;
   vault: number;
   liability: number;
   free: number;
@@ -100,9 +105,10 @@ async function load(): Promise<Transparency> {
   ])) as unknown as [bigint, bigint, bigint, bigint, bigint, bigint, string, string, string, bigint, bigint, bigint, bigint, bigint, bigint];
   const [roundCount, liability, free, halfSpread, lateSecs, sigma, operator, owner, hook, buyLock, maxStale, sampleWin, capBps, hookGas, vaultBal] = head;
   const gas = await publicClient.getBalance({ address: operator as `0x${string}` });
+  const first = Number(await (read("firstRound", extra) as Promise<bigint>).catch(() => 1n));
 
   const last = Number(roundCount);
-  const ids = Array.from({ length: Math.min(N, last) }, (_, i) => BigInt(last - i));
+  const ids = Array.from({ length: Math.max(0, Math.min(N, last - first + 1)) }, (_, i) => BigInt(last - i));
   const fresh = (await slowly(ids.filter((id) => !done.has(Number(id))).map((id) => async () => [Number(id), (await read("rounds", ropeAbi, [id])) as RawRound] as const)));
   for (const [id, r] of fresh) if (r[2] === 2 || r[2] === 3) done.set(id, r);
   for (const id of done.keys()) if (id <= last - N) done.delete(id);
@@ -143,7 +149,7 @@ async function load(): Promise<Transparency> {
   const keeperGas = Number(gas) / 1e18;
   const data: Transparency = {
     at: Date.now(), asset: ASSET, market: MARKET, collateral: COLLATERAL, registry: REGISTRY,
-    owner, operator, hook, roundCount: last,
+    owner, operator, hook, roundCount: last, firstRound: first,
     vault: Number(vaultBal) / 1e6, liability: Number(liability) / 1e6, free: Number(free) / 1e6,
     keeperGas, keeperRunwayHours: keeperGas / HYPE_PER_LIVE_MINUTE / 60,
     params: {

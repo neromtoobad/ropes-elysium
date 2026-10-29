@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getTransparency } from "@/lib/transparency";
+import { getTransparency, PREVIOUS_MARKET } from "@/lib/transparency";
 import { addressUrl } from "@/lib/elysium";
 import { DocsHeader, DocsFooter } from "../docs/DocsChrome";
 
@@ -130,6 +130,9 @@ export default async function Transparency() {
               <tr><td>RopeMarket ({t.asset})</td><td><a href={addressUrl(t.market)} target="_blank" rel="noreferrer">{t.market}</a></td></tr>
               <tr><td>ArenaRegistry</td><td><a href={addressUrl(t.hook)} target="_blank" rel="noreferrer">{t.hook}</a></td></tr>
               <tr><td>tUSDC (test dollars)</td><td><a href={addressUrl(t.collateral)} target="_blank" rel="noreferrer">{t.collateral}</a></td></tr>
+              {t.firstRound > 1 && (
+                <tr><td>Previous RopeMarket (rounds before {t.firstRound.toLocaleString()})</td><td><a href={addressUrl(PREVIOUS_MARKET)} target="_blank" rel="noreferrer">{PREVIOUS_MARKET}</a></td></tr>
+              )}
             </tbody>
           </table>
         </div>
