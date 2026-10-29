@@ -1,7 +1,7 @@
 # Contracts & addresses
 > Everything deployed, where it lives, and how to read it.
 
-**Network:** Elysium testnet · chain ID `99801` · RPC `https://testnet-rpc.elysium.kinetiq.xyz` · explorer [elysium.kinetiq.xyz/testnet-explorer](https://elysium.kinetiq.xyz/testnet-explorer). Sources are verified.
+**Network:** Elysium testnet · chain ID `99801` · RPC `https://testnet-rpc.elysium.kinetiq.xyz` · explorer [elysium.kinetiq.xyz/testnet-explorer](https://elysium.kinetiq.xyz/testnet-explorer). The first market's sources are verified on the explorer; the replacement's verification is pending (the explorer now asks for a partner access code). Its source is `contracts/src/RopeMarket.sol` at commit `01dbbdf`.
 
 | Contract | Address | Role |
 |---|---|---|
