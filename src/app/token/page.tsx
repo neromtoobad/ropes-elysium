@@ -49,7 +49,7 @@ export default function Token() {
               <span><small>Target</small>Dec 2026 – Jan 2027</span>
             </div>
           </div>
-          <Image src="/logo-full.webp" alt="" width={251} height={657} priority className="mn-art tk-logo" />
+          <Image src="/knot.webp" alt="" width={1200} height={629} priority className="mn-art tk-logo" />
         </section>
 
         <section className="tk-warn">

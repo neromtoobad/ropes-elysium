@@ -7,7 +7,7 @@ export function DocsHeader({ section }: { section: string }) {
     <header className="docs-top">
       <div className="docs-top-in">
         <Link href="/" className="docs-brand">
-          <Image src="/logo-full.webp" alt="" width={251} height={657} className="h-8 w-auto" />
+          <Image src="/knot.webp" alt="" width={1200} height={629} className="h-7 w-auto" />
           <span className="display">ROPES</span>
           <span className="docs-crumb">{section}</span>
         </Link>

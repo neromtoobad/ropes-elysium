@@ -720,7 +720,7 @@ function TopBar({
   return (
     <header className="flex items-center justify-between gap-3">
       <div className="flex items-center gap-3">
-        <Image src="/mark.webp" alt="" width={64} height={32} priority className="h-9 w-auto" />
+        <Image src="/mark.webp" alt="" width={64} height={34} priority className="h-9 w-auto" />
         {/* the mark IS the logo; on a phone the word and the subtitle cost
             the nav its row, and the nameplate on the wall says whose money */}
         <div className="hidden sm:block">

@@ -667,7 +667,7 @@ a[href] {
 .docs-banner-link { color: var(--up); font-weight: 700; margin-left: 4px; }
 .mn-hero { display: grid; grid-template-columns: minmax(0, 1fr) 240px; gap: 32px; align-items: center; }
 .mn-art { width: 100%; height: auto; filter: drop-shadow(0 20px 40px rgba(0,0,0,.5)); }
-.tk-logo { max-height: 360px; width: auto; justify-self: center; }
+.tk-logo { max-height: 240px; max-width: 100%; width: auto; height: auto; justify-self: center; align-self: center; }
 .mn-clock { margin-top: 28px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; max-width: 620px; }
 .mn-clock div { background: var(--panel); border: 1px solid var(--edge); border-radius: 18px; padding: 18px 10px 14px; text-align: center; }
 .mn-clock strong { display: block; font: 400 clamp(38px, 7vw, 64px)/1 var(--font-display); color: var(--text); font-variant-numeric: tabular-nums; }
@@ -727,9 +727,21 @@ a[href] {
 @media screen and (max-width: 820px) {
   .mn-hero { grid-template-columns: minmax(0, 1fr); }
   .mn-art { width: 150px; justify-self: center; order: -1; }
-  .tk-logo { max-height: 180px; width: auto; }
+  .tk-logo { max-height: 140px; max-width: 100%; width: auto; height: auto; }
   .mn-clock { gap: 8px; }
   .mn-clock div { padding: 14px 4px 10px; border-radius: 14px; }
   .mn-proof, .mn-split, .tk-role { grid-template-columns: minmax(0, 1fr); }
 }
 .doc img { display: block; width: 100%; height: auto; border-radius: 16px; border: 1px solid var(--edge); margin: 18px 0; }
+
+/* ── home: the poster and the wall ─────────────────────────────────── */
+.hz-band { height: 12px; background: repeating-linear-gradient(-45deg, var(--gold) 0 10px, #1a1408 10px 20px); }
+.home-stack { font-size: clamp(64px, 10.3vw, 148px); line-height: .86; text-transform: uppercase; letter-spacing: -.01em; }
+.home-stack .o { color: transparent; -webkit-text-stroke: 2px var(--text); }
+.home-stack .g { color: var(--up); }
+.wall-panel { background: radial-gradient(circle at 1px 1px, #ffffff14 1.3px, transparent 1.7px) 0 0 / 30px 30px, linear-gradient(var(--panel), #0f0c20); }
+.wall-rope { position: absolute; left: 50%; top: 0; bottom: 0; width: 16px; margin-left: -8px; box-shadow: 0 0 0 2px #00000055;
+  background: repeating-linear-gradient(-55deg, #f3cf7a 0 6px, #b8893a 6px 11px, #6b4a17 11px 13px); }
+.wall-tag { font: 700 12px ui-monospace, "JetBrains Mono", monospace; background: #0d0a1cdd; border: 1px solid var(--edge); padding: 6px 9px; border-radius: 6px; white-space: nowrap; color: var(--text); }
+.wall-tag b { color: var(--up); }
+@media (max-width: 640px) { .wall-tag { font-size: 11px; padding: 5px 7px; } }

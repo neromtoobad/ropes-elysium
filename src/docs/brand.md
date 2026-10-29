@@ -45,4 +45,4 @@ Every ROPES image uses the same frame: the logo top-left, a tag chip top-right (
 
 ## Logo
 
-The knot on a rope with a candle in its heart. Files are in the repo under `public/` (`logo-full.png`, `mark.webp`, `icon.png`).
+The horizontal knot: two loops of one rope. Files are in the repo under `public/`: `knot.webp` (1200 px, transparent), `mark.webp` (nav size) and `icon.png` (square, on the dark background). The older vertical knot with a candle (`logo-full.png`) is retired.
