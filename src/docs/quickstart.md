@@ -3,7 +3,7 @@
 
 ## Free seat (no wallet)
 
-1. Open [ropes.nerom.site/play](https://ropes.nerom.site/play).
+1. Open [playropes.xyz/play](https://playropes.xyz/play).
 2. Choose a climber and type a name.
 3. Tap **PLAY FREE**. The house stakes 10 tUSDC for you.
 4. When the clock says **BETS OPEN**, tap **▲ UP** or **▼ DOWN**. Entries close 35 seconds into the minute.

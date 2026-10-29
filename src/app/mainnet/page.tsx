@@ -110,7 +110,7 @@ export default async function Mainnet() {
 
         <section className="mn-safe">
           <b>Stay safe before launch.</b> There is no presale, no whitelist and no airdrop form. We never DM first. The
-          only places ROPES announces anything are <b>@PlayRopes</b> and <b>ropes.nerom.site</b>.{" "}
+          only places ROPES announces anything are <b>@PlayRopes</b> and <b>playropes.xyz</b>.{" "}
           <Link href="/token">About $ROPES →</Link>
         </section>
       </main>

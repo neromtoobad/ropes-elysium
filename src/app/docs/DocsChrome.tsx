@@ -34,7 +34,7 @@ export function DocsFooter() {
     <footer className="docs-foot">
       <span>ROPES · one minute of Hyperliquid, on a rope</span>
       <span>
-        Only trust <b>@PlayRopes</b> and <b>ropes.nerom.site</b>. $ROPES is not launched yet. We never DM first.
+        Only trust <b>@PlayRopes</b> and <b>playropes.xyz</b>. $ROPES is not launched yet. We never DM first.
       </span>
     </footer>
   );

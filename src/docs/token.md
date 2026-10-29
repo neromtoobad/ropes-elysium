@@ -1,7 +1,7 @@
 # $ROPES
 > The plan for the ROPES token. Not launched yet.
 
-> **$ROPES has not launched.** Any "ROPES token" you see today is not ours. It will launch through **Ascend** after Elysium mainnet, and the only announcement will come from **@PlayRopes** and **ropes.nerom.site**.
+> **$ROPES has not launched.** Any "ROPES token" you see today is not ours. It will launch through **Ascend** after Elysium mainnet, and the only announcement will come from **@PlayRopes** and **playropes.xyz**.
 
 ## Role
 

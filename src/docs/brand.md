@@ -8,7 +8,7 @@
 ## Official channels
 
 - X: [@PlayRopes](https://x.com/PlayRopes)
-- Site: [ropes.nerom.site](https://ropes.nerom.site)
+- Site: [playropes.xyz](https://playropes.xyz)
 - Code: [github.com/neromtoobad/ropes-elysium](https://github.com/neromtoobad/ropes-elysium)
 
 We never DM first and never ask for keys or seed phrases.
@@ -41,7 +41,7 @@ The hooded climber at the top of a rope, as the minute dial reaches 60 and the b
 
 ## Post frame
 
-Every ROPES image uses the same frame: the logo top-left, a tag chip top-right (green for announcements and proof, gold for build logs and roadmaps, violet for explainers, red for safety), and the rope footer strip with ropes.nerom.site and @PlayRopes. Headlines are Russo One in capitals; one word in green, gold or red carries the point.
+Every ROPES image uses the same frame: the logo top-left, a tag chip top-right (green for announcements and proof, gold for build logs and roadmaps, violet for explainers, red for safety), and the rope footer strip with playropes.xyz and @PlayRopes. Headlines are Russo One in capitals; one word in green, gold or red carries the point.
 
 ## Logo
 

@@ -6,14 +6,14 @@ export const MAINNET_AT = Date.UTC(2026, 10, 9);
 export const MAINNET_LABEL = "Nov 9, 2026";
 
 const details =
-  "Elysium, Kinetiq's Hyperliquid L2, goes live on mainnet. ROPES (one-minute HYPE rounds) follows on real USDC after a security review. Only trust @PlayRopes and ropes.nerom.site.";
+  "Elysium, Kinetiq's Hyperliquid L2, goes live on mainnet. ROPES (one-minute HYPE rounds) follows on real USDC after a security review. Only trust @PlayRopes and playropes.xyz.";
 
 export const GOOGLE_CAL =
   "https://calendar.google.com/calendar/render?action=TEMPLATE" +
   `&text=${encodeURIComponent("Elysium mainnet · ROPES")}` +
   "&dates=20261109/20261110" +
   `&details=${encodeURIComponent(details)}` +
-  `&location=${encodeURIComponent("https://ropes.nerom.site/mainnet")}`;
+  `&location=${encodeURIComponent("https://playropes.xyz/mainnet")}`;
 
 export const ICS = [
   "BEGIN:VCALENDAR",
@@ -26,7 +26,7 @@ export const ICS = [
   "DTEND;VALUE=DATE:20261110",
   "SUMMARY:Elysium mainnet · ROPES",
   `DESCRIPTION:${details.replace(/,/g, "\\,")}`,
-  "URL:https://ropes.nerom.site/mainnet",
+  "URL:https://playropes.xyz/mainnet",
   "END:VEVENT",
   "END:VCALENDAR",
   "",

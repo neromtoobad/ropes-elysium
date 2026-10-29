@@ -13,7 +13,7 @@ Hyperliquid has prediction markets, but the shortest native recurring one lasts 
 
 ## What works today
 
-On Elysium testnet (chain 99801), at [ropes.nerom.site](https://ropes.nerom.site):
+On Elysium testnet (chain 99801), at [playropes.xyz](https://playropes.xyz):
 
 - A round opens every minute, struck at the open of Hyperliquid's own 1-minute candle.
 - Buy UP or DOWN, BAIL at any second, settle at the bell, redeem. All on-chain, against `RopeMarket`.

@@ -11,7 +11,7 @@
 | Gas estimation starves the scoreboard | `settle` requires `HOOK_GAS` left for the hook, or reverts. |
 | Nonce races between two keepers | Railway deploys the keeper with no overlap; all writes go through one signer, in sequence. |
 | Rounding leaks value | Buy costs round up, sell proceeds round down; refunds never underflow `reserved`. |
-| A fake ROPES account or token | Only trust **@PlayRopes** and **ropes.nerom.site**. $ROPES isn't launched yet: any "ROPES token" today is a scam. We never DM first. |
+| A fake ROPES account or token | Only trust **@PlayRopes** and **playropes.xyz**. $ROPES isn't launched yet: any "ROPES token" today is a scam. We never DM first. |
 
 ## Not yet covered
 
