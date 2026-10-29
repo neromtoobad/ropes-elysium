@@ -5,7 +5,7 @@
 Not yet. Testnet uses tUSDC, a test dollar with no value. Mainnet with real USDC follows Elysium mainnet (Nov 9) and a security review.
 
 **Do I need a wallet?**
-No. Take a free seat and play the same on-chain market on the house.
+No. Practice is free and plays the same on-chain market on the house. To get on the boards you need a ranked seat, which needs a wallet.
 
 **Can I lose more than my seat?**
 No. The most you can lose is the stake you put in.

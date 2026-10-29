@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { toUsd } from "@/lib/chain";
 import { computeBadges } from "@/lib/badges";
+import { RANKED_SEATS_PER_DAY, rankedSeatsToday } from "@/lib/boards";
 
 /**
  * MY LEDGER — one player's complete money story, straight from the same
@@ -89,6 +90,9 @@ export async function POST(req: Request) {
       withdrawn: sum("withdrawal"),
       seatsBought: sum("seat"),
       winnings: sum("win"),
+      // Ranked seats are rationed per wallet per UTC day (lib/boards).
+      rankedToday: player.address ? await rankedSeatsToday(player.address) : 0,
+      rankedCap: RANKED_SEATS_PER_DAY,
     },
     flows: flows.map((f) => ({
       kind: f.kind,

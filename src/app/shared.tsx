@@ -138,6 +138,8 @@ export type LedgerData = {
     withdrawn: number;
     seatsBought: number;
     winnings: number;
+    rankedToday: number;
+    rankedCap: number;
   } | null;
   flows: { kind: string; amount: number; tx: string | null; at: string }[];
   totals: { staked: number; returned: number; aliveStack: number; won: number; net: number; games: number } | null;

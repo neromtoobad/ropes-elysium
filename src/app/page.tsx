@@ -26,7 +26,7 @@ const SKINS = ["gold", "green", "violet", "pink", "teal"];
 export default function Landing() {
   useClimberTheme();
   const [state, setState] = useState<TableState | null>(null);
-  const [rows, setRows] = useState<LeaderRow[] | null>(null);
+  const [wall, setWall] = useState<{ rows: WallRow[]; label: string } | null>(null);
   const [left, setLeft] = useState<number | null>(null);
 
   useEffect(() => {
@@ -41,10 +41,17 @@ export default function Landing() {
           if (j.round) setLeft(j.round.secondsLeft);
         })
         .catch(() => {});
-      fetch("/api/leaderboard")
-        .then((r) => (r.ok ? r.json() : null))
-        .then((j) => Array.isArray(j?.rows) && setRows(j.rows))
-        .catch(() => {});
+      // This week's ranked climbs; while ranked is young, fall back to
+      // all-time ranked, then to every climb including practice.
+      Promise.all([
+        fetch("/api/boards").then((r) => (r.ok ? r.json() : null)).catch(() => null),
+        fetch("/api/leaderboard").then((r) => (r.ok ? r.json() : null)).catch(() => null),
+      ]).then(([b, l]) => {
+        const toWall = (rs: { wallet: string; name: string; best: number }[]) => rs.map((r) => ({ id: r.wallet, name: r.name, best: r.best }));
+        if (b?.week?.best?.length >= 3) setWall({ rows: toWall(b.week.best), label: "THIS WEEK · RANKED" });
+        else if (b?.allTime?.best?.length >= 3) setWall({ rows: toWall(b.allTime.best), label: "ALL-TIME · RANKED" });
+        else if (Array.isArray(l?.rows)) setWall({ rows: (l.rows as LeaderRow[]).map((r) => ({ id: r.id, name: r.name, best: r.best })), label: "ALL-TIME" });
+      });
     };
     load();
     const id = setInterval(load, 5000);
@@ -105,7 +112,7 @@ export default function Landing() {
         </section>
 
         {/* the wall */}
-        <Wall rows={rows} round={state?.round?.index ?? null} />
+        <Wall rows={wall?.rows ?? null} label={wall?.label ?? ""} round={state?.round?.index ?? null} />
       </div>
 
       <footer className="mx-auto w-full max-w-[1440px] shrink-0 px-4 pb-4 text-[10px] font-bold tracking-[0.18em] text-[var(--dim)] sm:px-8 lg:px-12">
@@ -128,7 +135,9 @@ export default function Landing() {
  * multiple; a minimum gap keeps two near-equal climbs from stacking on top of
  * each other, which is why the wall has no scale, only each climber's tag.
  */
-function Wall({ rows, round }: { rows: LeaderRow[] | null; round: number | null }) {
+type WallRow = { id: string; name: string; best: number };
+
+function Wall({ rows, label, round }: { rows: WallRow[] | null; label: string; round: number | null }) {
   const top = (rows ?? []).filter((r) => r.best > 1).sort((a, b) => b.best - a.best).slice(0, 5);
   const hi = top.length ? top[0].best : 2;
   const lo = top.length ? top[top.length - 1].best : 1;
@@ -149,6 +158,7 @@ function Wall({ rows, round }: { rows: LeaderRow[] | null; round: number | null 
       <div className="absolute left-4 right-4 top-4 flex items-center justify-between whitespace-nowrap text-[10px] font-bold tracking-[0.18em] text-[var(--dim)] sm:left-5 sm:right-5 sm:text-[11px] sm:tracking-[0.22em]">
         <span>
           THE WALL<span className="hidden sm:inline"> · </span><b className="hidden text-[var(--text)] sm:inline">BEST CLIMBS</b>
+          {label && <span className="hidden lg:inline"> · {label}</span>}
         </span>
         {round != null && (
           <span className="flex items-center gap-2 text-[var(--text)]">

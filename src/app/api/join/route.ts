@@ -13,12 +13,15 @@ import { SEAT_PRICE } from "@/executor/tables";
  *   into the next seat with one click.
  * - depositTx: a fresh on-chain deposit — credit the bankroll first, then
  *   sit from it. The withdrawal address derives from the transfer's sender.
- * - free: no balance, no tx — house-bankroll play, unchanged.
+ * - free: no balance, no tx (or mode:"practice") — house-bankroll play.
+ *
+ * Bankroll seats are RANKED and count on the weekly boards; free seats are
+ * PRACTICE and never do (see lib/boards).
  *
  * This route never sends a transaction (one-nonce rule).
  */
 export async function POST(req: Request) {
-  const { playerKey, name, depositTx, signature } = await req.json();
+  const { playerKey, name, depositTx, signature, mode } = await req.json();
   if (!playerKey || !name) {
     return NextResponse.json({ error: "playerKey and name required" }, { status: 400 });
   }
@@ -32,7 +35,9 @@ export async function POST(req: Request) {
   }
 
   const player = await db.player.findUnique({ where: { wallet: playerKey } });
-  const funded = Boolean(player && player.address && player.balance >= SEAT_PRICE);
+  // A funded seat is a RANKED seat. mode:"practice" asks for the house's
+  // free seat even when the bankroll could cover a ranked one.
+  const funded = mode !== "practice" && Boolean(player && player.address && player.balance >= SEAT_PRICE);
 
   const round = await db.round.findFirst({ orderBy: { index: "desc" } });
   try {

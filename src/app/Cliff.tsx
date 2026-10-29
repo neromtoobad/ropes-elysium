@@ -709,7 +709,7 @@ export function Cliff({
                 ? { background: "var(--gold)", color: "#000" }
                 : { border: "1px solid var(--edge)", color: "var(--dim)" }}
             >
-              {seat.paid ? "REAL STAKE" : "HOUSE MONEY"}
+              {seat.paid ? "RANKED" : "PRACTICE"}
             </span>
           </div>
         </div>

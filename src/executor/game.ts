@@ -15,6 +15,7 @@ import { buy, redeemAll, sellPosition, type Side } from "../lib/orders";
 import * as registry from "../lib/registry";
 import { fillingTable, STARTING_STACK, SEAT_PRICE, POT_CUT, MAX_SEATS } from "./tables";
 import { debitSeat, houseCollateralHttp } from "../lib/payments";
+import { RANKED_SEATS_PER_DAY, rankedSeatsToday } from "../lib/boards";
 
 export { db };
 
@@ -630,6 +631,11 @@ export async function joinGame(
   if (funded) {
     const fresh = await db.player.findUniqueOrThrow({ where: { id: player.id } });
     if (!fresh.address) throw new Error("no funded account — deposit first");
+    // Ranked seats are rationed per wallet per day, so the boards reward
+    // reading the market rather than buying the most lottery tickets.
+    if ((await rankedSeatsToday(fresh.address)) >= RANKED_SEATS_PER_DAY) {
+      throw new Error(`that's all ${RANKED_SEATS_PER_DAY} ranked seats for today — practice is still open, ranked resets at 00:00 UTC`);
+    }
     await debitSeat(player.id, SEAT_PRICE);
     payoutAddress = fresh.address;
   }

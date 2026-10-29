@@ -184,11 +184,13 @@ export default function Game() {
     runIdRef.current = runId;
   }, [runId]);
 
-  const join = async (depositTx?: string, who?: string, signature?: string) => {
+  /** mode "practice" takes the house's free seat even when the bankroll could
+   *  pay for a ranked one; otherwise a funded bankroll seats ranked. */
+  const join = async (depositTx?: string, who?: string, signature?: string, mode?: "practice") => {
     const called = (who ?? name).trim();
     if (!playerKey || !called || busy) return;
     setBusy(true);
-    const r = await post("/api/join", { playerKey, name: called, depositTx, signature });
+    const r = await post("/api/join", { playerKey, name: called, depositTx, signature, mode });
     setBusy(false);
     if (r?.runId) {
       safeLocal.set("lc.runId", r.runId);
@@ -290,7 +292,8 @@ export default function Game() {
     autoSeated.current = true;
     const who = `climber${Math.floor(100 + Math.random() * 900)}`;
     setName(who);
-    void join(undefined, who).then(() => {
+    // A one-click visit is a practice seat: it must never spend a bankroll.
+    void join(undefined, who, undefined, "practice").then(() => {
       setCoach(true);
       setTimeout(() => setCoach(false), 9000);
     });
@@ -549,12 +552,12 @@ export default function Game() {
       {seatFlash && (
         <div className="pointer-events-none fixed inset-x-0 top-[20%] z-40 text-center">
           <p className="display text-3xl sm:text-4xl" style={{ color: seatFlash === "paid" ? "var(--down)" : "var(--gold)", textShadow: `0 0 40px ${seatFlash === "paid" ? "var(--down-glow)" : "var(--gold-glow)"}` }}>
-            {seatFlash === "paid" ? "SEAT −10.00" : "SEAT STAKED · 10.00"}
+            {seatFlash === "paid" ? "RANKED SEAT −10.00" : "PRACTICE SEAT · 10.00"}
           </p>
           <p className="mt-1 text-[10px] font-bold tracking-[0.3em] text-[var(--dim)]">
             {seatFlash === "paid"
-              ? "PAID FROM YOUR WALLET — THE MOST YOU CAN EVER LOSE"
-              : "ON THE HOUSE — THE MOST A SEAT CAN EVER LOSE"}
+              ? "YOUR tUSDC — COUNTS ON THIS WEEK'S BOARDS"
+              : "ON THE HOUSE — PRACTICE NEVER COUNTS ON THE BOARDS"}
           </p>
         </div>
       )}
@@ -630,6 +633,7 @@ export default function Game() {
                 walletReady={walletReady}
                 bank={ledger?.bank ?? null}
                 onJoin={() => { sound.arm(); join(); }}
+                onPractice={() => { sound.arm(); join(undefined, undefined, undefined, "practice"); }}
                 onConnect={connectWallet}
                 onBuy={buySeat}
                 onPlayFree={() => setAddr(null)}
@@ -735,7 +739,7 @@ function TopBar({
                      clock onto its own row. The money bar and the nameplate
                      both carry the qualifier; here the short form is enough. */
                   <>
-                    {me.paid ? "REAL STAKE" : "FREE SEAT"}
+                    {me.paid ? "RANKED" : "PRACTICE"}
                     <span className="hidden sm:inline">
                       {me.paid ? " · YOUR tUSDC" : " · HOUSE MONEY"}
                     </span>
@@ -1335,6 +1339,7 @@ function Join({
   walletReady,
   bank,
   onJoin,
+  onPractice,
   onConnect,
   onBuy,
   onPlayFree,
@@ -1348,6 +1353,7 @@ function Join({
   walletReady: boolean;
   bank: LedgerData["bank"];
   onJoin: () => void;
+  onPractice: () => void;
   onConnect: () => void;
   onBuy: () => void;
   onPlayFree: () => void;
@@ -1356,7 +1362,10 @@ function Join({
   // A funded bankroll seats with ONE click — the server debits it, no
   // wallet popup. That is the whole point of the bankroll.
   const funded = Boolean(bank && bank.balance >= 10);
-  const primary = funded ? onJoin : addr ? onBuy : onJoin;
+  // Ranked seats are rationed per wallet per day; practice never is.
+  const left = bank ? Math.max(0, (bank.rankedCap ?? 20) - (bank.rankedToday ?? 0)) : 0;
+  const capped = funded && left === 0;
+  const primary = funded && !capped ? onJoin : addr ? onBuy : onPractice;
   /*
    * The rules are four cards' worth of screen. A first-timer needs them; a
    * returning player has read them and just wants the wall back, so they
@@ -1411,35 +1420,33 @@ function Join({
           autoFocus
           className="min-w-0 flex-1 rounded-lg border border-[var(--edge)] bg-[var(--panel)] px-4 py-3 text-base outline-none focus:border-[var(--gold)]"
         />
-        {/* Two doors, always visibly different: green outline is the house's
-            money, solid gold is yours. A single button whose meaning depended
-            on wallet state read as one door with a surprise behind it. */}
-        {!funded && (
-          <button
-            onClick={onJoin}
-            disabled={!name.trim() || busy}
-            className="chamfer-sm border border-[var(--up)] px-5 py-3 text-sm font-black tracking-[0.1em] text-[var(--up)] transition hover:bg-[var(--up)] hover:text-black disabled:opacity-40"
-          >
-            {busy && !paying ? "SEATING…" : (
-              <>
-                PLAY FREE
-                {/* the qualifier costs the name field its width on a 375px
-                    screen, and the caption underneath already says whose
-                    money it is. The green stays either way. */}
-                <span className="hidden sm:inline"> · HOUSE MONEY</span>
-              </>
-            )}
-          </button>
-        )}
+        {/* Two doors, always visibly different: green outline is PRACTICE on
+            the house's money, solid gold is RANKED on yours. Practice stays
+            open to everyone, even with a funded bankroll. */}
+        <button
+          onClick={onPractice}
+          disabled={!name.trim() || busy}
+          className="chamfer-sm border border-[var(--up)] px-5 py-3 text-sm font-black tracking-[0.1em] text-[var(--up)] transition hover:bg-[var(--up)] hover:text-black disabled:opacity-40"
+        >
+          {busy && !paying ? "SEATING…" : (
+            <>
+              PRACTICE
+              {/* the qualifier costs the name field its width on a 375px
+                  screen, and the caption underneath already says whose
+                  money it is. The green stays either way. */}
+              <span className="hidden sm:inline"> · FREE</span>
+            </>
+          )}
+        </button>
         {funded ? (
           <button
             onClick={onJoin}
-            disabled={!name.trim() || busy}
+            disabled={!name.trim() || busy || capped}
             className="chamfer-sm bg-[var(--gold)] px-6 py-3 text-sm font-black tracking-[0.1em] text-black disabled:opacity-40"
           >
-            {busy ? "SEATING…" : (
+            {busy ? "SEATING…" : capped ? "RANKED · DONE FOR TODAY" : (
               <>
-                PLAY FOR REAL
+                RANKED
                 <span className="hidden sm:inline"> · 10 FROM BANKROLL ({bank!.balance.toFixed(2)})</span>
               </>
             )}
@@ -1452,39 +1459,40 @@ function Join({
           >
             {paying ? "PAYING…" : busy ? "SEATING…" : (
               <>
-                PLAY FOR REAL
+                RANKED
                 <span className="hidden sm:inline"> · DEPOSIT 10 tUSDC</span>
               </>
             )}
           </button>
-        ) : null}
-        {walletReady && !addr && !funded && (
+        ) : walletReady ? (
           <button
             onClick={onConnect}
             className="chamfer-sm border border-[var(--gold)] px-4 py-3 text-xs font-black tracking-[0.1em] text-[var(--gold)]"
           >
-            CONNECT WALLET · PLAY FOR REAL
+            CONNECT WALLET · RANKED
           </button>
-        )}
+        ) : null}
       </div>
       <p className="mt-1.5 text-[10px] font-bold tracking-wider text-[var(--dim)]">
         {funded ? (
           <>
-            YOUR BANKROLL COVERS THE SEAT — WINNINGS GO STRAIGHT BACK TO IT ·{" "}
-            <a href="/wallet" className="underline decoration-dotted hover:text-[var(--gold)]">MANAGE IT</a>
+            RANKED: YOUR BANKROLL PAYS, WINNINGS GO BACK TO IT, AND IT COUNTS ON{" "}
+            <a href="/leaders" className="underline decoration-dotted hover:text-[var(--gold)]">THIS WEEK&apos;S BOARDS</a> ·{" "}
+            <span className="tabular text-[var(--gold)]">{left}</span> OF {bank!.rankedCap} RANKED SEATS LEFT TODAY ·{" "}
+            <a href="/wallet" className="underline decoration-dotted hover:text-[var(--gold)]">BANKROLL</a>
           </>
         ) : addr ? (
           <>
-            PAYING FROM <span className="tabular text-[var(--gold)]">{short(addr)}</span> — WINNINGS
-            RETURN THERE ON-CHAIN ·{" "}
+            RANKED FROM <span className="tabular text-[var(--gold)]">{short(addr)}</span>: YOUR tUSDC, YOUR WINNINGS, ON THE
+            WEEKLY BOARDS. PRACTICE IS THE HOUSE&apos;S MONEY AND NEVER COUNTS ·{" "}
             <button onClick={onPlayFree} className="underline decoration-dotted hover:text-[var(--gold)]">
-              PLAY FREE INSTEAD
+              DISCONNECT
             </button>
           </>
         ) : walletReady ? (
-          "FREE = THE HOUSE STAKES 10 AND KEEPS THE WINNINGS (THEY COUNT FOR THE BOARD). REAL = YOUR tUSDC, YOUR WINNINGS, WITHDRAWABLE."
+          "PRACTICE = THE HOUSE STAKES 10, NOTHING TO LOSE, NOT ON THE BOARDS. RANKED = YOUR tUSDC (FREE TO MINT), YOUR WINNINGS, ON THE WEEKLY BOARDS."
         ) : (
-          "NO WALLET IN THIS BROWSER — FREE SEATS ONLY. THE HOUSE STAKES 10; THE TRADE IS STILL REAL AND ON-CHAIN."
+          "NO WALLET IN THIS BROWSER — PRACTICE ONLY. RANKED NEEDS A WALLET; THE TRADE IS REAL AND ON-CHAIN EITHER WAY."
         )}
       </p>
       {!walletReady && <OpenInWallet />}
