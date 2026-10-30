@@ -17,6 +17,7 @@ const NAV = [
   { href: "/leaders", label: "LEADERS" },
   { href: "/points", label: "POINTS" },
   { href: "/transparency", label: "PROOF" },
+  { href: "/feedback", label: "FEEDBACK" },
   { href: "/docs/overview", label: "DOCS" },
   { href: "/token", label: "$ROPES", gold: true },
 ];
@@ -78,7 +79,7 @@ export default function Landing() {
             <Link
               key={n.href}
               href={n.href}
-              className={`${n.gold ? "text-[var(--gold)]" : "hover:text-[var(--text)]"} ${n.href === "/docs/overview" || n.href === "/transparency" || n.gold ? "hidden sm:inline" : ""}`}
+              className={`${n.gold ? "text-[var(--gold)]" : "hover:text-[var(--text)]"} ${n.href === "/docs/overview" || n.href === "/transparency" || n.href === "/feedback" || n.gold ? "hidden sm:inline" : ""}`}
             >
               {n.label}
             </Link>

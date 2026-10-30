@@ -18,7 +18,7 @@ Only **ranked** seats score: seats paid from your own tUSDC bankroll. Practice s
 
 A run scores the moment its last bell rings. Weekly placings land when the week closes, Monday 00:00 UTC. The cap of 20 ranked seats per wallet per day applies, so points cannot be bought by volume alone.
 
-Points can also be granted by hand, for things like a confirmed bug report or an event prize. Those show up the same way.
+Points can also be granted by hand, for things like a bug we confirm or an idea we ship from the [feedback board](/feedback), or an event prize. Those are at the team's call, and show up the same way.
 
 ## Live, not snapshots
 

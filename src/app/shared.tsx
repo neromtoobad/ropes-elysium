@@ -8,7 +8,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { shareRunCard } from "./share";
 import { isMobile, walletDeepLinks } from "./wallet";
 import type { ClimberId } from "./Cliff";
@@ -209,17 +209,26 @@ export function useLedger(playerKey: string | null, refreshKey?: unknown) {
 /** The site's nav: every section one tap away, current one lit. */
 export function SiteNav() {
   const path = usePathname();
+  const nav = useRef<HTMLElement>(null);
+  // On a phone the current tab may sit past the edge; bring it into view.
+  useEffect(() => {
+    const el = nav.current?.querySelector<HTMLElement>(".active");
+    if (el && nav.current) nav.current.scrollLeft = el.offsetLeft - (nav.current.clientWidth - el.clientWidth) / 2;
+  }, [path]);
   const tabs = [
     { href: "/play", label: "CLIMB" },
     { href: "/leaders", label: "LEADERS" },
     { href: "/points", label: "POINTS" },
     { href: "/wallet", label: "WALLET" },
+    { href: "/feedback", label: "FEEDBACK" },
     { href: "/docs/overview", label: "DOCS" },
   ];
   return (
-    <nav className="flex items-center gap-1" aria-label="sections">
+    // Six tabs outgrow a phone: the row scrolls sideways there instead of
+    // pushing the whole page wider than the screen.
+    <nav ref={nav} className="flex w-full max-w-full items-center gap-1 overflow-x-auto [scrollbar-width:none] sm:w-auto [&::-webkit-scrollbar]:hidden" aria-label="sections">
       {tabs.map((t) => (
-        <Link key={t.href} href={t.href} className={`gametab ${path === t.href ? "active" : ""}`}>
+        <Link key={t.href} href={t.href} className={`gametab shrink-0 ${path === t.href ? "active" : ""}`}>
           {t.label}
         </Link>
       ))}

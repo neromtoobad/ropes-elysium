@@ -279,3 +279,44 @@ model PointGrant {
 
   @@index([address])
 }
+
+/// The public feedback board: bugs, ideas, anything. Anyone with a player key
+/// can post; only posts from a wallet-pinned key can earn points, because a
+/// PointGrant needs a wallet to land on. See lib/feedback.
+model Feedback {
+  id     String @id @default(cuid())
+  /// bug | idea | general
+  kind   String
+  title  String
+  body   String
+  /// sha256 of the poster's player key. The key itself is a credential and
+  /// never touches this table.
+  authorKey    String
+  /// Lowercased wallet, if the key had one pinned when this was posted.
+  authorWallet String?
+  /// Seat name or @handle at posting time, for display.
+  authorName   String
+  /// open -> confirmed | planned -> shipped | closed. Set by the team only.
+  status        String   @default("open")
+  /// The team's public reply.
+  teamNote      String?
+  /// Total points granted for this post (each grant is also a PointGrant).
+  pointsAwarded Int      @default(0)
+  hidden        Boolean  @default(false)
+  /// Denormalised count of FeedbackVote rows, kept in the same transaction.
+  votes         Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([createdAt])
+  @@index([authorKey, createdAt])
+}
+
+model FeedbackVote {
+  feedbackId String
+  /// sha256 of the voter's player key.
+  voterKey   String
+  createdAt  DateTime @default(now())
+
+  @@id([feedbackId, voterKey])
+}

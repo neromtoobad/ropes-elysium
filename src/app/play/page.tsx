@@ -723,7 +723,7 @@ function TopBar({
   const roping = t?.status === "filling" && t.seated > 0;
   return (
     <header className="flex items-center justify-between gap-3">
-      <div className="flex items-center gap-3">
+      <div className="flex shrink-0 items-center gap-3">
         <Image src="/mark.webp" alt="" width={64} height={34} priority className="h-9 w-auto" />
         {/* the mark IS the logo; on a phone the word and the subtitle cost
             the nav its row, and the nameplate on the wall says whose money */}
@@ -750,7 +750,7 @@ function TopBar({
         </div>
       </div>
 
-      <div className="flex items-center gap-0.5 sm:gap-1">
+      <div className="flex min-w-0 items-center gap-0.5 sm:gap-1">
         <SiteNav />
         <button
           onClick={sound.toggle}
