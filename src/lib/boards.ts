@@ -92,6 +92,9 @@ export type RankedRun = {
   rounds: number;
   banked: boolean;
   champion: boolean;
+  /** At some bell the stack stood under half the buy-in. With `banked` and
+   *  a multiple above 1, that's a comeback (lib/trophies). */
+  dipped: boolean;
   endedAt: Date | null;
 };
 
@@ -100,7 +103,11 @@ export type RankedRun = {
 export async function endedRankedRuns(): Promise<RankedRun[]> {
   const ended = await db.run.findMany({
     where: { payoutAddress: { not: null }, status: { in: ["banked", "eliminated"] } },
-    include: { player: { select: { displayName: true } }, table: { select: { finishedAt: true } } },
+    include: {
+      player: { select: { displayName: true } },
+      table: { select: { finishedAt: true } },
+      positions: { select: { stackAfter: true } },
+    },
     orderBy: { startedRoundIndex: "asc" },
   });
 
@@ -120,6 +127,7 @@ export async function endedRankedRuns(): Promise<RankedRun[]> {
     rounds: r.roundsSurvived,
     banked: r.status === "banked",
     champion: r.isChampion,
+    dipped: r.positions.some((p) => p.stackAfter !== null && p.stackAfter * 2n < r.buyIn),
     endedAt: (r.endedRoundIndex !== null ? bell.get(r.endedRoundIndex) : null) ?? r.table?.finishedAt ?? null,
   }));
 }

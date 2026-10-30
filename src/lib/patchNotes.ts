@@ -12,6 +12,8 @@ export const PATCH_NOTES: PatchNote[] = [
     items: [
       "ROPES Points, Season 0. Every ranked seat scores: rounds survived, banked profits, the last one holding, your first seat of the day and weekly board finishes.",
       "Leagues from Base Camp to Summit, a last-24h table, and arrows showing how far you moved since yesterday.",
+      "The trophy cabinet: 12 trophies in bronze, silver and gold, each worth points, with your progress and how rare each one is.",
+      "A podium for the top three, and a crest for every league.",
       "Put your X handle on the boards from the points page.",
       "Invite links. You earn 10% of the points the wallets you bring in earn.",
       "This feedback board, with points for bugs we confirm and ideas we ship.",

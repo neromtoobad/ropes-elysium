@@ -14,11 +14,33 @@ Only **ranked** seats score: seats paid from your own tUSDC bankroll. Practice s
 | Your first ranked seat of each UTC day | +25 |
 | Weekly Summit, top 10 (net winnings above zero) | +500, 300, 200, 150, 125, 100, 75, 60, 50, 40 |
 | Weekly Longest Climb, top 3 | +150, 100, 50 |
+| Trophy tiers (see below) | +25 bronze, +75 silver, +200 gold |
 | Your invites | 10% of everything they earn |
 
 A run scores the moment its last bell rings. Weekly placings land when the week closes, Monday 00:00 UTC. The cap of 20 ranked seats per wallet per day applies, so points cannot be bought by volume alone.
 
 Points can also be granted by hand, for things like a bug we confirm or an idea we ship from the [feedback board](/feedback), or an event prize. Those are at the team's call, and show up the same way.
+
+## Trophies
+
+Twelve trophies, most in three tiers. Each tier pays once, the moment you reach it.
+
+| Trophy | Bronze | Silver | Gold |
+| --- | --- | --- | --- |
+| First Climb: finish your first ranked seat | | | 1 |
+| Survivor: rounds survived in one run | 3 | 6 | 10 |
+| Moonshot: bank a run at this multiple | 2× | 5× | 10× |
+| Last One Holding: tables won | 1 | 5 | 20 |
+| Clean Exit: runs banked in profit | 5 | 25 | 100 |
+| Diamond Grip: fall under 0.5×, then bank above 1× | 1 | 3 | 10 |
+| On Fire: ranked days in a row (UTC) | 3 | 7 | 14 |
+| Regular: ranked seats played | 10 | 100 | 500 |
+| Endurance: rounds survived in total | 50 | 250 | 1,000 |
+| Summit Finisher: best weekly Summit finish | top 10 | top 3 | #1 |
+| Recruiter: invited wallets that play ranked | 1 | 5 | 20 |
+| Bug Hunter: feedback posts rewarded | 1 | 3 | 10 |
+
+First Climb is a single tier and pays the bronze amount. The cabinet on the points page shows your progress to the next tier, and how many climbers hold each one.
 
 ## Live, not snapshots
 

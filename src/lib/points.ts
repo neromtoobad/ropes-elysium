@@ -12,6 +12,7 @@
  */
 import { db } from "./db";
 import { endedRankedRuns, handleMap, longestOf, summitOf, weekBounds, type RankedRun } from "./boards";
+import { computeTrophies, TIER_POINTS, type TrophyState } from "./trophies";
 
 export const SEASON = { id: 0, name: "SEASON 0", sub: "TESTNET" };
 
@@ -26,6 +27,7 @@ export const RULES = {
   summit: [500, 300, 200, 150, 125, 100, 75, 60, 50, 40], // weekly Summit top 10, net > 0
   longest: [150, 100, 50], // weekly Longest Climb top 3
   inviteShare: 0.1, // of everything an invited wallet earns, excluding its own invite income
+  trophy: TIER_POINTS, // bronze, silver, gold (lib/trophies)
 };
 
 /** Leagues by season points. Climbing names, because it is a climbing game. */
@@ -56,6 +58,8 @@ export type PointsRow = {
   /** Rank 24 hours ago; null if the climber was not on the table yet. */
   prevRank: number | null;
   league: string;
+  /** Trophy tiers earned, all trophies together. */
+  trophies: number;
 };
 
 function runEvents(runs: RankedRun[]): Event[] {
@@ -76,8 +80,9 @@ function runEvents(runs: RankedRun[]): Event[] {
   return out;
 }
 
-/** Placings on every FINISHED week's boards, credited the moment it closed. */
-function weekEvents(runs: RankedRun[], now: Date): Event[] {
+/** Placings on every FINISHED week's boards, credited the moment it closed.
+ *  Also hands back the Summit places, which the Summit Finisher trophy reads. */
+function weekEvents(runs: RankedRun[], now: Date) {
   const weeks = new Map<number, RankedRun[]>();
   for (const r of runs) {
     if (!r.endedAt) continue;
@@ -86,17 +91,21 @@ function weekEvents(runs: RankedRun[], now: Date): Event[] {
     weeks.set(end.getTime(), [...(weeks.get(end.getTime()) ?? []), r]);
   }
   const out: Event[] = [];
+  const places: { wallet: string; place: number; at: Date }[] = [];
   for (const [endMs, rs] of weeks) {
     const at = new Date(endMs);
     summitOf(rs)
       .filter((b) => b.net > 0)
       .slice(0, RULES.summit.length)
-      .forEach((b, i) => out.push({ wallet: b.wallet, points: RULES.summit[i], at, kind: "summit" }));
+      .forEach((b, i) => {
+        out.push({ wallet: b.wallet, points: RULES.summit[i], at, kind: "summit" });
+        places.push({ wallet: b.wallet, place: i + 1, at });
+      });
     longestOf(rs)
       .slice(0, RULES.longest.length)
       .forEach((b, i) => out.push({ wallet: b.wallet, points: RULES.longest[i], at, kind: "longest" }));
   }
-  return out;
+  return { events: out, places };
 }
 
 function rankOf(events: Event[], until: Date | null) {
@@ -114,14 +123,22 @@ async function compute(now = new Date()) {
     db.pointGrant.findMany().catch(() => []),
   ]);
 
+  const weekly = weekEvents(runs, now);
+  const inviter = new Map(climbers.map((c) => [c.address, c.referredBy!]));
+  const trophies = computeTrophies({
+    runs,
+    summitPlaces: weekly.places,
+    inviter,
+    grants: grants.map((g) => ({ wallet: g.address.toLowerCase(), reason: g.reason, at: g.createdAt })),
+  });
   const base = [
     ...runEvents(runs),
-    ...weekEvents(runs, now),
+    ...weekly.events,
+    ...trophies.events,
     ...grants.map((g) => ({ wallet: g.address.toLowerCase(), points: g.points, at: g.createdAt, kind: "grant" })),
   ];
   // The inviter's cut, as events of its own at the same moments — so it
   // lands in the inviter's 24h column exactly when the invitee earned it.
-  const inviter = new Map(climbers.map((c) => [c.address, c.referredBy!]));
   const invites = base
     .filter((e) => inviter.has(e.wallet) && e.kind !== "grant")
     .map((e) => ({ wallet: inviter.get(e.wallet)!, points: e.points * RULES.inviteShare, at: e.at, kind: "invite" }));
@@ -152,13 +169,21 @@ async function compute(now = new Date()) {
         rank,
         prevRank: thenRank.rank.get(wallet) ?? null,
         league: leagueOf(points).name,
+        trophies: (trophies.states.get(wallet) ?? []).reduce((n, t) => n + t.tier, 0),
       };
     });
 
   const invitedCount = new Map<string, number>();
   for (const c of climbers) invitedCount.set(c.referredBy!, (invitedCount.get(c.referredBy!) ?? 0) + 1);
 
-  return { at: now.toISOString(), rows, fromInvites, invitedCount };
+  return {
+    at: now.toISOString(),
+    rows,
+    fromInvites,
+    invitedCount,
+    trophies: trophies.states as Map<string, TrophyState[]>,
+    rarity: trophies.rarity,
+  };
 }
 
 let cache: { at: number; value: Awaited<ReturnType<typeof compute>> } | null = null;

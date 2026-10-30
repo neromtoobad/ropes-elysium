@@ -11,7 +11,7 @@ export async function POST(req: Request) {
   const wallet = await walletOf(playerKey);
   if (!wallet) return NextResponse.json({ wallet: null });
 
-  const [c, { rows, fromInvites, invitedCount }] = await Promise.all([ensureClimber(wallet), getPoints()]);
+  const [c, { rows, fromInvites, invitedCount, trophies }] = await Promise.all([ensureClimber(wallet), getPoints()]);
   const row = rows.find((r) => r.wallet === wallet) ?? null;
   const points = row?.points ?? 0;
   const league = leagueOf(points);
@@ -28,5 +28,6 @@ export async function POST(req: Request) {
     league: { name: league.name, min: league.min, next: league.next },
     invited: invitedCount.get(wallet) ?? 0,
     fromInvites: Math.round(fromInvites.get(wallet) ?? 0),
+    trophies: trophies.get(wallet) ?? [],
   });
 }
