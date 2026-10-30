@@ -751,7 +751,7 @@ a[href] {
 
 /* ── home: the poster and the wall ─────────────────────────────────── */
 .hz-band { height: 12px; background: repeating-linear-gradient(-45deg, var(--gold) 0 10px, #1a1408 10px 20px); }
-.home-stack { font-size: clamp(64px, 10.3vw, 148px); line-height: .86; text-transform: uppercase; letter-spacing: -.01em; }
+.home-stack { font-size: clamp(52px, 10.3vw, 148px); line-height: .86; text-transform: uppercase; letter-spacing: -.01em; }
 .home-stack .o { color: transparent; -webkit-text-stroke: 2px var(--text); }
 .home-stack .g { color: var(--up); }
 .wall-panel { background: radial-gradient(circle at 1px 1px, #ffffff14 1.3px, transparent 1.7px) 0 0 / 30px 30px, linear-gradient(var(--panel), #0f0c20); }

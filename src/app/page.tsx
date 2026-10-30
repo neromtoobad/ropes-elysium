@@ -68,7 +68,7 @@ export default function Landing() {
   }, []);
 
   return (
-    <main className="relative z-10 flex min-h-dvh flex-col lg:h-screen lg:max-h-screen lg:overflow-hidden">
+    <main className="relative z-10 flex min-h-dvh flex-col pb-[calc(88px+env(safe-area-inset-bottom))] sm:pb-0 lg:h-screen lg:max-h-screen lg:overflow-hidden">
       <div className="hz-band shrink-0" />
       <header className="mx-auto flex w-full max-w-[1440px] shrink-0 items-center justify-between gap-4 px-4 py-4 sm:px-8 lg:px-12">
         <Link href="/" className="flex items-center gap-3">
@@ -103,11 +103,12 @@ export default function Landing() {
             <br />
             <span className="g">rope.</span>
           </h1>
-          <p className="mt-6 max-w-[560px] text-base leading-relaxed text-[#c8c5dd] sm:text-[17px]">
+          <p className="mt-4 max-w-[560px] text-[15px] leading-relaxed sm:mt-6 sm:text-base text-[#c8c5dd] sm:text-[17px]">
             Every minute a new {state?.mark?.asset ?? "HYPE"} round opens on Elysium. Pick UP or DOWN, ride
             Hyperliquid&apos;s live mark, bail whenever you like. Survive the bell and your stack climbs on.
           </p>
-          <div className="mt-7 flex flex-col items-stretch gap-3 text-center sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-5 sm:text-left">
+          {/* on a phone the seat lives in the bar pinned to the bottom */}
+          <div className="mt-7 hidden flex-wrap items-center gap-x-5 gap-y-3 sm:flex">
             <Link href="/play?seat=1" className="chamfer display bg-[var(--gold)] px-8 py-4 text-lg tracking-[0.12em] text-[#120d02] transition hover:brightness-110 sm:text-xl">
               TAKE A SEAT →
             </Link>
@@ -132,6 +133,21 @@ export default function Landing() {
           </span>
         </div>
       </footer>
+      {/* The phone CTA: one dominant action, pinned in the thumb zone with
+          the live bell beside it, instead of a button two-thirds of the way
+          down the poster that scrolls away. */}
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-[var(--edge)] bg-[color-mix(in_srgb,var(--bg)_92%,transparent)] px-4 pt-3 pb-[max(12px,env(safe-area-inset-bottom))] backdrop-blur-md sm:hidden">
+        <div className="flex items-stretch gap-2.5">
+          <div className="chamfer-sm flex w-[76px] shrink-0 flex-col items-center justify-center border border-[var(--edge)]" style={{ background: "var(--panel)" }}>
+            <span className="display tabular text-xl leading-none">{left != null ? `0:${pad(left)}` : "··"}</span>
+            <span className="mt-1 text-[8px] font-bold tracking-[0.2em] text-[var(--dim)]">NEXT BELL</span>
+          </div>
+          <Link href="/play?seat=1" className="chamfer flex min-h-[60px] flex-1 flex-col items-center justify-center bg-[var(--gold)] text-[#120d02] transition active:brightness-90">
+            <span className="display text-lg leading-none tracking-[0.12em]">TAKE A SEAT →</span>
+            <span className="mt-1 text-[9px] font-black tracking-[0.2em] opacity-70">FREE · NO WALLET</span>
+          </Link>
+        </div>
+      </div>
     </main>
   );
 }
