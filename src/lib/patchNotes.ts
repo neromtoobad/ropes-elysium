@@ -8,13 +8,14 @@ export type PatchNote = { date: string; title: string; items: string[] };
 export const PATCH_NOTES: PatchNote[] = [
   {
     date: "2026-10-30",
-    title: "Points, invites and this board",
+    title: "Points, invites, feedback and lessons",
     items: [
       "ROPES Points, Season 0. Every ranked seat scores: rounds survived, banked profits, the last one holding, your first seat of the day and weekly board finishes.",
       "Leagues from Base Camp to Summit, a last-24h table, and arrows showing how far you moved since yesterday.",
       "Put your X handle on the boards from the points page.",
       "Invite links. You earn 10% of the points the wallets you bring in earn.",
       "This feedback board, with points for bugs we confirm and ideas we ship.",
+      "The learn hub: 13 two-minute lessons, from setting up a wallet to checking a round yourself, each with a quick check at the end.",
     ],
   },
   {

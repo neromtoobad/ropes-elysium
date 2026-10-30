@@ -17,6 +17,7 @@ const NAV = [
   { href: "/leaders", label: "LEADERS" },
   { href: "/points", label: "POINTS" },
   { href: "/transparency", label: "PROOF" },
+  { href: "/learn", label: "LEARN" },
   { href: "/feedback", label: "FEEDBACK" },
   { href: "/docs/overview", label: "DOCS" },
   { href: "/token", label: "$ROPES", gold: true },
@@ -74,12 +75,12 @@ export default function Landing() {
           <Image src="/mark.webp" alt="" width={64} height={34} priority className="h-7 w-auto sm:h-8" />
           <span className="display text-lg tracking-[0.08em] sm:text-xl">ROPES</span>
         </Link>
-        <nav className="flex items-center gap-4 text-[11px] font-bold tracking-[0.22em] text-[var(--dim)] sm:gap-7 sm:text-[13px]" aria-label="sections">
+        <nav className="flex items-center gap-3.5 text-[11px] font-bold tracking-[0.2em] text-[var(--dim)] sm:gap-7 sm:text-[13px]" aria-label="sections">
           {NAV.map((n) => (
             <Link
               key={n.href}
               href={n.href}
-              className={`${n.gold ? "text-[var(--gold)]" : "hover:text-[var(--text)]"} ${n.href === "/docs/overview" || n.href === "/transparency" || n.href === "/feedback" || n.gold ? "hidden sm:inline" : ""}`}
+              className={`${n.gold ? "text-[var(--gold)]" : "hover:text-[var(--text)]"} ${n.href === "/docs/overview" || n.href === "/transparency" || n.href === "/feedback" || n.href === "/leaders" || n.gold ? "hidden sm:inline" : ""}`}
             >
               {n.label}
             </Link>

@@ -220,15 +220,16 @@ export function SiteNav() {
     { href: "/leaders", label: "LEADERS" },
     { href: "/points", label: "POINTS" },
     { href: "/wallet", label: "WALLET" },
+    { href: "/learn", label: "LEARN" },
     { href: "/feedback", label: "FEEDBACK" },
     { href: "/docs/overview", label: "DOCS" },
   ];
   return (
-    // Six tabs outgrow a phone: the row scrolls sideways there instead of
+    // Seven tabs outgrow a phone: the row scrolls sideways there instead of
     // pushing the whole page wider than the screen.
     <nav ref={nav} className="flex w-full max-w-full items-center gap-1 overflow-x-auto [scrollbar-width:none] sm:w-auto [&::-webkit-scrollbar]:hidden" aria-label="sections">
       {tabs.map((t) => (
-        <Link key={t.href} href={t.href} className={`gametab shrink-0 ${path === t.href ? "active" : ""}`}>
+        <Link key={t.href} href={t.href} className={`gametab shrink-0 ${path === t.href || (t.href !== "/" && path.startsWith(`${t.href}/`)) ? "active" : ""}`}>
           {t.label}
         </Link>
       ))}

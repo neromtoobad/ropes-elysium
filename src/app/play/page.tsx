@@ -1495,6 +1495,12 @@ function Join({
           "NO WALLET IN THIS BROWSER — PRACTICE ONLY. RANKED NEEDS A WALLET; THE TRADE IS REAL AND ON-CHAIN EITHER WAY."
         )}
       </p>
+      <p className="mt-1 text-[10px] font-bold tracking-wider text-[var(--dim)]">
+        NEW HERE?{" "}
+        <a href="/learn" className="text-[var(--gold)] underline decoration-dotted">
+          LEARN THE ROPE IN 2-MINUTE LESSONS →
+        </a>
+      </p>
       {!walletReady && <OpenInWallet />}
     </div>
   );
