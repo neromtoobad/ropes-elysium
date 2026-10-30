@@ -233,7 +233,9 @@ function MyCard({ me, leagues, playerKey, onSaved }: { me: Me | null; leagues: L
               </span>
             ))}
           </div>
-          <div className="min-w-0 flex-1">
+          {/* 260px basis: on a phone the copy drops under the crests instead
+              of squeezing into the sliver beside them */}
+          <div className="min-w-0 flex-1 basis-[260px]">
             <p className="display text-2xl">You&apos;re not on the table yet.</p>
             <p className="mt-2 max-w-xl text-[12px] leading-relaxed text-[var(--dim)]">
               Points and trophies come from <b className="text-[var(--gold)]">ranked</b> seats, paid from your own tUSDC bankroll. Test tUSDC is free on the wallet page. Connect,
@@ -296,7 +298,8 @@ function MyCard({ me, leagues, playerKey, onSaved }: { me: Me | null; leagues: L
       }}
     >
       <div className="flex min-w-0 gap-4 sm:gap-5">
-        <div className="shrink-0 drop-shadow-[0_10px_18px_rgba(0,0,0,0.45)]">
+        {/* 64px on a phone: at 96 the stats beside it got 58px columns */}
+        <div className="h-16 w-16 shrink-0 drop-shadow-[0_10px_18px_rgba(0,0,0,0.45)] sm:h-24 sm:w-24 [&>svg]:h-full [&>svg]:w-full">
           <Crest league={league.name} size={96} />
         </div>
         <div className="min-w-0 flex-1">

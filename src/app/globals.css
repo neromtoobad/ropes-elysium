@@ -645,6 +645,15 @@ a[href] {
 .tp-keys a, .tp-keys span { display: block; margin-top: 6px; font: 600 15px "JetBrains Mono", monospace; }
 .tp-keys p { margin-top: 8px; font-size: 14px; color: var(--dim); }
 .tp-keys b { color: var(--text); }
+.tp-swipe { display: none; }
+@media screen and (max-width: 640px) {
+  /* nine columns never fit a phone: tighten them, pin the round number so
+     each row keeps its label while the rest slides, and say it slides */
+  .tp-swipe { display: block; margin-top: 10px; font-size: 12.5px; color: var(--dim); }
+  .doc-table th, .doc-table td { padding: 8px 10px; }
+  .tp-table td, .tp-table th { font-size: 12.5px; }
+  .tp-table th:first-child, .tp-table td:first-child { position: sticky; left: 0; z-index: 1; background: var(--panel); box-shadow: 1px 0 0 var(--edge); }
+}
 @media screen and (max-width: 1024px) {
   .docs-page { grid-template-columns: minmax(0, 1fr); }
   .doc-toc { display: none; }
@@ -661,6 +670,12 @@ a[href] {
   .doc h1 { font-size: 34px; }
   .tp h1 { font-size: 34px; }
   .tp-keys { grid-template-columns: minmax(0, 1fr); }
+  /* the vault reads 100,052.52, wider than half a phone: give it the row
+     and let the gas card sit beside the risk card instead */
+  .tp-stats div:nth-child(3) { grid-column: span 2; }
+  .tp-stats div:last-child:nth-child(odd) { grid-column: auto; }
+  .tp-stats div { padding: 14px 14px; }
+  .tp-stats strong { font-size: clamp(22px, 7vw, 30px); overflow-wrap: anywhere; }
 }
 /* mainnet + token */
 .dot.gold { background: var(--gold); box-shadow: 0 0 0 3px rgba(255,201,77,.2); }

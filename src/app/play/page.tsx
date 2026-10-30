@@ -10,7 +10,7 @@ import { useSound, useHeartbeat } from "../sound";
 import { useHasWallet, useAccount, wallets, connect, paySeat, collateralBalance, signDeposit } from "../wallet";
 import { useSmoothed } from "../useSmoothed";
 import {
-  usd, short, clock, bigClock, usePlayerKey, useLedger, useClimberTheme, SiteNav, HowItWorks, ShareButton,
+  usd, short, clock, bigClock, usePlayerKey, useLedger, useClimberTheme, SiteNav, NavMenu, HowItWorks, ShareButton,
   type LedgerData, OpenInWallet, safeLocal, fmtMark, fmtMove} from "../shared";
 
 const SEAT = 10_000_000n; // 10 tUSDC, 6 decimals
@@ -750,8 +750,9 @@ function TopBar({
         </div>
       </div>
 
-      <div className="flex min-w-0 items-center gap-0.5 sm:gap-1">
-        <SiteNav />
+      <div className="flex min-w-0 items-center gap-1.5 sm:gap-1">
+        <SiteNav from="lg" />
+        <NavMenu from="lg" />
         <button
           onClick={sound.toggle}
           aria-label={sound.on ? "Mute sound" : "Unmute sound"}
@@ -1139,7 +1140,7 @@ function BailBar({
             <button
               key={at}
               onClick={() => onAutoBail(active ? null : at)}
-              className="chamfer-sm min-h-[34px] border px-2 py-1 transition sm:px-2.5"
+              className="chamfer-sm min-h-10 border px-2.5 py-1 transition"
               style={{
                 borderColor: active ? "var(--gold)" : "var(--edge)",
                 color: active ? "var(--gold)" : "var(--dim)",
@@ -1168,7 +1169,7 @@ function BailBar({
                 setNextOptimistic(side);
                 onNext(side);
               }}
-              className="chamfer-sm min-h-[34px] border px-2 py-1 transition sm:px-2.5"
+              className="chamfer-sm min-h-10 border px-2.5 py-1 transition"
               style={{
                 borderColor: active ? c : "var(--edge)",
                 color: active ? c : "var(--dim)",
@@ -1814,13 +1815,16 @@ function LastRun({ ledger, climber }: { ledger: LedgerData | null; climber: Clim
   if (!last) return null;
   const won = last.net >= 0;
   return (
-    <section className="mt-4 flex items-center justify-between border border-[var(--edge)] px-4 py-3 chamfer-sm" style={{ background: "var(--panel)" }}>
-      <span className="text-[11px] font-bold tracking-[0.2em] text-[var(--dim)]">
-        YOUR LAST RUN ·{" "}
-        <span className="tabular" style={{ color: won ? "var(--up)" : "var(--down)" }}>
-          {last.multiple.toFixed(2)}× · {usd(last.net)}
-        </span>{" "}
-        · {last.rounds}R
+    <section className="mt-4 flex items-center justify-between gap-3 border border-[var(--edge)] px-4 py-3 chamfer-sm" style={{ background: "var(--panel)" }}>
+      {/* label over numbers: on one line the run wrapped mid-figure on a phone */}
+      <span className="min-w-0">
+        <span className="block text-[10px] font-bold tracking-[0.2em] text-[var(--dim)]">YOUR LAST RUN</span>
+        <span className="tabular mt-0.5 block whitespace-nowrap text-[13px] font-bold">
+          <span style={{ color: won ? "var(--up)" : "var(--down)" }}>
+            {last.multiple.toFixed(2)}× · {usd(last.net)}
+          </span>
+          <span className="text-[var(--dim)]"> · {last.rounds}R</span>
+        </span>
       </span>
       <ShareButton run={last} climber={climber} name={ledger?.name ?? "climber"} />
     </section>

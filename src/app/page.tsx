@@ -80,7 +80,7 @@ export default function Landing() {
             <Link
               key={n.href}
               href={n.href}
-              className={`${n.gold ? "text-[var(--gold)]" : "hover:text-[var(--text)]"} ${n.href === "/docs/overview" || n.href === "/transparency" || n.href === "/feedback" || n.href === "/leaders" || n.gold ? "hidden sm:inline" : ""}`}
+              className={`inline-flex min-h-11 items-center ${n.gold ? "text-[var(--gold)]" : "hover:text-[var(--text)]"} ${n.href === "/docs/overview" || n.href === "/transparency" || n.href === "/feedback" || n.href === "/leaders" || n.gold ? "max-sm:hidden" : ""}`}
             >
               {n.label}
             </Link>

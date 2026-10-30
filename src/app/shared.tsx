@@ -8,7 +8,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { shareRunCard } from "./share";
 import { isMobile, walletDeepLinks } from "./wallet";
 import type { ClimberId } from "./Cliff";
@@ -207,30 +207,34 @@ export function useLedger(playerKey: string | null, refreshKey?: unknown) {
 
 /* ─────────────────────────── site chrome ─────────────────────────── */
 
+const TABS = [
+  { href: "/play", label: "CLIMB" },
+  { href: "/leaders", label: "LEADERS" },
+  { href: "/points", label: "POINTS" },
+  { href: "/wallet", label: "WALLET" },
+  { href: "/learn", label: "LEARN" },
+  { href: "/feedback", label: "FEEDBACK" },
+  { href: "/docs/overview", label: "DOCS" },
+];
+
+function isHere(path: string, href: string) {
+  return path === href || (href !== "/" && path.startsWith(`${href}/`));
+}
+
+/** Where the full tab row takes over from the MENU button. The game header
+ *  also carries the logo block and the sound toggle, so it needs a laptop. */
+const NAV_AT = {
+  sm: { row: "sm:flex", menu: "sm:hidden" },
+  lg: { row: "lg:flex", menu: "lg:hidden" },
+};
+
 /** The site's nav: every section one tap away, current one lit. */
-export function SiteNav() {
+export function SiteNav({ from = "sm" }: { from?: keyof typeof NAV_AT }) {
   const path = usePathname();
-  const nav = useRef<HTMLElement>(null);
-  // On a phone the current tab may sit past the edge; bring it into view.
-  useEffect(() => {
-    const el = nav.current?.querySelector<HTMLElement>(".active");
-    if (el && nav.current) nav.current.scrollLeft = el.offsetLeft - (nav.current.clientWidth - el.clientWidth) / 2;
-  }, [path]);
-  const tabs = [
-    { href: "/play", label: "CLIMB" },
-    { href: "/leaders", label: "LEADERS" },
-    { href: "/points", label: "POINTS" },
-    { href: "/wallet", label: "WALLET" },
-    { href: "/learn", label: "LEARN" },
-    { href: "/feedback", label: "FEEDBACK" },
-    { href: "/docs/overview", label: "DOCS" },
-  ];
   return (
-    // Seven tabs outgrow a phone: the row scrolls sideways there instead of
-    // pushing the whole page wider than the screen.
-    <nav ref={nav} className="flex w-full max-w-full items-center gap-1 overflow-x-auto [scrollbar-width:none] sm:w-auto [&::-webkit-scrollbar]:hidden" aria-label="sections">
-      {tabs.map((t) => (
-        <Link key={t.href} href={t.href} className={`gametab shrink-0 ${path === t.href || (t.href !== "/" && path.startsWith(`${t.href}/`)) ? "active" : ""}`}>
+    <nav className={`hidden min-w-0 items-center gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${NAV_AT[from].row}`} aria-label="sections">
+      {TABS.map((t) => (
+        <Link key={t.href} href={t.href} className={`gametab shrink-0 ${isHere(path, t.href) ? "active" : ""}`}>
           {t.label}
         </Link>
       ))}
@@ -238,21 +242,81 @@ export function SiteNav() {
   );
 }
 
+/**
+ * The phone nav. Seven tabs in a sideways strip hid four of them past the
+ * edge with nothing saying they were there; one MENU button opens every
+ * section as a full-size target instead.
+ */
+export function NavMenu({ from = "sm" }: { from?: keyof typeof NAV_AT }) {
+  const path = usePathname();
+  const [open, setOpen] = useState(false);
+  useEffect(() => setOpen(false), [path]);
+  useEffect(() => {
+    if (!open) return;
+    const esc = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    window.addEventListener("keydown", esc);
+    return () => window.removeEventListener("keydown", esc);
+  }, [open]);
+  const here = TABS.find((t) => isHere(path, t.href));
+  return (
+    <div className={`relative ${NAV_AT[from].menu}`}>
+      <button
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        aria-controls="nav-menu"
+        className={`gametab gap-2 ${open ? "active" : ""}`}
+      >
+        <span className="flex w-3.5 flex-col gap-[3px]" aria-hidden>
+          <span className="h-[2px] bg-current" />
+          <span className="h-[2px] bg-current" />
+          <span className="h-[2px] bg-current" />
+        </span>
+        {here && !open ? here.label : "MENU"}
+      </button>
+      {open && (
+        <>
+          <button aria-label="Close menu" className="fixed inset-0 z-40 cursor-default bg-black/50" onClick={() => setOpen(false)} />
+          <nav
+            id="nav-menu"
+            aria-label="sections"
+            className="chamfer absolute right-0 top-full z-50 mt-2 grid w-[min(calc(100vw-32px),320px)] grid-cols-2 gap-1.5 border border-[var(--edge)] p-2 shadow-2xl"
+            style={{ background: "var(--panel)" }}
+          >
+            {TABS.map((t) => (
+              <Link
+                key={t.href}
+                href={t.href}
+                className={`gametab justify-center border-[var(--edge)] ${isHere(path, t.href) ? "active" : ""}`}
+              >
+                {t.label}
+              </Link>
+            ))}
+            <Link href="/" className="gametab col-span-2 justify-center border-[var(--edge)]">HOME</Link>
+          </nav>
+        </>
+      )}
+    </div>
+  );
+}
+
 /** Header for the non-game pages: mark, title, nav. */
 export function PageHeader({ title }: { title: string }) {
   return (
     <header className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-      <div className="flex w-full items-center justify-between gap-3 sm:w-auto">
-        <Link href="/" className="flex items-center gap-3">
+      <div className="flex min-w-0 flex-1 items-center justify-between gap-3 sm:flex-none">
+        <Link href="/" className="flex min-w-0 items-center gap-3">
           <Image src="/mark.webp" alt="" width={64} height={34} priority className="h-9 w-auto" />
-          <div>
+          <div className="min-w-0">
             <h1 className="display whitespace-nowrap text-base leading-none tracking-[0.2em] sm:text-lg">
               ROPES
             </h1>
-            <p className="mt-0.5 text-[9px] font-bold tracking-[0.3em] text-[var(--dim)]">{title}</p>
+            <p className="mt-0.5 truncate text-[9px] font-bold tracking-[0.3em] text-[var(--dim)]">{title}</p>
           </div>
         </Link>
-        <StreakChip />
+        <div className="flex shrink-0 items-center gap-1.5">
+          <StreakChip />
+          <NavMenu />
+        </div>
       </div>
       <SiteNav />
     </header>
@@ -355,7 +419,7 @@ export function ShareButton({
         setMsg(how === "copied" ? "COPIED — PASTE ANYWHERE" : "SAVED");
         setTimeout(() => setMsg(null), 2200);
       }}
-      className="chamfer-sm border border-[var(--gold)] px-3 py-1.5 text-[10px] font-black tracking-[0.15em] text-[var(--gold)] transition hover:bg-[var(--gold)] hover:text-black"
+      className="chamfer-sm min-h-10 whitespace-nowrap border border-[var(--gold)] px-3 py-1.5 text-[10px] font-black tracking-[0.15em] text-[var(--gold)] transition hover:bg-[var(--gold)] hover:text-black"
     >
       {msg ?? "SHARE CARD"}
     </button>
@@ -403,8 +467,9 @@ export function LedgerPanel({ ledger, climber }: { ledger: LedgerData | null; cl
       <div className="mt-4 space-y-1.5">
         {ledger.runs.map((r) => (
           <div key={r.id} className="chamfer-sm border border-[var(--edge)] px-4 py-2.5" style={{ background: "var(--panel)" }}>
-            <div className="flex items-center justify-between text-sm">
-              <span className="flex items-center gap-2 font-bold">
+            <div className="flex items-center justify-between gap-3 text-sm">
+              {/* wraps on a phone so the share button keeps its full width */}
+              <span className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 font-bold">
                 <span style={{ color: r.status === "alive" ? "var(--gold)" : r.status === "eliminated" ? "var(--down)" : "var(--up)" }}>
                   {r.status === "alive" ? "▲ ON THE WALL" : r.status === "eliminated" ? "☠ FELL" : "◆ BANKED"}
                 </span>
@@ -424,7 +489,7 @@ export function LedgerPanel({ ledger, climber }: { ledger: LedgerData | null; cl
                   </span>
                 )}
               </span>
-              <span className="flex items-center gap-3">
+              <span className="flex shrink-0 items-center gap-3">
                 <span className="tabular text-sm font-black" style={{ color: r.net >= 0 ? "var(--up)" : "var(--down)" }}>
                   {usd(r.net)}
                 </span>

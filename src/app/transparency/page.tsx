@@ -61,6 +61,7 @@ export default async function Transparency() {
           Strike = the {t.asset} candle open for the round&apos;s minute. Close = the open of the candle that starts at the bell.
           A round closed exactly on its strike voids and refunds everyone.
         </p>
+        <p className="tp-swipe">Swipe the table sideways for every column →</p>
         <div className="doc-table">
           <table className="tp-table">
             <thead>
