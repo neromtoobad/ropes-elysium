@@ -199,7 +199,8 @@ function Wall({ rows, label, round }: { rows: WallRow[] | null; label: string; r
         const onLeft = i % 2 === 0;
         const tag = (
           <Link href="/leaders" className="wall-tag">
-            #{i + 1} {r.name} <b>{r.best.toFixed(2)}×</b>
+            {/* long names truncate on a phone so the multiple stays on the wall */}
+            #{i + 1} <span className="inline-block max-w-[96px] truncate align-bottom sm:max-w-none">{r.name}</span> <b>{r.best.toFixed(2)}×</b>
           </Link>
         );
         return (
@@ -212,7 +213,7 @@ function Wall({ rows, label, round }: { rows: WallRow[] | null; label: string; r
             <Image
               src={`/climbers/${SKINS[i]}/${i === 0 ? "cheer" : "climb"}.webp`}
               alt=""
-              width={96}
+              width={62}
               height={96}
               className="h-16 w-auto sm:h-24"
               style={{ transform: onLeft ? "scaleX(-1)" : undefined, filter: "drop-shadow(0 10px 18px #000b)" }}
