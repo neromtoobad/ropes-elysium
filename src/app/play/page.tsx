@@ -10,7 +10,7 @@ import { useSound, useHeartbeat } from "../sound";
 import { useHasWallet, useAccount, wallets, connect, paySeat, collateralBalance, signDeposit } from "../wallet";
 import { useSmoothed } from "../useSmoothed";
 import {
-  usd, short, clock, bigClock, usePlayerKey, useLedger, useClimberTheme, SiteNav, NavMenu, HowItWorks, ShareButton,
+  usd, short, clock, bigClock, usePlayerKey, useLedger, useClimberTheme, SiteNav, NavMenu, BellChip, HowItWorks, ShareButton,
   type LedgerData, OpenInWallet, safeLocal, fmtMark, fmtMove} from "../shared";
 
 const SEAT = 10_000_000n; // 10 tUSDC, 6 decimals
@@ -600,7 +600,7 @@ export default function Game() {
               On lg it sits in flow under the wall. */}
           <div
             ref={dockRef}
-            className="fixed inset-x-0 bottom-0 z-30 border-t border-[var(--edge)] bg-[var(--bg)] px-4 pt-2 pb-[max(8px,env(safe-area-inset-bottom))] lg:static lg:mt-2 lg:border-0 lg:bg-transparent lg:px-0 lg:pt-0 lg:pb-0"
+            className="fixed inset-x-0 bottom-0 z-30 border-t border-[var(--edge)] bg-[color-mix(in_srgb,var(--bg)_92%,transparent)] px-4 pt-3 pb-[max(12px,env(safe-area-inset-bottom))] backdrop-blur-md lg:static lg:backdrop-blur-none lg:mt-2 lg:border-0 lg:bg-transparent lg:px-0 lg:pt-0 lg:pb-0"
           >
             {verdict && (!me || !me.inRound || verdict.kind === "lost" || verdict.kind === "banked") ? (
               <Result
@@ -622,9 +622,10 @@ export default function Game() {
               />
             ) : !runId || !me ? (
               preStage === "climber" ? (
-                <ChooseClimber climber={climber} onPick={pickClimber} onNext={() => { sound.arm(); setPreStage("name"); }} />
+                <ChooseClimber climber={climber} secs={view?.round ? secs : null} onPick={pickClimber} onNext={() => { sound.arm(); setPreStage("name"); }} />
               ) : (
               <Join
+                secs={view?.round ? secs : null}
                 name={name}
                 setName={setName}
                 busy={busy}
@@ -788,10 +789,12 @@ function TopBar({
  */
 function ChooseClimber({
   climber,
+  secs,
   onPick,
   onNext,
 }: {
   climber: ClimberId;
+  secs: number | null;
   onPick: (id: ClimberId) => void;
   onNext: () => void;
 }) {
@@ -827,12 +830,18 @@ function ChooseClimber({
           </button>
         ))}
       </div>
-      <button
-        onClick={onNext}
-        className="chamfer mt-2 w-full bg-[var(--gold)] px-6 py-3 text-sm font-black tracking-[0.15em] text-black transition hover:brightness-110"
-      >
-        CONTINUE AS {cast.label} →
-      </button>
+      {/* the same pinned CTA as the landing: the bell beside one big
+          thumb-zone button */}
+      <div className="mt-2.5 flex items-stretch gap-2.5">
+        <div className="flex lg:hidden"><BellChip secs={secs} /></div>
+        <button
+          onClick={onNext}
+          className="chamfer flex min-h-[60px] flex-1 flex-col items-center justify-center bg-[var(--gold)] px-4 text-[#120d02] transition hover:brightness-110 active:brightness-90"
+        >
+          <span className="display text-lg leading-none tracking-[0.12em]">CONTINUE →</span>
+          <span className="mt-1 text-[9px] font-black tracking-[0.2em] opacity-70">AS {cast.label} · PRACTICE IS FREE</span>
+        </button>
+      </div>
     </div>
   );
 }
@@ -1332,6 +1341,7 @@ function Sides({
 }
 
 function Join({
+  secs,
   name,
   setName,
   busy,
@@ -1346,6 +1356,7 @@ function Join({
   onPlayFree,
   onBack,
 }: {
+  secs: number | null;
   name: string;
   setName: (v: string) => void;
   busy: boolean;
@@ -1367,6 +1378,8 @@ function Join({
   const left = bank ? Math.max(0, (bank.rankedCap ?? 20) - (bank.rankedToday ?? 0)) : 0;
   const capped = funded && left === 0;
   const primary = funded && !capped ? onJoin : addr ? onBuy : onPractice;
+  // No wallet anywhere: practice is the only door, so it gets the solid fill.
+  const solo = !funded && !addr && !walletReady;
   /*
    * The rules are four cards' worth of screen. A first-timer needs them; a
    * returning player has read them and just wants the wall back, so they
@@ -1386,7 +1399,9 @@ function Join({
     setShowRules(roomy && safeLocal.get("lc.rulesSeen") !== "1");
   }, []);
   return (
-    <div>
+    // flex column so the buttons can sit LAST on a phone, in the thumb zone,
+    // with the small print above them instead of under them
+    <div className="flex flex-col">
       <div className="mb-1.5 flex items-center justify-between">
         <p className="text-[10px] font-black tracking-[0.3em] text-[var(--dim)]">
           <span className="text-[var(--gold)]">2</span> · YOUR NAME
@@ -1411,70 +1426,47 @@ function Join({
         )}
       </button>
       {showRules && <HowItWorks />}
-      <div className="flex flex-wrap gap-2">
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && primary()}
-          placeholder="your name"
-          maxLength={12}
-          autoFocus
-          className="min-w-0 flex-1 rounded-lg border border-[var(--edge)] bg-[var(--panel)] px-4 py-3 text-base outline-none focus:border-[var(--gold)]"
-        />
-        {/* Two doors, always visibly different: green outline is PRACTICE on
-            the house's money, solid gold is RANKED on yours. Practice stays
-            open to everyone, even with a funded bankroll. */}
+      {/* Name on its own row, then the doors as big thumb-zone buttons with
+          the bell beside them, the same pinned CTA as the landing. Two doors,
+          always visibly different: green is PRACTICE on the house's money,
+          gold is RANKED on yours. Practice stays open to everyone. */}
+      <input
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        onKeyDown={(e) => e.key === "Enter" && primary()}
+        placeholder="your name"
+        maxLength={12}
+        autoFocus
+        className="w-full min-w-0 rounded-lg border border-[var(--edge)] bg-[var(--panel)] px-4 py-3 text-base outline-none focus:border-[var(--gold)]"
+      />
+      <div className="order-last mt-2.5 flex items-stretch gap-2.5 lg:order-none">
+        <div className="flex lg:hidden"><BellChip secs={secs} /></div>
         <button
           onClick={onPractice}
           disabled={!name.trim() || busy}
-          className="chamfer-sm border border-[var(--up)] px-5 py-3 text-sm font-black tracking-[0.1em] text-[var(--up)] transition hover:bg-[var(--up)] hover:text-black disabled:opacity-40"
+          className={`chamfer flex min-h-[60px] flex-1 flex-col items-center justify-center border border-[var(--up)] px-3 transition disabled:opacity-40 ${
+            solo ? "bg-[var(--up)] text-black hover:brightness-110" : "text-[var(--up)] hover:bg-[var(--up)] hover:text-black"
+          }`}
         >
-          {busy && !paying ? "SEATING…" : (
-            <>
-              PRACTICE
-              {/* the qualifier costs the name field its width on a 375px
-                  screen, and the caption underneath already says whose
-                  money it is. The green stays either way. */}
-              <span className="hidden sm:inline"> · FREE</span>
-            </>
-          )}
+          <span className="display text-lg leading-none tracking-[0.12em]">{busy && !paying ? "SEATING…" : solo ? "PRACTICE →" : "PRACTICE"}</span>
+          <span className="mt-1 text-[9px] font-black tracking-[0.2em] opacity-75">FREE · HOUSE MONEY</span>
         </button>
-        {funded ? (
+        {(funded || addr || walletReady) && (
           <button
-            onClick={onJoin}
-            disabled={!name.trim() || busy || capped}
-            className="chamfer-sm bg-[var(--gold)] px-6 py-3 text-sm font-black tracking-[0.1em] text-black disabled:opacity-40"
+            onClick={funded ? onJoin : addr ? onBuy : onConnect}
+            disabled={funded ? !name.trim() || busy || capped : addr ? !name.trim() || paying || busy : false}
+            className="chamfer flex min-h-[60px] flex-1 flex-col items-center justify-center bg-[var(--gold)] px-3 text-[#120d02] transition hover:brightness-110 disabled:opacity-40"
           >
-            {busy ? "SEATING…" : capped ? "RANKED · DONE FOR TODAY" : (
-              <>
-                RANKED
-                <span className="hidden sm:inline"> · 10 FROM BANKROLL ({bank!.balance.toFixed(2)})</span>
-              </>
-            )}
+            <span className="display text-lg leading-none tracking-[0.12em]">
+              {paying ? "PAYING…" : busy ? "SEATING…" : funded && capped ? "DONE TODAY" : "RANKED →"}
+            </span>
+            <span className="mt-1 text-[9px] font-black tracking-[0.2em] opacity-75">
+              {funded ? `10 OF ${bank!.balance.toFixed(2)} BANKROLL` : addr ? "DEPOSIT 10 tUSDC" : "CONNECT WALLET"}
+            </span>
           </button>
-        ) : addr ? (
-          <button
-            onClick={onBuy}
-            disabled={!name.trim() || paying || busy}
-            className="chamfer-sm bg-[var(--gold)] px-6 py-3 text-sm font-black tracking-[0.1em] text-black disabled:opacity-40"
-          >
-            {paying ? "PAYING…" : busy ? "SEATING…" : (
-              <>
-                RANKED
-                <span className="hidden sm:inline"> · DEPOSIT 10 tUSDC</span>
-              </>
-            )}
-          </button>
-        ) : walletReady ? (
-          <button
-            onClick={onConnect}
-            className="chamfer-sm border border-[var(--gold)] px-4 py-3 text-xs font-black tracking-[0.1em] text-[var(--gold)]"
-          >
-            CONNECT WALLET · RANKED
-          </button>
-        ) : null}
+        )}
       </div>
-      <p className="mt-1.5 text-[10px] font-bold tracking-wider text-[var(--dim)]">
+      <p className="mt-2 text-[10px] font-bold tracking-wider text-[var(--dim)]">
         {funded ? (
           <>
             RANKED: YOUR BANKROLL PAYS, WINNINGS GO BACK TO IT, AND IT COUNTS ON{" "}

@@ -299,6 +299,16 @@ export function NavMenu({ from = "sm" }: { from?: keyof typeof NAV_AT }) {
   );
 }
 
+/** The live bell beside a pinned phone CTA: when the next round starts. */
+export function BellChip({ secs }: { secs: number | null }) {
+  return (
+    <div className="chamfer-sm flex w-[76px] shrink-0 flex-col items-center justify-center border border-[var(--edge)]" style={{ background: "var(--panel)" }}>
+      <span className="display tabular text-xl leading-none">{secs != null ? clock(secs) : "··"}</span>
+      <span className="mt-1 text-[8px] font-bold tracking-[0.2em] text-[var(--dim)]">NEXT BELL</span>
+    </div>
+  );
+}
+
 /** Header for the non-game pages: mark, title, nav. */
 export function PageHeader({ title }: { title: string }) {
   return (

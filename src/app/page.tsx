@@ -10,7 +10,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import type { TableState } from "@/lib/state";
-import { useClimberTheme, type LeaderRow, pad, NavMenu } from "./shared";
+import { useClimberTheme, type LeaderRow, pad, NavMenu, BellChip } from "./shared";
 
 const NAV = [
   { href: "/play", label: "PLAY" },
@@ -138,10 +138,7 @@ export default function Landing() {
           down the poster that scrolls away. */}
       <div className="fixed inset-x-0 bottom-0 z-30 border-t border-[var(--edge)] bg-[color-mix(in_srgb,var(--bg)_92%,transparent)] px-4 pt-3 pb-[max(12px,env(safe-area-inset-bottom))] backdrop-blur-md sm:hidden">
         <div className="flex items-stretch gap-2.5">
-          <div className="chamfer-sm flex w-[76px] shrink-0 flex-col items-center justify-center border border-[var(--edge)]" style={{ background: "var(--panel)" }}>
-            <span className="display tabular text-xl leading-none">{left != null ? `0:${pad(left)}` : "··"}</span>
-            <span className="mt-1 text-[8px] font-bold tracking-[0.2em] text-[var(--dim)]">NEXT BELL</span>
-          </div>
+          <BellChip secs={left} />
           <Link href="/play?seat=1" className="chamfer flex min-h-[60px] flex-1 flex-col items-center justify-center bg-[var(--gold)] text-[#120d02] transition active:brightness-90">
             <span className="display text-lg leading-none tracking-[0.12em]">TAKE A SEAT →</span>
             <span className="mt-1 text-[9px] font-black tracking-[0.2em] opacity-70">FREE · NO WALLET</span>
