@@ -29,6 +29,8 @@ export type BoardRow = {
   best: number;
   /** Most rounds one run survived in the window. */
   longest: number;
+  /** Self-claimed X handle, lowercased, no @. */
+  handle: string | null;
 };
 
 export function weekBounds(now = new Date()) {
@@ -57,10 +59,10 @@ export async function rankedSeatsToday(address: string) {
   });
 }
 
-function aggregate(runs: { wallet: string; name: string; net: number; multiple: number; rounds: number }[]) {
+function aggregate(runs: RankedRun[], handles: Map<string, string>) {
   const by = new Map<string, BoardRow>();
   for (const r of runs) {
-    const row = by.get(r.wallet) ?? { wallet: r.wallet, name: r.name, runs: 0, net: 0, best: 0, longest: 0 };
+    const row = by.get(r.wallet) ?? { wallet: r.wallet, name: r.name, runs: 0, net: 0, best: 0, longest: 0, handle: handles.get(r.wallet) ?? null };
     row.runs += 1;
     row.net += r.net;
     row.best = Math.max(row.best, r.multiple);
@@ -82,40 +84,75 @@ export async function getBoards() {
   return value;
 }
 
-async function compute() {
-  const { start, end } = weekBounds();
+export type RankedRun = {
+  wallet: string;
+  name: string;
+  net: number;
+  multiple: number;
+  rounds: number;
+  banked: boolean;
+  champion: boolean;
+  endedAt: Date | null;
+};
+
+/** Every ended ranked run, oldest first, with the moment its last bell rang.
+ *  The boards and the points table are both views of this one list. */
+export async function endedRankedRuns(): Promise<RankedRun[]> {
   const ended = await db.run.findMany({
     where: { payoutAddress: { not: null }, status: { in: ["banked", "eliminated"] } },
     include: { player: { select: { displayName: true } }, table: { select: { finishedAt: true } } },
     orderBy: { startedRoundIndex: "asc" },
   });
 
-  // When each run's last bell rang. Champions are crowned by the table, which
-  // records the moment on the table rather than the run.
+  // Champions are crowned by the table, which records the moment on the
+  // table rather than the run.
   const idx = [...new Set(ended.map((r) => r.endedRoundIndex).filter((i): i is number => i !== null))];
   const rounds = idx.length
     ? await db.round.findMany({ where: { index: { in: idx } }, select: { index: true, expiresAt: true } })
     : [];
   const bell = new Map(rounds.map((r) => [r.index, r.expiresAt]));
 
-  const rows = ended.map((r) => ({
+  return ended.map((r) => ({
     wallet: r.payoutAddress!.toLowerCase(),
     name: r.player.displayName,
     net: toUsd(r.stack) - toUsd(r.buyIn),
     multiple: r.finalMultiple ?? toUsd(r.stack) / toUsd(r.buyIn),
     rounds: r.roundsSurvived,
+    banked: r.status === "banked",
+    champion: r.isChampion,
     endedAt: (r.endedRoundIndex !== null ? bell.get(r.endedRoundIndex) : null) ?? r.table?.finishedAt ?? null,
   }));
+}
+
+/** Wallet → claimed handle. Tolerates the table not existing yet: the web
+ *  app can boot a moment before the executor's schema push lands. */
+export async function handleMap(): Promise<Map<string, string>> {
+  const rows = await db.climber.findMany({ where: { handle: { not: null } }, select: { address: true, handle: true } }).catch(() => []);
+  return new Map(rows.map((c) => [c.address, c.handle!]));
+}
+
+/** Rank a window's runs the way the Summit does. Shared with the points
+ *  table, which pays out on where a climber finished each week. */
+export function summitOf(runs: RankedRun[], handles = new Map<string, string>()) {
+  return aggregate(runs, handles).sort((a, b) => b.net - a.net);
+}
+export function longestOf(runs: RankedRun[], handles = new Map<string, string>()) {
+  return aggregate(runs, handles).filter((r) => r.longest > 0).sort((a, b) => b.longest - a.longest || b.best - a.best);
+}
+
+async function compute() {
+  const { start, end } = weekBounds();
+  const [rows, handles] = await Promise.all([endedRankedRuns(), handleMap()]);
   const thisWeek = rows.filter((r) => r.endedAt && r.endedAt >= start && r.endedAt < end);
 
-  const week = aggregate(thisWeek);
-  const allTime = aggregate(rows);
+  const week = aggregate(thisWeek, handles);
+  const allTime = aggregate(rows, handles);
   return {
     week: {
       start: start.toISOString(),
       end: end.toISOString(),
-      summit: [...week].sort((a, b) => b.net - a.net),
-      longest: [...week].filter((r) => r.longest > 0).sort((a, b) => b.longest - a.longest || b.best - a.best),
+      summit: summitOf(thisWeek, handles),
+      longest: longestOf(thisWeek, handles),
       best: [...week].filter((r) => r.best > 1).sort((a, b) => b.best - a.best),
     },
     allTime: {

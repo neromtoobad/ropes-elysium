@@ -15,6 +15,7 @@ import { useClimberTheme, type LeaderRow, pad } from "./shared";
 const NAV = [
   { href: "/play", label: "PLAY" },
   { href: "/leaders", label: "LEADERS" },
+  { href: "/points", label: "POINTS" },
   { href: "/transparency", label: "PROOF" },
   { href: "/docs/overview", label: "DOCS" },
   { href: "/token", label: "$ROPES", gold: true },
@@ -47,7 +48,7 @@ export default function Landing() {
         fetch("/api/boards").then((r) => (r.ok ? r.json() : null)).catch(() => null),
         fetch("/api/leaderboard").then((r) => (r.ok ? r.json() : null)).catch(() => null),
       ]).then(([b, l]) => {
-        const toWall = (rs: { wallet: string; name: string; best: number }[]) => rs.map((r) => ({ id: r.wallet, name: r.name, best: r.best }));
+        const toWall = (rs: { wallet: string; name: string; handle?: string | null; best: number }[]) => rs.map((r) => ({ id: r.wallet, name: r.handle ? `@${r.handle}` : r.name, best: r.best }));
         if (b?.week?.best?.length >= 3) setWall({ rows: toWall(b.week.best), label: "THIS WEEK · RANKED" });
         else if (b?.allTime?.best?.length >= 3) setWall({ rows: toWall(b.allTime.best), label: "ALL-TIME · RANKED" });
         else if (Array.isArray(l?.rows)) setWall({ rows: (l.rows as LeaderRow[]).map((r) => ({ id: r.id, name: r.name, best: r.best })), label: "ALL-TIME" });
@@ -77,7 +78,7 @@ export default function Landing() {
             <Link
               key={n.href}
               href={n.href}
-              className={`${n.gold ? "text-[var(--gold)]" : "hover:text-[var(--text)]"} ${n.href === "/docs/overview" || n.gold ? "hidden sm:inline" : ""}`}
+              className={`${n.gold ? "text-[var(--gold)]" : "hover:text-[var(--text)]"} ${n.href === "/docs/overview" || n.href === "/transparency" || n.gold ? "hidden sm:inline" : ""}`}
             >
               {n.label}
             </Link>

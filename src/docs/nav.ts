@@ -52,6 +52,7 @@ export const NAV: DocSection[] = [
     pages: [
       { slug: "game-rules", title: "Seats, tables & stacks" },
       { slug: "wallet", title: "Wallet & bankroll" },
+      { slug: "points", title: "Points, handles & invites" },
     ],
   },
   {

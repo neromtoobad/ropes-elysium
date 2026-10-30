@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Russo_One, Chakra_Petch } from "next/font/google";
 import "./globals.css";
+import InviteCatcher from "./InviteCatcher";
 
 /**
  * The esports pairing: Russo One for anything the player shouts about (the
@@ -51,7 +52,10 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${display.variable} ${body.variable}`}>
-      <body>{children}</body>
+      <body>
+        {children}
+        <InviteCatcher />
+      </body>
     </html>
   );
 }

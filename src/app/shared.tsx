@@ -212,6 +212,7 @@ export function SiteNav() {
   const tabs = [
     { href: "/play", label: "CLIMB" },
     { href: "/leaders", label: "LEADERS" },
+    { href: "/points", label: "POINTS" },
     { href: "/wallet", label: "WALLET" },
     { href: "/docs/overview", label: "DOCS" },
   ];

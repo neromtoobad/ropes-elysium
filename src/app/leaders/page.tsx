@@ -10,7 +10,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { PageHeader, usePlayerKey, useLedger, useClimberTheme, usd, short } from "../shared";
 
-type Row = { wallet: string; name: string; runs: number; net: number; best: number; longest: number };
+type Row = { wallet: string; name: string; runs: number; net: number; best: number; longest: number; handle: string | null };
 type Boards = {
   week: { start: string; end: string; summit: Row[]; longest: Row[] };
   allTime: { summit: Row[] };
@@ -78,6 +78,10 @@ export default function Leaders() {
         and never count.{" "}
         <Link href="/play" className="font-bold text-[var(--text)] underline decoration-dotted hover:text-[var(--gold)]">
           Take a ranked seat →
+        </Link>{" "}
+        Every ranked seat also scores{" "}
+        <Link href="/points" className="font-bold text-[var(--text)] underline decoration-dotted hover:text-[var(--gold)]">
+          ROPES Points →
         </Link>
       </p>
 
@@ -163,7 +167,11 @@ function Board({
                   <span className={`display tabular w-7 text-lg ${i === 0 ? "glow-gold" : "text-[var(--dim)]"}`}>{i + 1}</span>
                   <span className="min-w-0">
                     <span className="block truncate font-bold">
-                      {r.name}
+                      {r.handle ? (
+                        <a href={`https://x.com/${r.handle}`} target="_blank" rel="noreferrer" className="hover:text-[var(--gold)]">@{r.handle}</a>
+                      ) : (
+                        r.name
+                      )}
                       {isMe && <span className="ml-2 text-[9px] font-black tracking-[0.2em] text-[var(--gold)]">YOU</span>}
                     </span>
                     <span className="tabular block text-[10px] font-bold text-[var(--dim)]">

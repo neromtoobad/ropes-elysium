@@ -246,3 +246,36 @@ model Heartbeat {
   id String   @id
   at DateTime
 }
+
+/// A ranked climber's public face, keyed by WALLET (the ranked identity — see
+/// lib/boards), not by the browser's player key: two browsers on one wallet
+/// are one climber with one handle and one invite link.
+model Climber {
+  /// Lowercased wallet address.
+  address    String    @id
+  /// X handle, lowercased, no @. Self-claimed: nobody is verified by this.
+  handle     String?   @unique
+  /// The invite link's code: playropes.xyz/r/<code>.
+  inviteCode String    @unique
+  /// The wallet whose invite brought this one in. Set once, never changed.
+  referredBy String?
+  referredAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([referredBy])
+}
+
+/// Points handed out by hand — a confirmed bug report, an event prize. The
+/// rest of the points table is computed from ranked runs; this is the only
+/// part anyone types in. See lib/points.
+model PointGrant {
+  id        String   @id @default(cuid())
+  /// Lowercased wallet address.
+  address   String
+  points    Int
+  reason    String
+  createdAt DateTime @default(now())
+
+  @@index([address])
+}
