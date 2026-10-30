@@ -13,6 +13,7 @@
 import { db } from "./db";
 import { endedRankedRuns, handleMap, longestOf, summitOf, weekBounds, type RankedRun } from "./boards";
 import { computeTrophies, TIER_POINTS, type TrophyState } from "./trophies";
+import { checkInsByWallet, STREAK, walk } from "./streak";
 
 export const SEASON = { id: 0, name: "SEASON 0", sub: "TESTNET" };
 
@@ -28,6 +29,7 @@ export const RULES = {
   longest: [150, 100, 50], // weekly Longest Climb top 3
   inviteShare: 0.1, // of everything an invited wallet earns, excluding its own invite income
   trophy: TIER_POINTS, // bronze, silver, gold (lib/trophies)
+  streak: STREAK, // daily check-ins (lib/streak)
 };
 
 /** Leagues by season points. Climbing names, because it is a climbing game. */
@@ -116,12 +118,21 @@ function rankOf(events: Event[], until: Date | null) {
 }
 
 async function compute(now = new Date()) {
-  const [runs, handles, climbers, grants] = await Promise.all([
+  const [runs, handles, climbers, grants, checkIns] = await Promise.all([
     endedRankedRuns(),
     handleMap(),
     db.climber.findMany({ where: { referredBy: { not: null } }, select: { address: true, referredBy: true } }).catch(() => []),
     db.pointGrant.findMany().catch(() => []),
+    checkInsByWallet(),
   ]);
+
+  // Each claimed day pays what its place in the streak was worth, at the
+  // moment it was claimed.
+  const streakEvents: Event[] = [];
+  for (const [wallet, days] of checkIns) {
+    const at = new Map(days.map((d) => [d.day, d.at]));
+    for (const d of walk(days.map((x) => x.day)).days) streakEvents.push({ wallet, points: d.points + d.bonus, at: at.get(d.day)!, kind: "streak" });
+  }
 
   const weekly = weekEvents(runs, now);
   const inviter = new Map(climbers.map((c) => [c.address, c.referredBy!]));
@@ -130,11 +141,13 @@ async function compute(now = new Date()) {
     summitPlaces: weekly.places,
     inviter,
     grants: grants.map((g) => ({ wallet: g.address.toLowerCase(), reason: g.reason, at: g.createdAt })),
+    checkIns,
   });
   const base = [
     ...runEvents(runs),
     ...weekly.events,
     ...trophies.events,
+    ...streakEvents,
     ...grants.map((g) => ({ wallet: g.address.toLowerCase(), points: g.points, at: g.createdAt, kind: "grant" })),
   ];
   // The inviter's cut, as events of its own at the same moments — so it

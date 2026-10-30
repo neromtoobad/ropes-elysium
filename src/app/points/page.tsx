@@ -10,9 +10,22 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { PageHeader, usePlayerKey, useClimberTheme, short } from "../shared";
 import { Crest, leagueColor } from "./Crest";
+import StreakPanel from "./StreakPanel";
 
 type Row = { wallet: string; name: string; handle: string | null; points: number; day: number; rank: number; prevRank: number | null; league: string; trophies: number };
-type Rules = { seat: number; round: number; bankPerX: number; bankCap: number; champion: number; daily: number; summit: number[]; longest: number[]; inviteShare: number; trophy: number[] };
+type Rules = {
+  seat: number;
+  round: number;
+  bankPerX: number;
+  bankCap: number;
+  champion: number;
+  daily: number;
+  summit: number[];
+  longest: number[];
+  inviteShare: number;
+  trophy: number[];
+  streak: { perDay: number; cap: number };
+};
 type TrophyDef = { id: string; name: string; goal: string; thresholds: number[]; rarity: number[] };
 type TrophyState = { id: string; tier: number; value: number | null; earnedAt: (string | null)[] };
 type League = { id: string; name: string; min: number };
@@ -122,6 +135,8 @@ export default function Points() {
       </div>
 
       <MyCard me={me} leagues={table?.leagues ?? null} playerKey={playerKey} onSaved={() => setRefresh((n) => n + 1)} />
+
+      <StreakPanel onClaimed={() => setRefresh((n) => n + 1)} />
 
       {table && <Cabinet defs={table.trophies} mine={me?.wallet ? me.trophies ?? [] : null} tierPoints={table.rules.trophy} />}
 
@@ -543,6 +558,7 @@ function HowPoints({ rules }: { rules: Rules }) {
     ["Bank a profit", `+${rules.bankPerX} per 1× (max ${rules.bankCap})`],
     ["Last one holding", `+${rules.champion}`],
     ["First ranked seat of the day", `+${rules.daily}`],
+    ["Daily check-in streak", `+${rules.streak.perDay} a day, up to +${rules.streak.cap}`],
     ["Trophy tiers", `+${rules.trophy[0]} / +${rules.trophy[1]} / +${rules.trophy[2]}`],
     ["Weekly Summit top 10", `+${rules.summit[rules.summit.length - 1]} to +${rules.summit[0]}`],
     ["Weekly Longest Climb top 3", `+${rules.longest[rules.longest.length - 1]} to +${rules.longest[0]}`],

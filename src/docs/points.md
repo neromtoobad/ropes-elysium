@@ -14,6 +14,7 @@ Only **ranked** seats score: seats paid from your own tUSDC bankroll. Practice s
 | Your first ranked seat of each UTC day | +25 |
 | Weekly Summit, top 10 (net winnings above zero) | +500, 300, 200, 150, 125, 100, 75, 60, 50, 40 |
 | Weekly Longest Climb, top 3 | +150, 100, 50 |
+| Daily check-in (see below) | +5 × your streak day, up to +35, plus milestones |
 | Trophy tiers (see below) | +25 bronze, +75 silver, +200 gold |
 | Your invites | 10% of everything they earn |
 
@@ -21,9 +22,17 @@ A run scores the moment its last bell rings. Weekly placings land when the week 
 
 Points can also be granted by hand, for things like a bug we confirm or an idea we ship from the [feedback board](/feedback), or an event prize. Those are at the team's call, and show up the same way.
 
+## Daily streak
+
+Check in once every UTC day on the [points page](/points#streak). Day 1 of a streak pays +5, day 2 +10, and so on up to +35 a day from day 7. Reaching 7 days pays a +50 bonus, 30 days +200 and 100 days +500.
+
+Every 7 days in a row banks a **freeze** (up to 2). Miss a day and a banked freeze covers it, so the streak carries on. Miss more days than you have freezes and it starts again at day 1.
+
+Check-ins need a wallet, like everything else here. The flame in the header turns orange until you've checked in today.
+
 ## Trophies
 
-Twelve trophies, most in three tiers. Each tier pays once, the moment you reach it.
+Thirteen trophies, most in three tiers. Each tier pays once, the moment you reach it.
 
 | Trophy | Bronze | Silver | Gold |
 | --- | --- | --- | --- |
@@ -34,6 +43,7 @@ Twelve trophies, most in three tiers. Each tier pays once, the moment you reach 
 | Clean Exit: runs banked in profit | 5 | 25 | 100 |
 | Diamond Grip: fall under 0.5×, then bank above 1× | 1 | 3 | 10 |
 | On Fire: ranked days in a row (UTC) | 3 | 7 | 14 |
+| Showed Up: check-in streak | 7 | 30 | 100 |
 | Regular: ranked seats played | 10 | 100 | 500 |
 | Endurance: rounds survived in total | 50 | 250 | 1,000 |
 | Summit Finisher: best weekly Summit finish | top 10 | top 3 | #1 |

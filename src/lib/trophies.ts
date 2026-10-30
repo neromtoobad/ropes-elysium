@@ -1,5 +1,5 @@
 /**
- * Trophies: twelve things worth doing on a rope, most of them in three tiers.
+ * Trophies: thirteen things worth doing on a rope, most of them in three tiers.
  *
  * Like the rest of the points table, nothing is stored. Each trophy is a
  * ladder over a series the ledger already has — rounds survived, multiples
@@ -8,6 +8,7 @@
  * so trophy points land in the 24h column exactly when they were won.
  */
 import type { RankedRun } from "./boards";
+import { walk } from "./streak";
 
 export const TIERS = ["bronze", "silver", "gold"] as const;
 export type Tier = (typeof TIERS)[number];
@@ -30,6 +31,7 @@ export const TROPHIES: TrophyDef[] = [
   { id: "clean-exit", name: "Clean Exit", goal: "Bank {n} runs in profit", thresholds: [5, 25, 100] },
   { id: "diamond", name: "Diamond Grip", goal: "Fall under 0.5×, then bank above 1×, {n} time(s)", thresholds: [1, 3, 10] },
   { id: "on-fire", name: "On Fire", goal: "Play ranked {n} days in a row", thresholds: [3, 7, 14] },
+  { id: "showed-up", name: "Showed Up", goal: "Reach a {n}-day check-in streak", thresholds: [7, 30, 100] },
   { id: "regular", name: "Regular", goal: "Play {n} ranked seats", thresholds: [10, 100, 500] },
   { id: "endurance", name: "Endurance", goal: "Survive {n} rounds in total", thresholds: [50, 250, 1000] },
   { id: "summit", name: "Summit Finisher", goal: "Finish a week's Summit in the top {n}", thresholds: [10, 3, 1] },
@@ -85,9 +87,11 @@ export type TrophyInput = {
   inviter: Map<string, string>;
   /** Hand grants with a reason, for Bug Hunter. */
   grants: { wallet: string; reason: string; at: Date }[];
+  /** Daily check-ins by wallet (lib/streak). */
+  checkIns: Map<string, { day: string; at: Date }[]>;
 };
 
-export function computeTrophies({ runs, summitPlaces, inviter, grants }: TrophyInput) {
+export function computeTrophies({ runs, summitPlaces, inviter, grants, checkIns }: TrophyInput) {
   const byWallet = new Map<string, RankedRun[]>();
   for (const r of runs) if (r.endedAt) byWallet.set(r.wallet, [...(byWallet.get(r.wallet) ?? []), r]);
 
@@ -98,7 +102,7 @@ export function computeTrophies({ runs, summitPlaces, inviter, grants }: TrophyI
     if (first) recruits.set(from, [...(recruits.get(from) ?? []), first]);
   }
 
-  const wallets = new Set([...byWallet.keys(), ...recruits.keys(), ...grants.map((g) => g.wallet)]);
+  const wallets = new Set([...byWallet.keys(), ...recruits.keys(), ...grants.map((g) => g.wallet), ...checkIns.keys()]);
   const states = new Map<string, TrophyState[]>();
   const events: { wallet: string; points: number; at: Date; kind: string }[] = [];
 
@@ -117,6 +121,13 @@ export function computeTrophies({ runs, summitPlaces, inviter, grants }: TrophyI
       endurance: { s: cumulative(rs.map((r) => ({ at: at(r), inc: r.rounds }))) },
       summit: { s: summitPlaces.filter((p) => p.wallet === w).map((p) => ({ at: p.at, value: p.place })), lower: true },
       recruiter: { s: cumulative((recruits.get(w) ?? []).map((a) => ({ at: a, inc: 1 }))) },
+      "showed-up": {
+        s: (() => {
+          const days = checkIns.get(w) ?? [];
+          const at = new Map(days.map((d) => [d.day, d.at]));
+          return walk(days.map((d) => d.day)).days.map((d) => ({ at: at.get(d.day)!, value: d.streak }));
+        })(),
+      },
       "bug-hunter": { s: cumulative(grants.filter((g) => g.wallet === w && g.reason.startsWith("feedback:")).map((g) => ({ at: g.at, inc: 1 }))) },
     };
 

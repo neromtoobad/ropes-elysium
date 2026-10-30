@@ -363,6 +363,7 @@ export const LESSONS: Lesson[] = [
           ["Banking a profit", "+20 per 1× above the buy-in, up to +200"],
           ["Last one holding at the table", "+100"],
           ["First ranked seat of the day", "+25"],
+          ["Daily check-in streak", "+5 a day, rising to +35, plus milestones"],
           ["Trophy tiers", "+25 bronze, +75 silver, +200 gold"],
           ["Weekly board finishes", "up to +500"],
           ["Your invites", "10% of what they earn"],
@@ -371,7 +372,7 @@ export const LESSONS: Lesson[] = [
       {
         h: "Trophies and leagues",
         p: [
-          "Twelve trophies, most in bronze, silver and gold: survive 10 rounds in one run, bank a 10× climb, play seven days in a row, win a table. Each tier pays once, and the cabinet shows how close you are to the next.",
+          "Check in every day to grow your streak: it pays more each day up to day 7, and every 7 days banks a freeze that covers a missed day. Thirteen trophies, most in bronze, silver and gold: survive 10 rounds in one run, bank a 10× climb, keep a 30-day streak, win a table. Each tier pays once, and the cabinet shows how close you are to the next.",
           "Leagues: Base Camp, Ledge (250), Ridge (1,000), Peak (2,500), Summit (6,000). The table updates live, with arrows showing how far each climber moved since yesterday.",
         ],
       },

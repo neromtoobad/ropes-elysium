@@ -320,3 +320,16 @@ model FeedbackVote {
 
   @@id([feedbackId, voterKey])
 }
+
+/// One daily check-in: a wallet showing up on a UTC day. Streaks, freezes and
+/// streak points are all computed from these rows (lib/streak); this table
+/// only records that the day was claimed.
+model CheckIn {
+  /// Lowercased wallet address.
+  address   String
+  /// UTC day, YYYY-MM-DD.
+  day       String
+  createdAt DateTime @default(now())
+
+  @@id([address, day])
+}
