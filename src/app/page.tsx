@@ -10,7 +10,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import type { TableState } from "@/lib/state";
-import { useClimberTheme, type LeaderRow, pad } from "./shared";
+import { useClimberTheme, type LeaderRow, pad, NavMenu } from "./shared";
 
 const NAV = [
   { href: "/play", label: "PLAY" },
@@ -75,12 +75,15 @@ export default function Landing() {
           <Image src="/mark.webp" alt="" width={64} height={34} priority className="h-7 w-auto sm:h-8" />
           <span className="display text-lg tracking-[0.08em] sm:text-xl">ROPES</span>
         </Link>
-        <nav className="flex items-center gap-3.5 text-[11px] font-bold tracking-[0.2em] text-[var(--dim)] sm:gap-7 sm:text-[13px]" aria-label="sections">
+        {/* same MENU as every other page on a phone; three loose words up
+            here read as a different site */}
+        <NavMenu />
+        <nav className="hidden items-center gap-7 text-[13px] font-bold tracking-[0.2em] text-[var(--dim)] sm:flex" aria-label="sections">
           {NAV.map((n) => (
             <Link
               key={n.href}
               href={n.href}
-              className={`inline-flex min-h-11 items-center ${n.gold ? "text-[var(--gold)]" : "hover:text-[var(--text)]"} ${n.href === "/docs/overview" || n.href === "/transparency" || n.href === "/feedback" || n.href === "/leaders" || n.gold ? "max-sm:hidden" : ""}`}
+              className={`inline-flex min-h-11 items-center ${n.gold ? "text-[var(--gold)]" : "hover:text-[var(--text)]"}`}
             >
               {n.label}
             </Link>
@@ -104,7 +107,7 @@ export default function Landing() {
             Every minute a new {state?.mark?.asset ?? "HYPE"} round opens on Elysium. Pick UP or DOWN, ride
             Hyperliquid&apos;s live mark, bail whenever you like. Survive the bell and your stack climbs on.
           </p>
-          <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-3">
+          <div className="mt-7 flex flex-col items-stretch gap-3 text-center sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-5 sm:text-left">
             <Link href="/play?seat=1" className="chamfer display bg-[var(--gold)] px-8 py-4 text-lg tracking-[0.12em] text-[#120d02] transition hover:brightness-110 sm:text-xl">
               TAKE A SEAT →
             </Link>
@@ -146,9 +149,14 @@ function Wall({ rows, label, round }: { rows: WallRow[] | null; label: string; r
   const lo = top.length ? top[top.length - 1].best : 1;
   const span = Math.max(0.2, hi - lo);
   let prev = -100;
-  const ys = top.map((r) => {
-    let y = 16 + ((hi - r.best) / span) * 66; // % from the top of the wall
-    if (y - prev < 15) y = prev + 15;
+  const ys = top.map((r, i) => {
+    // Half by the multiple, half by rank: by multiple alone one runaway
+    // leader left the rest of the five in a heap at the floor. The order
+    // and the gaps still follow the numbers.
+    const byValue = (hi - r.best) / span;
+    const byRank = top.length > 1 ? i / (top.length - 1) : 0;
+    let y = 16 + (byValue + byRank) * 33; // % from the top of the wall
+    if (y - prev < 16) y = prev + 16;
     prev = y;
     return y;
   });
@@ -157,7 +165,7 @@ function Wall({ rows, label, round }: { rows: WallRow[] | null; label: string; r
   if (last > 80) ys.forEach((y, i) => (ys[i] = 16 + ((y - 16) * 64) / (last - 16)));
 
   return (
-    <section className="wall-panel relative h-[560px] overflow-hidden border border-[var(--edge)] lg:h-auto lg:min-h-0">
+    <section className="wall-panel relative h-[500px] overflow-hidden sm:h-[560px] border border-[var(--edge)] lg:h-auto lg:min-h-0">
       <div className="absolute left-4 right-4 top-4 flex items-center justify-between whitespace-nowrap text-[10px] font-bold tracking-[0.18em] text-[var(--dim)] sm:left-5 sm:right-5 sm:text-[11px] sm:tracking-[0.22em]">
         <span>
           THE WALL<span className="hidden sm:inline"> · </span><b className="hidden text-[var(--text)] sm:inline">BEST CLIMBS</b>
@@ -190,7 +198,7 @@ function Wall({ rows, label, round }: { rows: WallRow[] | null; label: string; r
               alt=""
               width={96}
               height={96}
-              className="h-20 w-auto sm:h-24"
+              className="h-16 w-auto sm:h-24"
               style={{ transform: onLeft ? "scaleX(-1)" : undefined, filter: "drop-shadow(0 10px 18px #000b)" }}
             />
             {!onLeft && tag}
