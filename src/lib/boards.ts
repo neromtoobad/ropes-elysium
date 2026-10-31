@@ -41,11 +41,11 @@ export function weekBounds(now = new Date()) {
   return { start, end };
 }
 
-const dayStart = (now = new Date()) => new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+export const dayStart = (now = new Date()) => new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
 
 /** The first round that opened at or after a moment — rounds pause when the
  *  wall is idle, so a round index is not a clock and has to be looked up. */
-async function firstRoundIndexSince(at: Date) {
+export async function firstRoundIndexSince(at: Date) {
   const r = await db.round.findFirst({ where: { opensAt: { gte: at } }, orderBy: { index: "asc" }, select: { index: true } });
   return r?.index ?? null;
 }

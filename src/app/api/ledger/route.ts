@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { toUsd } from "@/lib/chain";
 import { computeBadges } from "@/lib/badges";
 import { RANKED_SEATS_PER_DAY, rankedSeatsToday } from "@/lib/boards";
+import { dailyFor } from "@/lib/daily";
 
 /**
  * MY LEDGER — one player's complete money story, straight from the same
@@ -109,6 +110,8 @@ export async function POST(req: Request) {
       games: runs.length,
     },
     badges: computeBadges(runs),
+    // Today's Daily Climb: which run it is (null = not taken yet) and its rank.
+    daily: await dailyFor(player.id).catch(() => null),
     runs: history,
     series,
   });

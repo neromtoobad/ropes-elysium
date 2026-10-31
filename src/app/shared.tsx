@@ -158,6 +158,8 @@ export type LedgerData = {
     perRound: { round: number; side: string; outcome: string | null; after: number; net: number }[];
   }[];
   series: number[] | null;
+  /** Today's Daily Climb (lib/daily): runId null = not taken yet today. */
+  daily?: { runId: string | null; rank: number | null; entrants: number; resetsAt: string } | null;
 };
 
 export type LeaderRow = {
@@ -406,6 +408,55 @@ export function HowItWorks() {
 
 /* ─────────────────────── share · ledger · leaders ─────────────────── */
 
+/** The post that goes with a shared run: short, first person, one ask. */
+function postText(run: { multiple: number; rounds: number; status: string } | null, daily: boolean) {
+  const head = daily ? "Daily Climb: " : "";
+  if (!run) return `${head}One minute of HYPE, on a rope. My run on @PlayRopes:`;
+  const bells = `${run.rounds} bell${run.rounds === 1 ? "" : "s"}`;
+  if (run.status === "eliminated") {
+    return `${head}Rode HYPE for ${bells} on @PlayRopes before the rope snapped. Think you can hold on longer?`;
+  }
+  if (run.status === "alive") return `${head}${run.multiple.toFixed(2)}× and still climbing on @PlayRopes after ${bells}. Come up:`;
+  return `${head}Bailed at ${run.multiple.toFixed(2)}× after ${bells} on @PlayRopes. Beat it:`;
+}
+
+/**
+ * Share a run: POST ON X opens a prefilled post whose link unfurls into the
+ * run card (/run/<id> → api/og/run), and COPY CARD keeps the old canvas
+ * PNG for anywhere that takes an image.
+ */
+export function ShareRun({
+  runId,
+  run,
+  climber,
+  name,
+  daily = false,
+}: {
+  runId: string;
+  /** The ledger row, when it has landed: the post text and the copy card use it. */
+  run: LedgerData["runs"][number] | null;
+  climber: ClimberId;
+  name: string;
+  daily?: boolean;
+}) {
+  const post = () => {
+    const url = `${window.location.origin}/run/${runId}?c=${climber}`;
+    const intent = `https://x.com/intent/post?text=${encodeURIComponent(postText(run, daily))}&url=${encodeURIComponent(url)}`;
+    window.open(intent, "_blank", "noopener,noreferrer");
+  };
+  return (
+    <span className="flex shrink-0 gap-2">
+      <button
+        onClick={post}
+        className="chamfer-sm min-h-10 whitespace-nowrap bg-[var(--gold)] px-3 py-1.5 text-[10px] font-black tracking-[0.15em] text-black transition hover:brightness-110"
+      >
+        POST ON 𝕏
+      </button>
+      {run && <ShareButton run={run} climber={climber} name={name} />}
+    </span>
+  );
+}
+
 export function ShareButton({
   run,
   climber,
@@ -431,7 +482,7 @@ export function ShareButton({
       }}
       className="chamfer-sm min-h-10 whitespace-nowrap border border-[var(--gold)] px-3 py-1.5 text-[10px] font-black tracking-[0.15em] text-[var(--gold)] transition hover:bg-[var(--gold)] hover:text-black"
     >
-      {msg ?? "SHARE CARD"}
+      {msg ?? "COPY CARD"}
     </button>
   );
 }
@@ -508,7 +559,9 @@ export function LedgerPanel({ ledger, climber }: { ledger: LedgerData | null; cl
                     PAID ↗
                   </a>
                 )}
-                {r.status !== "alive" && <ShareButton run={r} climber={climber} name={ledger.name ?? "climber"} />}
+                {r.status !== "alive" && (
+                  <ShareRun runId={r.id} run={r} climber={climber} name={ledger.name ?? "climber"} daily={ledger.daily?.runId === r.id} />
+                )}
               </span>
             </div>
             {r.perRound.length > 0 && (

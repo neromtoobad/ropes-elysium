@@ -33,6 +33,8 @@ export default function Landing() {
   const [state, setState] = useState<TableState | null>(null);
   const [wall, setWall] = useState<{ rows: WallRow[]; label: string } | null>(null);
   const [left, setLeft] = useState<number | null>(null);
+  /** Today's Daily Climb, for the strip under the CTA. */
+  const [daily, setDaily] = useState<{ entrants: number; resetsAt: string; rows: { name: string; multiple: number }[] } | null>(null);
 
   useEffect(() => {
     const load = () => {
@@ -45,6 +47,10 @@ export default function Landing() {
           setState(j);
           if (j.round) setLeft(j.round.secondsLeft);
         })
+        .catch(() => {});
+      fetch("/api/daily")
+        .then((r) => (r.ok ? r.json() : null))
+        .then((j) => j?.rows && setDaily(j))
         .catch(() => {});
       // This week's ranked climbs; while ranked is young, fall back to
       // all-time ranked, then to every climb including practice.
@@ -118,6 +124,24 @@ export default function Landing() {
               FREE · NO WALLET{left != null ? ` · NEXT BELL IN ${clock(left)}` : ""}
             </p>
           </div>
+          {/* the Daily Climb: one shot a day, everyone on one board */}
+          {daily && (
+            <Link
+              href="/leaders?tab=daily"
+              className="mt-5 inline-flex max-w-full flex-wrap items-center gap-x-2 gap-y-1 self-start border-l-2 border-[var(--gold)] py-1 pl-3 text-[11px] font-black tracking-[0.18em] text-[var(--dim)] transition hover:text-[var(--text)]"
+            >
+              <span className="text-[var(--gold)]">★ DAILY CLIMB</span>
+              {daily.rows[0] ? (
+                <span>
+                  TODAY&apos;S HIGH: <span className="text-[var(--text)]">{daily.rows[0].name.toUpperCase()}</span>{" "}
+                  <span className="tabular text-[var(--up)]">{daily.rows[0].multiple.toFixed(2)}×</span> · {daily.entrants} CLIMBER{daily.entrants === 1 ? "" : "S"}
+                </span>
+              ) : (
+                <span>NOBODY YET TODAY — SET THE HEIGHT</span>
+              )}
+              <span className="text-[var(--gold)]">→</span>
+            </Link>
+          )}
         </section>
 
         {/* the wall */}

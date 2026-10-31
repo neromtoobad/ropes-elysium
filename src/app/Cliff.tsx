@@ -118,6 +118,7 @@ export function Cliff({
   leaping,
   cheering = [],
   bellKey = null,
+  dailyRun = false,
   bells,
   mark,
   record,
@@ -142,6 +143,8 @@ export function Cliff({
   cheering?: { runId: string; gain: number }[];
   /** The bell's round index, so each bell's finish plays from the start. */
   bellKey?: number | null;
+  /** This run is the player's Daily Climb (lib/daily). */
+  dailyRun?: boolean;
   /** The last settled windows, oldest → newest — the wall's own memory. */
   bells: TableState["bells"];
   mark: TableState["mark"];
@@ -891,6 +894,11 @@ export function Cliff({
           >
             {seat.paid ? "REAL" : "FREE"}
           </span>
+          {dailyRun && (
+            <span className="rounded-sm border border-[var(--gold)] px-1 py-[1px] text-[8px] font-black tracking-[0.2em] text-[var(--gold)]">
+              DAILY
+            </span>
+          )}
         </div>
       )}
       {seat && (
@@ -912,6 +920,11 @@ export function Cliff({
             >
               {seat.paid ? "RANKED" : "PRACTICE"}
             </span>
+            {dailyRun && (
+              <span className="rounded-sm border border-[var(--gold)] px-1.5 py-[1px] text-[8px] font-black tracking-[0.2em] text-[var(--gold)]">
+                DAILY CLIMB
+              </span>
+            )}
           </div>
         </div>
       )}

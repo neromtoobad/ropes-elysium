@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import Link from "next/link";
 import Image from "next/image";
 import type { TableState } from "@/lib/state";
 import type { Address } from "viem";
@@ -11,7 +12,7 @@ import { useHasWallet, useAccount, wallets, connect, paySeat, collateralBalance,
 import { useSmoothed } from "../useSmoothed";
 import { ElysiumBadge } from "../Elysium";
 import {
-  usd, short, clock, bigClock, usePlayerKey, useLedger, useClimberTheme, SiteNav, NavMenu, BellChip, HowItWorks, ShareButton,
+  usd, short, clock, bigClock, usePlayerKey, useLedger, useClimberTheme, SiteNav, NavMenu, BellChip, HowItWorks, ShareRun,
   type LedgerData, OpenInWallet, safeLocal, fmtMark, fmtMove} from "../shared";
 
 const SEAT = 10_000_000n; // 10 tUSDC, 6 decimals
@@ -72,6 +73,9 @@ export default function Game() {
    */
   const [verdict, setVerdict] = useState<Verdict>(null);
   const runIdRef = useRef<string | null>(null);
+  /** The run the last verdict ended, for the share buttons: runId itself is
+   *  cleared as soon as the ledger confirms the run is over. */
+  const [endedRunId, setEndedRunId] = useState<string | null>(null);
   /** Before a seat: choose a climber, then a name. */
   const [preStage, setPreStage] = useState<"climber" | "name">("climber");
   const [leaping, setLeaping] = useState<string[]>([]);
@@ -140,6 +144,7 @@ export default function Game() {
           const id = runIdRef.current;
           if (id) {
             if (r.killed.some((k) => k.runId === id)) {
+              setEndedRunId(id);
               setVerdict({ kind: "lost", closedBy: r.closedBy, winner: r.winner });
             } else {
               const sv = r.survived.find((x) => x.runId === id);
@@ -392,6 +397,7 @@ export default function Game() {
   const bankOut = async () => {
     if (bailing || !runId || !me) return;
     setBailing(true);
+    setEndedRunId(runId);
     setLeaping((n) => [...n, runId]);
     sound.play("win");
     const r = await post("/api/bank", { runId, playerKey });
@@ -483,7 +489,7 @@ export default function Game() {
 
   // The ledger backs the money bar, the sparkline and YOUR LAST RUN.
   // It refreshes on every bell (each bell can change it).
-  const ledger = useLedger(playerKey, `${bell?.index ?? 0}-${runId}-${funded}`);
+  const ledger = useLedger(playerKey, `${bell?.index ?? 0}-${runId}-${funded}-${verdict?.kind ?? ""}`);
 
   // A finished run must not linger in storage. The wall, the bail bar and the
   // auto-bail control all key off runId; a dead one keeps a previous session
@@ -620,6 +626,7 @@ export default function Game() {
             falling={(bell?.killed ?? []).map((k) => k.runId)}
             cheering={(bell?.survived ?? []).filter((x) => !bell?.voided && x.to > x.from).map((x) => ({ runId: x.runId, gain: x.to - x.from }))}
             bellKey={bell?.index ?? null}
+            dailyRun={Boolean(runId && ledger?.daily?.runId === runId)}
             bells={view?.bells ?? []}
             leaping={leaping}
             mark={view?.mark ?? { asset: "HYPE", price: null, strike: null, oracleQuestionId: null }}
@@ -645,6 +652,22 @@ export default function Game() {
             {verdict && (!me || !me.inRound || verdict.kind === "lost" || verdict.kind === "banked") ? (
               <Result
                 verdict={verdict}
+                share={
+                  endedRunId && (verdict.kind === "lost" || verdict.kind === "banked") ? (
+                    <ShareRun
+                      runId={endedRunId}
+                      run={ledger?.runs?.find((r) => r.id === endedRunId && r.status !== "alive") ?? null}
+                      climber={climber}
+                      name={ledger?.name ?? "climber"}
+                      daily={ledger?.daily?.runId === endedRunId}
+                    />
+                  ) : null
+                }
+                daily={
+                  endedRunId && ledger?.daily?.runId === endedRunId && ledger.daily.rank
+                    ? `DAILY CLIMB · #${ledger.daily.rank} OF ${ledger.daily.entrants} TODAY`
+                    : null
+                }
                 busy={busy || bailing}
                 onContinue={() => setVerdict(null)}
                 onCashOut={() => {
@@ -673,6 +696,7 @@ export default function Game() {
                 addr={addr}
                 walletReady={walletReady}
                 bank={ledger?.bank ?? null}
+                dailyOpen={!ledger?.daily?.runId}
                 onJoin={() => { sound.arm(); join(); }}
                 onPractice={() => { sound.arm(); join(undefined, undefined, undefined, "practice"); }}
                 onConnect={connectWallet}
@@ -903,6 +927,8 @@ type Verdict =
  */
 function Result({
   verdict,
+  share,
+  daily,
   busy,
   onContinue,
   onCashOut,
@@ -910,6 +936,10 @@ function Result({
   onBack,
 }: {
   verdict: NonNullable<Verdict>;
+  /** Share buttons for the run that just ended. */
+  share?: ReactNode;
+  /** Where the run landed on today's Daily Climb, if it was one. */
+  daily?: string | null;
   busy: boolean;
   onContinue: () => void;
   onCashOut: () => void;
@@ -971,6 +1001,12 @@ function Result({
           {secondary.label}
         </button>
       </div>
+      {(share || daily) && (
+        <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2">
+          <span className="text-[10px] font-black tracking-[0.22em] text-[var(--gold)]">{daily ?? "SHOW THEM HOW HIGH"}</span>
+          {share}
+        </div>
+      )}
     </div>
   );
 }
@@ -1390,6 +1426,7 @@ function Join({
   addr,
   walletReady,
   bank,
+  dailyOpen,
   onJoin,
   onPractice,
   onConnect,
@@ -1405,6 +1442,8 @@ function Join({
   addr: Address | null;
   walletReady: boolean;
   bank: LedgerData["bank"];
+  /** Today's Daily Climb is still untaken: this seat will be it. */
+  dailyOpen: boolean;
   onJoin: () => void;
   onPractice: () => void;
   onConnect: () => void;
@@ -1467,6 +1506,12 @@ function Join({
         )}
       </button>
       {showRules && <HowItWorks />}
+      {dailyOpen && (
+        <p className="mb-2 text-[10px] font-black tracking-[0.2em] text-[var(--gold)]">
+          ★ THIS SEAT IS TODAY&apos;S DAILY CLIMB — ONE SHOT ON TODAY&apos;S BOARD.{" "}
+          <Link href="/leaders?tab=daily" className="underline decoration-dotted">SEE IT →</Link>
+        </p>
+      )}
       {/* Name on its own row, then the doors as big thumb-zone buttons with
           the bell beside them, the same pinned CTA as the landing. Two doors,
           always visibly different: green is PRACTICE on the house's money,
@@ -1871,7 +1916,7 @@ function LastRun({ ledger, climber }: { ledger: LedgerData | null; climber: Clim
           <span className="text-[var(--dim)]"> · {last.rounds}R</span>
         </span>
       </span>
-      <ShareButton run={last} climber={climber} name={ledger?.name ?? "climber"} />
+      <ShareRun runId={last.id} run={last} climber={climber} name={ledger?.name ?? "climber"} daily={ledger?.daily?.runId === last.id} />
     </section>
   );
 }

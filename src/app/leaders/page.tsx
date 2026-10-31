@@ -5,12 +5,17 @@
  * practice on the house's money never does. Two weekly boards reset every
  * Monday 00:00 UTC — the Summit (net winnings) and the Longest Climb (rounds
  * survived) — with the all-time ranked board underneath.
+ *
+ * TODAY is the Daily Climb (lib/daily): everyone's first run of the UTC day,
+ * practice or ranked, for the glory. It never feeds the ranked boards.
  */
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { PageHeader, usePlayerKey, useLedger, useClimberTheme, usd, short } from "../shared";
 
 type Row = { wallet: string; name: string; runs: number; net: number; best: number; longest: number; handle: string | null };
+type DailyRow = { rank: number; runId: string; name: string; multiple: number; rounds: number; status: "alive" | "banked" | "eliminated"; ranked: boolean };
+type Daily = { day: string; resetsAt: string; entrants: number; rows: DailyRow[] };
 type Boards = {
   week: { start: string; end: string; summit: Row[]; longest: Row[] };
   allTime: { summit: Row[] };
@@ -31,7 +36,13 @@ export default function Leaders() {
   const ledger = useLedger(playerKey);
   const mine = ledger?.bank?.address?.toLowerCase() ?? null;
   const [boards, setBoards] = useState<Boards | null>(null);
-  const [tab, setTab] = useState<"week" | "all">("week");
+  const [tab, setTab] = useState<"daily" | "week" | "all">("week");
+  const [daily, setDaily] = useState<Daily | null>(null);
+  // /leaders?tab=daily lands on today's board (the run page and the seat link here)
+  useEffect(() => {
+    const t = new URLSearchParams(window.location.search).get("tab");
+    if (t === "daily" || t === "week" || t === "all") setTab(t);
+  }, []);
   const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
@@ -39,6 +50,10 @@ export default function Leaders() {
       fetch("/api/boards")
         .then((r) => (r.ok ? r.json() : null))
         .then((j) => j?.week && setBoards(j))
+        .catch(() => {});
+      fetch("/api/daily")
+        .then((r) => (r.ok ? r.json() : null))
+        .then((j) => j?.rows && setDaily(j))
         .catch(() => {});
     load();
     const id = setInterval(load, 10_000);
@@ -52,7 +67,7 @@ export default function Leaders() {
 
       <div className="mt-6 flex flex-wrap items-end justify-between gap-3">
         <div className="flex gap-1" role="tablist">
-          {(["week", "all"] as const).map((t) => (
+          {(["daily", "week", "all"] as const).map((t) => (
             <button
               key={t}
               role="tab"
@@ -60,10 +75,16 @@ export default function Leaders() {
               onClick={() => setTab(t)}
               className={`gametab ${tab === t ? "active" : ""}`}
             >
-              {t === "week" ? "THIS WEEK" : "ALL-TIME"}
+              {t === "daily" ? "TODAY" : t === "week" ? "THIS WEEK" : "ALL-TIME"}
             </button>
           ))}
         </div>
+        {daily && tab === "daily" && (
+          <p className="text-[10px] font-bold tracking-[0.22em] text-[var(--dim)]">
+            {day(`${daily.day}T00:00:00Z`)} · {daily.entrants} CLIMBER{daily.entrants === 1 ? "" : "S"} · RESETS IN{" "}
+            <span className="tabular text-[var(--gold)]">{untilReset(daily.resetsAt, now)}</span> · 00:00 UTC
+          </p>
+        )}
         {boards && tab === "week" && (
           <p className="text-[10px] font-bold tracking-[0.22em] text-[var(--dim)]">
             WEEK OF {day(boards.week.start)} · RESETS IN{" "}
@@ -72,6 +93,16 @@ export default function Leaders() {
         )}
       </div>
 
+      {tab === "daily" ? (
+        <p className="mt-3 text-[11px] leading-relaxed text-[var(--dim)]">
+          <b className="text-[var(--gold)]">The Daily Climb:</b> your first run of the day is your one shot, practice or ranked.
+          Ranked by where it finished, then by bells survived. Resets at midnight UTC. It&apos;s for the glory: no points,
+          and it never touches the ranked boards.{" "}
+          <Link href="/play" className="font-bold text-[var(--text)] underline decoration-dotted hover:text-[var(--gold)]">
+            Take your shot →
+          </Link>
+        </p>
+      ) : (
       <p className="mt-3 text-[11px] leading-relaxed text-[var(--dim)]">
         Only <b className="text-[var(--gold)]">ranked</b> seats count: paid from your own tUSDC bankroll, up to{" "}
         {boards?.rankedSeatsPerDay ?? 20} a day per wallet. Practice seats play the same market on the house&apos;s money
@@ -84,8 +115,17 @@ export default function Leaders() {
           ROPES Points →
         </Link>
       </p>
+      )}
 
-      {!boards ? (
+      {tab === "daily" ? (
+        !daily ? (
+          <p className="mt-10 text-center text-[11px] font-bold tracking-[0.3em] text-[var(--dim)]">FETCHING TODAY&apos;S CLIMB…</p>
+        ) : (
+          <div className="mt-5">
+            <DailyBoard rows={daily.rows} mine={ledger?.daily?.runId ?? null} />
+          </div>
+        )
+      ) : !boards ? (
         <p className="mt-10 text-center text-[11px] font-bold tracking-[0.3em] text-[var(--dim)]">FETCHING THE BOARDS…</p>
       ) : tab === "week" ? (
         <div className="mt-5 grid gap-6 lg:grid-cols-2">
@@ -119,6 +159,65 @@ export default function Leaders() {
         </div>
       )}
     </main>
+  );
+}
+
+function DailyBoard({ rows, mine }: { rows: DailyRow[]; mine: string | null }) {
+  return (
+    <section>
+      <div className="mb-2 flex items-baseline justify-between">
+        <h2 className="display text-lg tracking-[0.08em]">THE DAILY CLIMB</h2>
+        <span className="text-[9px] font-bold tracking-[0.2em] text-[var(--dim)]">ONE SHOT EACH · TODAY</span>
+      </div>
+      {rows.length === 0 ? (
+        <div className="chamfer-sm border border-dashed border-[var(--edge)] px-4 py-8 text-center" style={{ background: "var(--panel)" }}>
+          <p className="text-sm font-bold">Nobody has climbed today yet.</p>
+          <p className="mt-1 text-[11px] text-[var(--dim)]">The first run of the day sets the height to beat.</p>
+        </div>
+      ) : (
+        <div className="space-y-1">
+          {rows.map((r) => {
+            const isMe = r.runId === mine;
+            const c = r.status === "eliminated" ? "var(--down)" : r.multiple >= 1 ? "var(--up)" : "var(--gold)";
+            return (
+              <Link
+                key={r.runId}
+                href={`/run/${r.runId}`}
+                className="chamfer-sm flex items-center justify-between gap-3 border px-4 py-2.5 transition hover:border-[var(--gold)]"
+                style={{
+                  background: "var(--panel)",
+                  borderColor: isMe ? "var(--gold)" : "var(--edge)",
+                  boxShadow: isMe ? "0 0 24px -12px var(--gold)" : "none",
+                }}
+              >
+                <span className="flex min-w-0 items-center gap-3">
+                  <span className={`display tabular w-7 text-lg ${r.rank === 1 ? "glow-gold" : "text-[var(--dim)]"}`}>{r.rank}</span>
+                  <span className="min-w-0">
+                    <span className="block truncate font-bold">
+                      {r.name}
+                      {isMe && <span className="ml-2 text-[9px] font-black tracking-[0.2em] text-[var(--gold)]">YOU</span>}
+                    </span>
+                    <span className="tabular block text-[10px] font-bold text-[var(--dim)]">
+                      {r.status === "alive" ? (
+                        <span className="text-[var(--up)]">● LIVE</span>
+                      ) : r.status === "eliminated" ? (
+                        "CUT"
+                      ) : (
+                        "BANKED"
+                      )}{" "}
+                      · {r.rounds} BELL{r.rounds === 1 ? "" : "S"} · {r.ranked ? "RANKED" : "PRACTICE"}
+                    </span>
+                  </span>
+                </span>
+                <span className="display tabular shrink-0 text-lg" style={{ color: c }}>
+                  {r.multiple.toFixed(2)}×
+                </span>
+              </Link>
+            );
+          })}
+        </div>
+      )}
+    </section>
   );
 }
 
