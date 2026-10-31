@@ -9,7 +9,6 @@
 
 - X: [@PlayRopes](https://x.com/PlayRopes)
 - Site: [playropes.xyz](https://playropes.xyz)
-- Code: [github.com/neromtoobad/ropes-elysium](https://github.com/neromtoobad/ropes-elysium)
 
 We never DM first and never ask for keys or seed phrases.
 
@@ -45,4 +44,4 @@ Every ROPES image uses the same frame: the logo top-left, a tag chip top-right (
 
 ## Logo
 
-The horizontal knot: two loops of one rope. Files are in the repo under `public/`: `knot.webp` (1200 px, transparent), `mark.webp` (nav size) and `icon.png` (square, on the dark background). The older vertical knot with a candle (`logo-full.png`) is retired.
+The horizontal knot: two loops of one rope. Files are on the site: [playropes.xyz/knot.webp](https://playropes.xyz/knot.webp) (1200 px, transparent), [/mark.webp](https://playropes.xyz/mark.webp) (nav size) and [/icon.png](https://playropes.xyz/icon.png) (square, on the dark background). The older vertical knot with a candle (`logo-full.png`) is retired.

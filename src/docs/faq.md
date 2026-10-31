@@ -29,4 +29,4 @@ Until prices come straight from HyperCore, trading is operator-only so nobody ca
 Not yet. $ROPES launches on Ascend after mainnet. Anything else claiming to be ROPES is a scam.
 
 **Who builds ROPES?**
-[neromtoobad](https://nerom.site), solo. Code is open: [github.com/neromtoobad/ropes-elysium](https://github.com/neromtoobad/ropes-elysium).
+[neromtoobad](https://nerom.site), solo.

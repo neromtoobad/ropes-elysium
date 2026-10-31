@@ -36,7 +36,3 @@ function withdraw(uint256 shares) external returns (uint256 assets);
 ## Events
 
 `MarkPushed(mark, sourceMs)` · `RoundOpened(roundId, opensAt, expiresAt, strike, cap)` · `Traded(roundId, trader, side, isBuy, shares, price, amount)` · `RoundSettled(roundId, close, winner, voided)` · `Redeemed(roundId, holder, amount)`
-
-## Code
-
-[github.com/neromtoobad/ropes-elysium](https://github.com/neromtoobad/ropes-elysium): contracts in `contracts/src`, 37 tests in `contracts/test` (`forge test`).

@@ -85,9 +85,7 @@ export default async function Transparency() {
           </table>
         </div>
         <p className="tp-note">
-          Check every round yourself: <code>npx tsx scripts/audit.ts &lt;fromBlock&gt; 47 -v</code> in{" "}
-          <a href="https://github.com/neromtoobad/ropes-elysium" target="_blank" rel="noreferrer">the repo</a>. Rounds before #47 used the book mid
-          and aren&apos;t counted. <a href="/docs/price-source">Why</a>.
+          Rounds before #47 used the book mid and aren&apos;t counted. <a href="/docs/price-source">Why</a>.
         </p>
 
         <h2>Rules the contract enforces, read live</h2>

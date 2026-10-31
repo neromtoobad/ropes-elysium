@@ -16,7 +16,6 @@ export function DocsHeader({ section }: { section: string }) {
           <Link href="/transparency">Transparency</Link>
           <Link href="/mainnet">Mainnet</Link>
           <Link href="/token">$ROPES</Link>
-          <a href="https://github.com/neromtoobad/ropes-elysium" target="_blank" rel="noreferrer">GitHub</a>
           <a href="https://x.com/PlayRopes" target="_blank" rel="noreferrer">X</a>
           <Link href="/play" className="docs-cta">Play →</Link>
         </nav>
