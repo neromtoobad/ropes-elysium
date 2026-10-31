@@ -141,15 +141,9 @@ export function runCardImage(card: RunCard | null, climber: CardClimber) {
                           <div style={{ position: "absolute", left: 6, top: -2, width: 4, height: 20, background: "#fff", transform: "rotate(-45deg)" }} />
                         </div>
                       ) : (
-                        <div
-                          style={{
-                            width: 0,
-                            height: 0,
-                            borderLeft: "8px solid transparent",
-                            borderRight: "8px solid transparent",
-                            ...(b.side === "UP" ? { borderBottom: "12px solid #0b0917" } : { borderTop: "12px solid #0b0917" }),
-                          }}
-                        />
+                        <svg width="16" height="14" viewBox="0 0 16 14">
+                          <polygon points={b.side === "UP" ? "8,0 16,14 0,14" : "0,0 16,0 8,14"} fill="#0b0917" />
+                        </svg>
                       )}
                     </div>
                   );
