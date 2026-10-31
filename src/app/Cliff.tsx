@@ -150,46 +150,65 @@ export function Cliff({
   /**
    * The wall's own size, so the climber can be scaled and clamped to it.
    *
-   * On a desktop the wall is ~600px tall and the HUD corners are hundreds of
-   * pixels from the centred sprite, so a fixed 225px figure with ±34% of
-   * travel never touches anything. On a 375px phone the wall is ~360px tall
-   * and 343 wide: the same figure at the bottom of its travel stood on the
-   * nameplate, and its tag ran into the BTC readout at the top. So below
-   * 640px the figure shrinks with the wall and its travel is clamped to the
-   * band between the top HUD and the nameplate — on a phone the character
-   * is never printed through text.
+   * The wall is anywhere from ~240px (a phone) to ~600px (a big desktop)
+   * tall. A fixed figure with fixed travel fits only one of those: on a
+   * phone it stood on the nameplate, on a short laptop window it climbed off
+   * the top. So on every screen the figure scales with the wall's height and
+   * its travel is clamped to the band between the top HUD and the bottom
+   * edge — the whole character is always on the wall.
    */
-  const MAX_OFFSET = 34; // % of wall, the desktop's full travel either way
+  const MAX_OFFSET = 34; // % of wall, the most travel either way
   const wallRef = useRef<HTMLDivElement>(null);
-  const [wallBox, setWallBox] = useState({ w: 1024, h: 600 });
+  const [wallBox, setWallBox] = useState({ w: 1024, h: 600, lg: true });
   useEffect(() => {
     const el = wallRef.current;
     if (!el) return;
     const ro = new ResizeObserver(([e]) => {
       const { width, height } = e.contentRect;
-      setWallBox((b) => (Math.abs(b.w - width) < 1 && Math.abs(b.h - height) < 1 ? b : { w: width, h: height }));
+      const lg = window.innerWidth >= 1024;
+      setWallBox((b) =>
+        Math.abs(b.w - width) < 1 && Math.abs(b.h - height) < 1 && b.lg === lg ? b : { w: width, h: height, lg },
+      );
     });
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
   const small = wallBox.w < 640;
-  /** Height of a cycle frame (the rope-carrying sprite), in px. */
-  const ropeH = small ? Math.round(Math.min(150, Math.max(104, wallBox.h * 0.42))) : 225;
   /**
-   * How far the sprite's bottom edge sits below the anchor line. The figure
-   * occupies the middle 55% of a cycle frame, so 0.45·H puts its centre ON
-   * the line; the desktop keeps its tuned 58px (figure a little above it).
+   * Height of a cycle frame (the rope-carrying sprite), in px — from the
+   * wall's HEIGHT on every screen. The desktop used to be a fixed 225px with
+   * ±34% of travel, which only fits a tall wall: a 1000×650 window gives the
+   * wall ~330px, so a climber in profit rose until half of them was cut off
+   * by the top edge.
    */
-  const bodyOff = small ? Math.round(ropeH * 0.45) : 58;
-  /** Where the rope tile tucks in: just above the figure's head, so the join
-   *  hides in the frame's own rope. 78% up the frame, same as the desktop. */
-  const ropeJoin = small ? Math.round(ropeH * 0.78) - bodyOff : 82;
-  // Travel clamp, in % of wall height. Bottom: keep the sprite off the
-  // compact nameplate (30px). Top: keep the tag (≈26px above the frame)
-  // inside the wall.
-  const maxDown = small ? Math.max(4, (0.5 - (30 + bodyOff) / wallBox.h) * 100) : MAX_OFFSET;
-  // 64px at the top is the clock's; the tag never climbs into it.
-  const maxUp = small ? Math.max(4, ((wallBox.h - 64 - ropeH - 26 + bodyOff) / wallBox.h - 0.5) * 100) : MAX_OFFSET;
+  const ropeH = Math.round(
+    small
+      ? Math.min(150, Math.max(104, wallBox.h * 0.42))
+      : Math.min(225, Math.max(140, wallBox.h * 0.42)),
+  );
+  /** The gold tag hugs the head: a cycle frame's top 22% is bare rope, and a
+   *  tag stacked above all of it wasted a fifth of the wall. */
+  const tagOverlap = Math.round(ropeH * 0.18);
+  /**
+   * Travel, so the WHOLE climber — tag, figure and the status line under it —
+   * stays on the wall at either extreme. Top: below lg the clock owns 64px;
+   * on lg only the bell ribbon (~22px). Bottom: the phone's slim nameplate is
+   * 30px; from sm the plate sits off-centre. The block (16px status line,
+   * the frame less the tag overlap, a 22px tag) rests centred in that band
+   * and travels the same distance either way.
+   */
+  const topReserve = wallBox.lg ? 22 : 64;
+  const bottomReserve = small ? 30 : 12;
+  const band = wallBox.h - topReserve - bottomReserve;
+  const block = 16 + ropeH - tagOverlap + 22;
+  const room = Math.max(0, (band - block) / 2);
+  /** How far the block's bottom edge sits below the anchor line. */
+  const bodyOff = Math.round(wallBox.h / 2 - (bottomReserve + room));
+  /** Where the rope tile tucks in: behind the body, inside the frame's own rope. */
+  const ropeJoin = Math.round(16 + ropeH * 0.62) - bodyOff;
+  /** Symmetric, in % of wall height, so a rise and a fall of the same size
+   *  travel the same way. */
+  const travel = Math.min(MAX_OFFSET, (room / wallBox.h) * 100);
 
   // BTC's last move, held for a beat so a tick reads as motion, not a blink.
   // The feed repeats the same number across polls (see the chart gotcha), so
@@ -251,8 +270,6 @@ export function Cliff({
   // against the tanh ceiling for half of every round.
   const REF_FRACTION = mark.asset === "BTC" ? 0.0001 : 0.0003;
   const ref = Math.max(mark.strike ?? 0, 1) * REF_FRACTION * Math.sqrt(intervalSec / 60);
-  /** Symmetric, so a rise and a fall of the same size travel the same way. */
-  const travel = Math.min(maxUp, maxDown);
   /*
    * Not gated on holding a position any more. Entries fill late on these
    * books and rounds overlap, so a player spends much of the minute with
@@ -560,8 +577,8 @@ export function Cliff({
             }}
           >
             <div
-              className="tabular mb-1 whitespace-nowrap rounded px-2 py-0.5 text-[11px] font-black"
-              style={{ background: "var(--gold)", color: "#000" }}
+              className="tabular relative z-[1] whitespace-nowrap rounded px-2 py-0.5 text-[11px] font-black"
+              style={{ background: "var(--gold)", color: "#000", marginBottom: onRope ? -tagOverlap : 4 }}
             >
               {seat.name} {multiple.toFixed(2)}×
             </div>
@@ -580,9 +597,9 @@ export function Cliff({
                 cycleActive ? "" : onRope ? (hanging ? "hanging" : "dangling") : grip
               }`}
               style={{
-                // measured, not breakpointed: the phone figure scales with
-                // the wall it is on (see wallBox above)
-                height: small ? spriteH : undefined,
+                // measured, not breakpointed: the figure scales with the
+                // wall it is on (see wallBox above)
+                height: spriteH,
                 filter: "drop-shadow(0 0 16px var(--gold-glow))",
                 transform: !onRope && pose === "slip" ? "scaleX(-1)" : undefined,
               }}
@@ -719,7 +736,7 @@ export function Cliff({
           the stage. From lg the header's outlined 7xl numeral carries it. */}
       <div className="pointer-events-none absolute left-1/2 top-2 z-10 -translate-x-1/2 text-center lg:hidden">
         <div
-          className={`display tabular outline-num text-4xl leading-none sm:text-5xl ${clockUrgent && !stalled ? "clock-urgent" : ""} ${settling ? "animate-pulse" : ""}`}
+          className={`display tabular outline-num text-4xl leading-none sm:text-5xl ${clockUrgent && !stalled ? "clock-urgent" : ""}`}
           style={stalled ? { color: "var(--dim)" } : settling ? { color: "var(--gold)" } : undefined}
         >
           {stalled || settling ? "··" : bigClock(secondsLeft)}

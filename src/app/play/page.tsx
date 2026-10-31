@@ -338,12 +338,49 @@ export default function Game() {
   // second" rather than "zero": the server's clock trails ours a little, so
   // frames in the gap still report a fraction of a second left, and testing
   // for zero made the label flicker between SETTLING and 00.
-  const settling = !stalled && Boolean(state?.round) && secs < 1;
+  const settlingLive = !stalled && Boolean(state?.round) && secs < 1;
 
-  /** What the children render: the newest state, with the clock replaced by
-   *  the locally-run one so nothing on screen disagrees about the time. */
-  const view: TableState | null =
+  /** The newest state, with the clock replaced by the locally-run one so
+   *  nothing on screen disagrees about the time. The dock acts on this. */
+  const liveView: TableState | null =
     state?.round ? { ...state, round: { ...state.round, secondsLeft: secs, betsCloseIn } } : state;
+
+  /**
+   * The bell hold: one cut instead of three.
+   *
+   * The keeper opens the next round BEFORE it settles the last one on-chain.
+   * Sampled live, a bell runs: 0:00 sits ~2.5 s, the new round lands already
+   * at 0:57, and the result only arrives ~3 s after that. Rendered as it
+   * came, the wall stepped three times — the clock pulsed, the climber slid
+   * to the new line, then the verdict and the shake fired over a round that
+   * had already started. That was the "glitch for a few seconds".
+   *
+   * So from the bell until the result for THAT round is in, the wall, clock
+   * and stat panel stay on the closing frame — the price frozen at the
+   * close, which is the honest number — and everything changes together
+   * when the result lands. The dock keeps the live frame, so the next side
+   * can be picked as soon as the new round opens. Capped, so a slow keeper
+   * never freezes the wall for good.
+   */
+  const HOLD_MAX_MS = 12_000;
+  const hold = useRef<{ round: number; at: number; frame: TableState | null; done: boolean } | null>(null);
+  const liveIdx = state?.round?.index ?? null;
+  const settledIdx = state?.lastResult?.index ?? -1;
+  if (settlingLive && liveIdx !== null && settledIdx < liveIdx && hold.current?.round !== liveIdx) {
+    hold.current = {
+      round: liveIdx,
+      at: nowMs,
+      frame: liveView?.round ? { ...liveView, round: { ...liveView.round, secondsLeft: 0, betsCloseIn: 0 } } : liveView,
+      done: false,
+    };
+  }
+  const h = hold.current;
+  if (h && !h.done && (stalled || settledIdx >= h.round || nowMs - h.at > HOLD_MAX_MS)) h.done = true;
+  const holding = Boolean(h && !h.done);
+  const settling = settlingLive || holding;
+  const shownSecs = holding ? 0 : secs;
+  /** What the wall, clock and stat panel render. */
+  const view: TableState | null = holding ? h!.frame : liveView;
 
   useHeartbeat(secs, Boolean(me?.inRound));
   // The chosen climber's colours paint the whole site.
@@ -571,19 +608,19 @@ export default function Game() {
               the wall is lg:h-full and must never outgrow this slot. */}
           <div className="lg:min-h-[300px] lg:flex-1">
           <Cliff
-            seats={state?.seats ?? []}
-            price={state?.price ?? { up: null, down: null }}
-            secondsLeft={secs}
+            seats={view?.seats ?? []}
+            price={view?.price ?? { up: null, down: null }}
+            secondsLeft={shownSecs}
             clockUrgent={urgent}
             stalled={stalled}
             settling={settling}
             intervalSec={state?.round?.intervalSec ?? 60}
             myRunId={runId}
             falling={(bell?.killed ?? []).map((k) => k.runId)}
-            bells={state?.bells ?? []}
+            bells={view?.bells ?? []}
             leaping={leaping}
-            mark={state?.mark ?? { asset: "HYPE", price: null, strike: null, oracleQuestionId: null }}
-            record={state?.wallRecord ?? null}
+            mark={view?.mark ?? { asset: "HYPE", price: null, strike: null, oracleQuestionId: null }}
+            record={view?.wallRecord ?? null}
             climber={climber}
             onMilestone={(m) => {
               sound.play("win");
@@ -622,10 +659,10 @@ export default function Game() {
               />
             ) : !runId || !me ? (
               preStage === "climber" ? (
-                <ChooseClimber climber={climber} secs={view?.round ? secs : null} onPick={pickClimber} onNext={() => { sound.arm(); setPreStage("name"); }} />
+                <ChooseClimber climber={climber} secs={view?.round ? shownSecs : null} onPick={pickClimber} onNext={() => { sound.arm(); setPreStage("name"); }} />
               ) : (
               <Join
-                secs={view?.round ? secs : null}
+                secs={view?.round ? shownSecs : null}
                 name={name}
                 setName={setName}
                 busy={busy}
@@ -656,9 +693,9 @@ export default function Game() {
                   await post("/api/pick", { runId, playerKey, side });
                 }}
               />
-            ) : view?.round ? (
+            ) : liveView?.round ? (
               <Sides
-                state={view}
+                state={liveView}
                 me={me}
                 optimistic={optimisticPick}
                 onWalk={bankOut}
@@ -767,7 +804,7 @@ function TopBar({
       {/* lg and up only: below that the clock is drawn ON the wall, where
           the crash games put the number that matters */}
       <div className="hidden text-right lg:block">
-        <div className={`display tabular outline-num clock-num text-5xl leading-[0.85] sm:text-7xl ${urgent && !stalled ? "clock-urgent" : ""} ${settling ? "animate-pulse" : ""}`}
+        <div className={`display tabular outline-num clock-num text-5xl leading-[0.85] sm:text-7xl ${urgent && !stalled ? "clock-urgent" : ""} `}
           style={stalled ? { color: "var(--dim)" } : settling ? { color: "var(--gold)" } : undefined}>
           {stalled || settling ? "··" : bigClock(secs)}
         </div>
