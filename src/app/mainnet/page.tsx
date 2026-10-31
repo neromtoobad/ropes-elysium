@@ -5,6 +5,7 @@ import { getTransparency, type Transparency } from "@/lib/transparency";
 import { GOOGLE_CAL, MAINNET_LABEL } from "@/lib/launch";
 import { DocsHeader, DocsFooter } from "../docs/DocsChrome";
 import { Countdown } from "./Countdown";
+import { ElysiumBadge } from "../Elysium";
 
 export const dynamic = "force-dynamic";
 
@@ -54,7 +55,7 @@ export default async function Mainnet() {
       <main className="tp">
         <section className="mn-hero">
           <div>
-            <p className="tp-eyebrow"><span className="dot" /> Elysium mainnet · {MAINNET_LABEL}</p>
+            <p className="tp-eyebrow"><ElysiumBadge size={18} className="mr-1 align-[-4px]" /> Elysium mainnet · {MAINNET_LABEL}</p>
             <h1>ROPES is going to mainnet</h1>
             <p className="doc-lede">
               Elysium, Kinetiq&apos;s Hyperliquid L2, goes live on {MAINNET_LABEL}. ROPES has run on its testnet since
@@ -69,7 +70,11 @@ export default async function Mainnet() {
               <Link href="/play" className="mn-btn up">Play on testnet now →</Link>
             </div>
           </div>
-          <Image src="/climbers/gold/cheer.webp" alt="" width={270} height={420} priority className="mn-art" />
+          {/* the climber on top of Elysium: the summit is mainnet */}
+          <div className="mn-summit">
+            <ElysiumBadge size={240} className="mn-summit-badge" />
+            <Image src="/climbers/gold/cheer.webp" alt="" width={270} height={420} priority className="mn-art" />
+          </div>
         </section>
 
         {t && (

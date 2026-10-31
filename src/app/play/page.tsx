@@ -9,6 +9,7 @@ import { txUrl, addressUrl } from "@/lib/elysium";
 import { useSound, useHeartbeat } from "../sound";
 import { useHasWallet, useAccount, wallets, connect, paySeat, collateralBalance, signDeposit } from "../wallet";
 import { useSmoothed } from "../useSmoothed";
+import { ElysiumBadge } from "../Elysium";
 import {
   usd, short, clock, bigClock, usePlayerKey, useLedger, useClimberTheme, SiteNav, NavMenu, BellChip, HowItWorks, ShareButton,
   type LedgerData, OpenInWallet, safeLocal, fmtMark, fmtMove} from "../shared";
@@ -1613,6 +1614,12 @@ function Bell({
             </p>
           </div>
         )}
+
+        {/* every bell is a settlement on-chain — say where */}
+        <p className="mt-8 inline-flex items-center gap-2 text-[9px] font-black tracking-[0.35em] text-[var(--dim)]">
+          <ElysiumBadge size={18} />
+          {result.voided ? "VOIDED" : "SETTLED"} ON ELYSIUM · ROUND {result.index}
+        </p>
       </div>
     </div>
   );

@@ -6,6 +6,7 @@ import type { TableState } from "@/lib/state";
 import { useSmoothed } from "./useSmoothed";
 import { bigClock, fmtMark, fmtMove } from "./shared";
 import { LedgeProp } from "./LedgeProps";
+import { ElysiumRange } from "./Elysium";
 
 /**
  * ROPES — solo.
@@ -501,6 +502,16 @@ export function Cliff({
         <div className="absolute inset-0" style={{ opacity: 0.7 + 0.3 * spaceT }}>
           <div className="nebula absolute inset-0" />
         </div>
+        {/* the Elysium range on the horizon: the climb starts at its foot,
+            and it sinks away below as the run gains altitude */}
+        <ElysiumRange
+          className="ely-range absolute inset-x-0 bottom-[14%] h-[30%] w-full"
+          style={{
+            opacity: 0.5 * (1 - spaceT * 0.9),
+            transform: `translateY(${Math.max(-24, Math.min(420, meH * 96)).toFixed(1)}px)`,
+            transition: "transform 900ms cubic-bezier(0.25, 0.8, 0.25, 1)",
+          }}
+        />
         <div
           className="grid-floor absolute inset-x-[-15%] bottom-0 h-[42%]"
           style={{ opacity: 1 - spaceT * 0.85 }}

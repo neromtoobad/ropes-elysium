@@ -645,6 +645,12 @@ a[href] {
   -webkit-mask-image: linear-gradient(to top, black 30%, transparent 95%);
 }
 
+/* The Elysium range melts into the grid floor instead of standing on a hard edge. */
+.ely-range {
+  mask-image: linear-gradient(to top, transparent 0%, black 38%);
+  -webkit-mask-image: linear-gradient(to top, transparent 0%, black 38%);
+}
+
 /* ───────────────────────────── docs + transparency ─────────────────────────── */
 .docs { min-height: 100dvh; background: radial-gradient(1200px 700px at 70% -10%, #1d1640 0%, transparent 60%), var(--bg); }
 .docs-top { position: sticky; top: 0; z-index: 30; background: rgba(13,10,28,.86); backdrop-filter: blur(12px); border-bottom: 1px solid var(--edge); }
@@ -762,7 +768,9 @@ a[href] {
 .dot.gold { background: var(--gold); box-shadow: 0 0 0 3px rgba(255,201,77,.2); }
 .docs-banner-link { color: var(--up); font-weight: 700; margin-left: 4px; }
 .mn-hero { display: grid; grid-template-columns: minmax(0, 1fr) 240px; gap: 32px; align-items: center; }
-.mn-art { width: 100%; height: auto; filter: drop-shadow(0 20px 40px rgba(0,0,0,.5)); }
+.mn-summit { position: relative; display: grid; justify-items: center; }
+.mn-summit-badge { position: absolute; top: 2%; width: 92%; height: auto; filter: drop-shadow(0 0 48px rgba(76,195,211,.4)); }
+.mn-art { position: relative; width: 100%; height: auto; filter: drop-shadow(0 20px 40px rgba(0,0,0,.5)); }
 .tk-logo { max-height: 240px; max-width: 100%; width: auto; height: auto; justify-self: center; align-self: center; }
 .mn-clock { margin-top: 28px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; max-width: 620px; }
 .mn-clock div { background: var(--panel); border: 1px solid var(--edge); border-radius: 18px; padding: 18px 10px 14px; text-align: center; }
@@ -822,7 +830,7 @@ a[href] {
 }
 @media screen and (max-width: 820px) {
   .mn-hero { grid-template-columns: minmax(0, 1fr); }
-  .mn-art { width: 150px; justify-self: center; order: -1; }
+  .mn-summit { width: 150px; justify-self: center; order: -1; }
   .tk-logo { max-height: 140px; max-width: 100%; width: auto; height: auto; }
   .mn-clock { gap: 8px; }
   .mn-clock div { padding: 14px 4px 10px; border-radius: 14px; }

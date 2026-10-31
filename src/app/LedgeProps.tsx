@@ -52,15 +52,17 @@ function Art({ m }: { m: number }) {
           <rect x="11" y="17" width="9" height="2" fill={WOOD} transform="rotate(-14 11 18)" />
         </>
       );
-    case 1: // base camp
+    case 1: // base camp, on Elysium
       return (
         <>
           <Shelf />
           <path d="M7 36 L20 15 L33 36 Z" fill="var(--gold)" />
           <path d="M20 15 L33 36 H26 Z" fill="#000" opacity="0.22" />
           <path d="M16.5 36 L20 28 L23.5 36 Z" fill="#1a1530" />
-          <rect x="19.3" y="6" width="1.4" height="10" fill={METAL} />
-          <path d="M20.7 6.5 L28 9 L20.7 11.5 Z" fill="var(--up)" />
+          <rect x="19.3" y="2" width="1.4" height="14" fill={METAL} />
+          {/* base camp flies the flag of the chain it stands on */}
+          <circle cx="26" cy="7" r="5.6" fill="#fff" />
+          <image href="/elysium/badge-96.webp" x="20.9" y="1.9" width="10.2" height="10.2" />
         </>
       );
     case 1.25: // a piton in a boulder, carabiner hanging

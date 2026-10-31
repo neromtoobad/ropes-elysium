@@ -12,6 +12,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import type { TableState } from "@/lib/state";
 import { useClimberTheme, type LeaderRow, clock, NavMenu, BellChip } from "./shared";
+import { ElysiumBadge } from "./Elysium";
 
 const NAV = [
   { href: "/play", label: "PLAY" },
@@ -125,7 +126,10 @@ export default function Landing() {
 
       <footer className="mx-auto w-full max-w-[1440px] shrink-0 px-4 pb-4 text-[10px] font-bold tracking-[0.18em] text-[var(--dim)] sm:px-8 lg:px-12">
         <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-t border-[var(--edge)] pt-3">
-          <span>EVERY ROUND IS AN ON-CHAIN MARKET ON ELYSIUM, PRICED FROM HYPERLIQUID&apos;S LIVE MARK</span>
+          <span className="inline-flex items-center gap-2">
+            <ElysiumBadge size={16} />
+            EVERY ROUND IS AN ON-CHAIN MARKET ON ELYSIUM, PRICED FROM HYPERLIQUID&apos;S LIVE MARK
+          </span>
           <span className="space-x-4">
             <Link href="/transparency" className="hover:text-[var(--text)]">TRANSPARENCY</Link>
             <Link href="/mainnet" className="hover:text-[var(--text)]">MAINNET</Link>
