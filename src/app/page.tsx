@@ -3,14 +3,15 @@
 /**
  * The landing, as a poster: the promise in four words on the left, and the
  * wall on the right — the real top climbers hanging on one rope, each at the
- * height of the best climb they've banked. One viewport on desktop; mobile
- * stacks the poster over the wall and scrolls.
+ * height of the best climb they've banked. One viewport on desktop when it
+ * fits (it scrolls rather than overlap on a short screen); mobile stacks the
+ * poster over the wall and scrolls.
  */
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import type { TableState } from "@/lib/state";
-import { useClimberTheme, type LeaderRow, pad, NavMenu, BellChip } from "./shared";
+import { useClimberTheme, type LeaderRow, clock, NavMenu, BellChip } from "./shared";
 
 const NAV = [
   { href: "/play", label: "PLAY" },
@@ -68,7 +69,7 @@ export default function Landing() {
   }, []);
 
   return (
-    <main className="relative z-10 flex min-h-dvh flex-col pb-[calc(88px+env(safe-area-inset-bottom))] sm:pb-0 lg:h-screen lg:max-h-screen lg:overflow-hidden">
+    <main className="relative z-10 flex min-h-dvh flex-col pb-[calc(88px+env(safe-area-inset-bottom))] sm:pb-0 lg:min-h-screen">
       <div className="hz-band shrink-0" />
       <header className="mx-auto flex w-full max-w-[1440px] shrink-0 items-center justify-between gap-4 px-4 py-4 sm:px-8 lg:px-12">
         <Link href="/" className="flex items-center gap-3">
@@ -113,7 +114,7 @@ export default function Landing() {
               TAKE A SEAT →
             </Link>
             <p className="text-[11px] font-bold tracking-[0.16em] text-[var(--dim)] sm:text-xs" style={{ fontFamily: "var(--font-mono, ui-monospace), monospace" }}>
-              FREE · NO WALLET{left != null ? ` · NEXT BELL IN 0:${pad(left)}` : ""}
+              FREE · NO WALLET{left != null ? ` · NEXT BELL IN ${clock(left)}` : ""}
             </p>
           </div>
         </section>
@@ -178,11 +179,11 @@ function Wall({ rows, label, round }: { rows: WallRow[] | null; label: string; r
   if (last > 80) ys.forEach((y, i) => (ys[i] = 16 + ((y - 16) * 64) / (last - 16)));
 
   return (
-    <section className="wall-panel relative h-[500px] overflow-hidden sm:h-[560px] border border-[var(--edge)] lg:h-auto lg:min-h-0">
+    <section className="wall-panel relative h-[500px] overflow-hidden sm:h-[560px] border border-[var(--edge)] lg:h-auto lg:min-h-[520px]">
       <div className="absolute left-4 right-4 top-4 flex items-center justify-between whitespace-nowrap text-[10px] font-bold tracking-[0.18em] text-[var(--dim)] sm:left-5 sm:right-5 sm:text-[11px] sm:tracking-[0.22em]">
         <span>
           THE WALL<span className="hidden sm:inline"> · </span><b className="hidden text-[var(--text)] sm:inline">BEST CLIMBS</b>
-          {label && <span className="hidden lg:inline"> · {label}</span>}
+          {label && <span className="hidden 2xl:inline"> · {label}</span>}
         </span>
         {round != null && (
           <span className="flex items-center gap-2 text-[var(--text)]">
