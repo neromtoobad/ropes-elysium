@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import type { TableState } from "@/lib/state";
 import { useSmoothed } from "./useSmoothed";
 import { bigClock, fmtMark, fmtMove } from "./shared";
+import { LedgeProp } from "./LedgeProps";
 
 /**
  * ROPES — solo.
@@ -69,6 +70,18 @@ const SPREAD = 120;
 /** The ledges carved into the wall, as multiples of the seat price. */
 const MILESTONES = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 5, 8, 12, 20];
 
+/** The win burst: fixed angles and distances, so every bell looks the same. */
+const SPARKS = Array.from({ length: 14 }, (_, i) => {
+  const a = (i / 14) * Math.PI * 2 + 0.2;
+  const d = i % 2 ? 62 : 96;
+  return { dx: Math.cos(a) * d, dy: Math.sin(a) * d * 0.8, gold: i % 3 !== 0 };
+});
+/** The snapped rope's fibres, flung out from the cut. */
+const FIBRES = Array.from({ length: 8 }, (_, i) => {
+  const a = (i / 8) * Math.PI * 2;
+  return { dx: Math.cos(a) * 34, dy: Math.sin(a) * 26, rot: (a * 180) / Math.PI + 90 };
+});
+
 /** Below this the climber is barely holding on. */
 const HANGING = 0.35;
 
@@ -102,6 +115,8 @@ export function Cliff({
   myRunId,
   falling,
   leaping,
+  cheering = [],
+  bellKey = null,
   bells,
   mark,
   record,
@@ -122,6 +137,10 @@ export function Cliff({
   /** Run ids mid-death-fall / mid-bail-leap. Ids, not names — names collide. */
   falling: string[];
   leaping: string[];
+  /** Runs this bell paid, with what it paid them — they get the gold finish. */
+  cheering?: { runId: string; gain: number }[];
+  /** The bell's round index, so each bell's finish plays from the start. */
+  bellKey?: number | null;
   /** The last settled windows, oldest → newest — the wall's own memory. */
   bells: TableState["bells"];
   mark: TableState["mark"];
@@ -134,7 +153,16 @@ export function Cliff({
   // YOUR run or nobody. The old `?? seats[0]` fallback put a stranger's climber
   // — their name, their altitude, their money — on the wall of anyone who had
   // not joined yet, which reads as your own session and is not.
-  const seat = seats.find((s) => s.runId === myRunId) ?? null;
+  const liveSeat = seats.find((s) => s.runId === myRunId) ?? null;
+  /*
+   * A run the bell kills leaves `seats` in the very frame that carries the
+   * bell, so the fall below never had a body to play on — the climber just
+   * vanished. Keep the last seat on screen while it is falling.
+   */
+  const lastSeat = useRef(liveSeat);
+  if (liveSeat) lastSeat.current = liveSeat;
+  const seat =
+    liveSeat ?? (lastSeat.current && falling.includes(lastSeat.current.runId) ? lastSeat.current : null);
 
   // The live mark: the tag, the altitude readout and BAIL all say this.
   const multiple = useSmoothed(liveMultipleOf(seat, price), 340, 3);
@@ -233,9 +261,42 @@ export function Cliff({
   // wants to watch their climber dive. A nudge is cosmetic lean, never
   // altitude — the tag and BAIL don't move.
   const [nudge, setNudge] = useState(0);
+
+  /**
+   * The rope sways. The rope and the climber hang from one pivot at the top
+   * of the wall and swing as a pendulum: a slow wind all the time, a jolt on
+   * every tick, a tug on every hand-over-hand reach, a big swing at a winning
+   * bell. A damped spring, run in its own frame loop and written straight to
+   * the DOM — re-rendering the wall at 60fps for a two-degree swing would
+   * cost more than everything else on it.
+   */
+  const swayRef = useRef<HTMLDivElement>(null);
+  const sway = useRef({ a: 0, v: 0, taut: false });
+  const kick = (degPerSec: number) => {
+    sway.current.v += degPerSec;
+  };
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let raf = 0;
+    let last = 0;
+    const step = (now: number) => {
+      const dt = Math.min(0.05, last ? (now - last) / 1000 : 0.016);
+      last = now;
+      const st = sway.current;
+      // ω ≈ 2.2 rad/s: a ~3 s period, the swing of a long rope.
+      st.v += (-5 * st.a - 0.9 * st.v) * dt;
+      st.a = Math.max(-5, Math.min(5, st.a + st.v * dt));
+      const wind = Math.sin(now / 520) * (st.taut ? 0.12 : 0.5);
+      if (swayRef.current) swayRef.current.style.transform = `rotate(${(st.a + wind).toFixed(3)}deg)`;
+      raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, []);
   useEffect(() => {
     if (mark.price === null || markRef.current.dir === 0) return;
     setNudge(-markRef.current.dir * 12);
+    kick((Math.random() < 0.5 ? -1 : 1) * (1.2 + Math.random()));
     const t = setTimeout(() => setNudge(0), 380);
     return () => clearTimeout(t);
     // Keyed on the price on purpose: a repeated value is not a tick.
@@ -305,6 +366,12 @@ export function Cliff({
   const dead = seat ? falling.includes(seat.runId) : false;
   const bailed = seat ? leaping.includes(seat.runId) : false;
   const hanging = multiple < HANGING && (seat?.inRound ?? false);
+  // A climber hanging on by the fingertips pulls the rope taut.
+  sway.current.taut = hanging;
+  const cheer = seat && !dead && !bailed ? cheering.find((c) => c.runId === seat.runId) ?? null : null;
+  // Where the rope was when it snapped: the offset keeps gliding toward the
+  // next round's line, the cut does not.
+  const snapOffset = useRef(0);
 
   const pose: Pose = bailed
     ? "leap"
@@ -348,6 +415,17 @@ export function Cliff({
     const id = setInterval(() => setFrame((f) => (f + (rising ? 1 : 5)) % 6), ms);
     return () => clearInterval(id);
   }, [cycleActive, rising]);
+  // Each reach tugs the rope: one hand left, the other right.
+  useEffect(() => {
+    if (cycleActive && (frame === 0 || frame === 3)) kick(frame === 0 ? 0.8 : -0.8);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [frame]);
+  useEffect(() => {
+    if (cheer) kick(8);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bellKey, Boolean(cheer)]);
+  if (!dead) snapOffset.current = offset;
+  const cutOffset = dead ? snapOffset.current : offset;
   useEffect(() => {
     if (!hasCycle) return;
     for (let i = 0; i < 6; i++) {
@@ -439,10 +517,12 @@ export function Cliff({
         }}
       >
         {/* milestone ledges — fixed on the wall, so the camera slides them past */}
-        {MILESTONES.map((m) => {
+        {MILESTONES.map((m, i) => {
           const b = bottomOf(heightOfMultiple(m));
           if (!visible(b)) return null;
           const isEven = m === 1;
+          // Alternate sides, clear of the rope and of the HUD corners.
+          const propSide = i % 2 ? { right: "21%" } : { left: "21%" };
           return (
             <div
               key={m}
@@ -459,6 +539,11 @@ export function Cliff({
                   boxShadow: isEven ? "0 0 14px var(--gold-glow)" : "none",
                 }}
               />
+              {b > 6 && b < 80 && (
+                <div className="absolute bottom-[2px]" style={propSide}>
+                  <LedgeProp m={m} lit={m >= 1 && anchor >= m - 1e-6} />
+                </div>
+              )}
               {/* The BTC readout owns the top-right corner; a ledge label that
                   drifts up there would print straight through it. */}
               {b < 78 && (
@@ -542,17 +627,93 @@ export function Cliff({
             down into the grip — same pixels, same twist, and the frames are
             re-centered on the rope so the strand never jumps sideways. It
             tucks into the sprite so the join hides behind the body. */}
-        {seat && !dead && !bailed && (
+        {/* rope and climber hang from one pivot and sway together */}
+        <div ref={swayRef} className="pointer-events-none absolute inset-0 z-10" style={{ transformOrigin: "50% -5%" }}>
+        {seat && !bailed && (
           <div
-            className="pointer-events-none absolute left-1/2 z-10 w-[8px] -translate-x-1/2"
+            // A losing bell SNAPS the rope: the upper piece recoils and
+            // whips; a winning one runs gold up its length.
+            key={dead ? "snapped" : `rope-${cheer ? bellKey : "x"}`}
+            className={`pointer-events-none absolute left-1/2 z-10 w-[8px] -translate-x-1/2 ${dead ? "rope-snap" : cheer ? "rope-gold" : ""}`}
             style={{
               top: "-5%",
-              bottom: `calc(${50 + offset}% + ${ropeJoin}px)`,
+              bottom: `calc(${50 + cutOffset}% + ${ropeJoin}px)`,
               backgroundImage: `url(/climbers/${art}/rope.webp)`,
               backgroundRepeat: "repeat-y",
               backgroundSize: "100% auto",
             }}
           />
+        )}
+
+        {/* the finish at the bell */}
+        {seat && dead && (
+          <div
+            key={`snap-${bellKey}`}
+            className="pointer-events-none absolute left-1/2 z-30"
+            style={{ bottom: `calc(${50 + cutOffset}% + ${ropeJoin}px)` }}
+          >
+            <span className="snap-flash absolute -left-6 -top-6 h-12 w-12 rounded-full" style={{ background: "radial-gradient(circle, #fff 0%, #ffe6b0 30%, transparent 70%)" }} />
+            {FIBRES.map((f, i) => (
+              <span
+                key={i}
+                className="spark absolute -left-px -top-1 h-2.5 w-[2px] rounded-full"
+                style={{ background: "#c79a62", rotate: `${f.rot}deg`, ["--dx" as string]: `${f.dx}px`, ["--dy" as string]: `${f.dy}px` }}
+              />
+            ))}
+          </div>
+        )}
+        {seat && dead && (
+          <div key={`puff-${bellKey}`} className="pointer-events-none absolute bottom-0 left-1/2 z-30 -translate-x-1/2">
+            {[-26, 0, 26].map((x) => (
+              <span
+                key={x}
+                className="dust-puff absolute bottom-0 h-10 w-10 rounded-full"
+                style={{ left: x - 20, background: "radial-gradient(circle, #8f86b8aa 0%, transparent 70%)" }}
+              />
+            ))}
+          </div>
+        )}
+        {cheer && (
+          <>
+            <span
+              key={`zip-${bellKey}`}
+              className="rope-zip pointer-events-none absolute left-1/2 z-10 h-[70px] w-[14px] rounded-full"
+              style={{
+                marginLeft: -7,
+                bottom: `calc(${50 + offset}% + ${ropeJoin}px)`,
+                background: "radial-gradient(ellipse at center, #fff6c8 0%, var(--gold) 35%, transparent 72%)",
+              }}
+            />
+            <div
+              key={`burst-${bellKey}`}
+              className="pointer-events-none absolute left-1/2 z-30"
+              style={{ bottom: `calc(${50 + offset}% - ${bodyOff}px + ${16 + Math.round(ropeH * 0.5)}px)` }}
+            >
+              {SPARKS.map((p, i) => (
+                <span
+                  key={i}
+                  className="spark absolute -left-1 -top-1 h-2 w-2 rounded-full"
+                  style={{
+                    background: p.gold ? "var(--gold)" : "#fff",
+                    boxShadow: `0 0 8px ${p.gold ? "var(--gold-glow)" : "#ffffffaa"}`,
+                    ["--dx" as string]: `${p.dx}px`,
+                    ["--dy" as string]: `${p.dy}px`,
+                  }}
+                />
+              ))}
+            </div>
+            <div
+              key={`gain-${bellKey}`}
+              className="gain-rise display pointer-events-none absolute left-1/2 z-30 -ml-20 w-40 text-center text-2xl sm:text-3xl"
+              style={{
+                bottom: `calc(${50 + offset}% - ${bodyOff}px + ${16 + ropeH - tagOverlap + 26}px)`,
+                color: "var(--gold)",
+                textShadow: "0 0 24px var(--gold-glow), 0 2px 0 #000",
+              }}
+            >
+              +${cheer.gain.toFixed(2)}
+            </div>
+          </>
         )}
 
         {/* the climber — pinned to the middle while the world moves. The rope
@@ -566,19 +727,29 @@ export function Cliff({
               bottom: bailed ? "118%" : dead ? "-30%" : `calc(${50 + offset}% - ${bodyOff}px)`,
               transform: bailed
                 ? "translateX(-50%) translateX(90px)"
-                : `translateX(-50%) translateY(${dead ? 0 : nudge}px)`,
+                : dead
+                  ? "translateX(-50%) rotate(-24deg)"
+                  : `translateX(-50%) translateY(${nudge}px)`,
               opacity: bailed ? 0 : 1,
               transition: bailed
                 ? "bottom 700ms cubic-bezier(0.2, 0.9, 0.3, 1), transform 700ms ease-out, opacity 700ms ease-in 300ms"
                 : dead
-                  ? "bottom 1100ms cubic-bezier(0.5, 0, 0.9, 0.4)"
+                  ? "bottom 1100ms cubic-bezier(0.5, 0, 0.9, 0.4) 120ms, transform 1100ms ease-in 120ms"
                   : "transform 380ms cubic-bezier(0.34, 1.3, 0.5, 1)",
               zIndex: 20,
             }}
           >
+            <div key={`hop-${cheer ? bellKey : "x"}`} className={`flex flex-col items-center ${cheer ? "climber-hop" : ""}`}>
             <div
               className="tabular relative z-[1] whitespace-nowrap rounded px-2 py-0.5 text-[11px] font-black"
-              style={{ background: "var(--gold)", color: "#000", marginBottom: onRope ? -tagOverlap : 4 }}
+              style={{
+                background: "var(--gold)",
+                color: "#000",
+                marginBottom: onRope ? -tagOverlap : 4,
+                // the tag lets go as the body drops
+                opacity: dead ? 0 : 1,
+                transition: "opacity 450ms ease-out",
+              }}
             >
               {seat.name} {multiple.toFixed(2)}×
             </div>
@@ -617,8 +788,10 @@ export function Cliff({
                 WAITING FOR THE ROUND
               </span>
             )}
+            </div>
           </div>
         )}
+        </div>
       </div>
 
       {!seat && (

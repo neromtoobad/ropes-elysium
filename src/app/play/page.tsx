@@ -134,7 +134,7 @@ export default function Game() {
         const bellIdx = next!.lastResult?.index ?? null;
         if (bellIdx !== null && lastBellIndex.current !== null && bellIdx > lastBellIndex.current) {
           setBell(next!.lastResult);
-          setTimeout(() => setBell(null), 3400);
+          setTimeout(() => setBell(null), 4800);
           const r = next!.lastResult!;
           const id = runIdRef.current;
           if (id) {
@@ -617,6 +617,8 @@ export default function Game() {
             intervalSec={state?.round?.intervalSec ?? 60}
             myRunId={runId}
             falling={(bell?.killed ?? []).map((k) => k.runId)}
+            cheering={(bell?.survived ?? []).filter((x) => !bell?.voided && x.to > x.from).map((x) => ({ runId: x.runId, gain: x.to - x.from }))}
+            bellKey={bell?.index ?? null}
             bells={view?.bells ?? []}
             leaping={leaping}
             mark={view?.mark ?? { asset: "HYPE", price: null, strike: null, oracleQuestionId: null }}
@@ -733,7 +735,8 @@ export default function Game() {
         <Feed state={state} />
         {!me && <LastRun ledger={ledger} climber={climber} />}
       </div>
-      {myBell && <Bell result={myBell} mine={mine} />}
+      {/* A won or lost bell plays its finish on the wall first. */}
+      {myBell && <Bell result={myBell} mine={mine} delay={mine?.kind === "won" || mine?.kind === "lost" ? 1.4 : 0} />}
       <div className="lg:hidden"><Footnote state={state} /></div>
     </main>
   );
@@ -1541,13 +1544,19 @@ function Join({
 function Bell({
   result,
   mine,
+  delay = 0,
 }: {
   result: NonNullable<TableState["lastResult"]>;
   mine: BellVerdict;
+  /** Seconds to hold the overlay back while the wall plays the finish. */
+  delay?: number;
 }) {
   const c = result.voided ? "var(--gold)" : result.winner === "UP" ? "var(--up)" : "var(--down)";
   return (
-    <div className="bell pointer-events-none fixed inset-0 z-50 flex items-center justify-center bg-black/92 px-4">
+    <div
+      className="bell pointer-events-none fixed inset-0 z-50 flex items-center justify-center bg-black/92 px-4"
+      style={{ ["--bell-delay" as string]: `${delay}s` } as CSSProperties}
+    >
       <div className="text-center">
         <p className="text-xs font-bold tracking-[0.5em] text-[var(--dim)]">THE BELL</p>
         <p

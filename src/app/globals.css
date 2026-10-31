@@ -174,7 +174,88 @@ body::after {
   78% { opacity: 1; transform: scale(1); }
   100% { opacity: 0; transform: scale(0.96); }
 }
-.bell { animation: bell-in 2.6s cubic-bezier(0.2, 0.9, 0.2, 1) forwards; }
+/* Waits --bell-delay when the wall has a finish to play first (the rope
+   snapping, the gold run), so the overlay never covers the moment. */
+.bell { animation: bell-in 2.6s cubic-bezier(0.2, 0.9, 0.2, 1) var(--bell-delay, 0s) both; }
+
+/* ── the bell finishers, on the wall ───────────────────────────────────── */
+
+/* Won: gold runs up the rope, the climber hops, sparks burst, the gain rises. */
+@keyframes rope-gold {
+  0% { filter: none; }
+  15% { filter: brightness(2) sepia(1) saturate(4) hue-rotate(-12deg) drop-shadow(0 0 8px #ffd34d); }
+  100% { filter: none; }
+}
+.rope-gold { animation: rope-gold 1.6s ease-out; }
+@keyframes rope-zip {
+  0% { transform: translateY(0) scaleY(0.6); opacity: 0; }
+  10% { opacity: 1; }
+  100% { transform: translateY(-110vh) scaleY(1.5); opacity: 0.2; }
+}
+.rope-zip { animation: rope-zip 0.9s cubic-bezier(0.5, 0, 0.8, 0.4) forwards; }
+@keyframes spark-fly {
+  0% { transform: translate(0, 0) scale(1); opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(0.3); opacity: 0; }
+}
+.spark { animation: spark-fly 0.9s cubic-bezier(0.15, 0.7, 0.3, 1) forwards; }
+@keyframes gain-rise {
+  0% { transform: translateY(8px) scale(0.7); opacity: 0; }
+  15% { transform: translateY(0) scale(1.15); opacity: 1; }
+  70% { opacity: 1; }
+  100% { transform: translateY(-46px) scale(1); opacity: 0; }
+}
+.gain-rise { animation: gain-rise 1.9s ease-out forwards; }
+@keyframes climber-hop {
+  0%, 100% { transform: translateY(0); }
+  25% { transform: translateY(-22px) scale(1.04); }
+  45% { transform: translateY(0); }
+  60% { transform: translateY(-9px); }
+  75% { transform: translateY(0); }
+}
+.climber-hop { animation: climber-hop 0.9s cubic-bezier(0.3, 0.7, 0.4, 1); }
+
+/* Lost: the rope snaps above the head and whips away, fibres fly, the
+   climber drops off the wall into a puff of dust. */
+@keyframes rope-snap {
+  0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+  25% { transform: translateY(-70px) rotate(4deg); }
+  45% { transform: translateY(-48px) rotate(-3deg); }
+  65% { transform: translateY(-58px) rotate(1.5deg); }
+  100% { transform: translateY(-54px) rotate(0deg); opacity: 0.55; }
+}
+.rope-snap { transform-origin: 50% 0; animation: rope-snap 1.4s cubic-bezier(0.2, 0.8, 0.3, 1) forwards; }
+@keyframes snap-flash {
+  0% { transform: scale(0.2); opacity: 1; }
+  100% { transform: scale(2.6); opacity: 0; }
+}
+.snap-flash { animation: snap-flash 0.5s ease-out forwards; }
+@keyframes dust-puff {
+  0% { transform: scale(0.3); opacity: 0; }
+  20% { opacity: 0.85; }
+  100% { transform: scale(1.8) translateY(-14px); opacity: 0; }
+}
+.dust-puff { animation: dust-puff 0.9s ease-out 0.85s both; }
+
+/* ── ledge props ───────────────────────────────────────────────────────── */
+
+@keyframes ledge-wave {
+  0%, 100% { transform: skewY(0deg) scaleX(1); }
+  50% { transform: skewY(-7deg) scaleX(0.88); }
+}
+.ledge-wave { transform-box: fill-box; transform-origin: 0% 50%; animation: ledge-wave 1.4s ease-in-out infinite; }
+@keyframes ledge-flicker {
+  0%, 100% { transform: scale(1, 1); }
+  30% { transform: scale(0.9, 1.1); }
+  60% { transform: scale(1.06, 0.93); }
+}
+.ledge-flicker,
+.ledge-flicker-b { transform-box: fill-box; transform-origin: 50% 100%; animation: ledge-flicker 0.5s ease-in-out infinite; }
+.ledge-flicker-b { animation-duration: 0.37s; }
+@keyframes ledge-blink {
+  0%, 60%, 100% { opacity: 1; }
+  70%, 90% { opacity: 0.15; }
+}
+.ledge-blink { animation: ledge-blink 1.6s steps(1) infinite; }
 
 /* Half the table dying should move the whole screen. */
 @keyframes screen-shake {
