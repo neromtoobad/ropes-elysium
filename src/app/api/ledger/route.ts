@@ -4,6 +4,7 @@ import { toUsd } from "@/lib/chain";
 import { computeBadges } from "@/lib/badges";
 import { RANKED_SEATS_PER_DAY, rankedSeatsToday } from "@/lib/boards";
 import { dailyFor } from "@/lib/daily";
+import { shownName } from "@/lib/names";
 
 /**
  * MY LEDGER — one player's complete money story, straight from the same
@@ -81,7 +82,7 @@ export async function POST(req: Request) {
 
   return NextResponse.json({
     id: player.id,
-    name: player.displayName,
+    name: shownName(player),
     // The bankroll: what the wallet page renders.
     bank: {
       balance: toUsd(player.balance),

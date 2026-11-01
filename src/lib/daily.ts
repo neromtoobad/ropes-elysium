@@ -17,6 +17,7 @@
 import { db } from "./db";
 import { toUsd } from "./chain";
 import { dayStart, firstRoundIndexSince } from "./boards";
+import { shownName } from "./names";
 
 export type DailyRow = {
   rank: number;
@@ -52,7 +53,7 @@ async function todaysFirstRuns() {
       roundsSurvived: true,
       startedRoundIndex: true,
       payoutAddress: true,
-      player: { select: { displayName: true } },
+      player: { select: { displayName: true, id: true } },
     },
     orderBy: [{ startedRoundIndex: "asc" }, { id: "asc" }],
   });
@@ -69,7 +70,7 @@ async function compute(): Promise<Daily> {
   const scored = runs
     .map((r) => ({
       runId: r.id,
-      name: r.player.displayName,
+      name: shownName(r.player),
       multiple: r.status === "alive" ? toUsd(r.stack) / toUsd(r.buyIn) : (r.finalMultiple ?? toUsd(r.stack) / toUsd(r.buyIn)),
       rounds: r.roundsSurvived,
       status: r.status as DailyRow["status"],

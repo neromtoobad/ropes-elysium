@@ -19,6 +19,7 @@ import { erc20Abi, parseEventLogs, verifyMessage } from "viem";
 import { depositMessage } from "./depositMessage";
 import { db } from "./db";
 import { COLLATERAL, HOUSE, fmtUsd, publicClient as pub, wallet } from "./chain";
+import { randomName } from "./names";
 
 const log = (...a: unknown[]) => console.log(new Date().toISOString().slice(11, 19), ...a);
 
@@ -70,7 +71,7 @@ export async function creditDeposit(playerKey: string, txHash: `0x${string}`, si
 
   const player = await db.player.upsert({
     where: { wallet: playerKey },
-    create: { wallet: playerKey, displayName: "climber", address: paid.args.from },
+    create: { wallet: playerKey, displayName: randomName(), address: paid.args.from },
     update: {},
   });
   if (player.address && player.address.toLowerCase() !== paid.args.from.toLowerCase()) {

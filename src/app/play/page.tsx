@@ -11,6 +11,7 @@ import { useSound, useHeartbeat } from "../sound";
 import { useHasWallet, useAccount, wallets, connect, paySeat, collateralBalance, signDeposit } from "../wallet";
 import { useSmoothed } from "../useSmoothed";
 import { ElysiumBadge } from "../Elysium";
+import { randomName } from "@/lib/names";
 import {
   usd, short, clock, bigClock, usePlayerKey, useLedger, useClimberTheme, SiteNav, NavMenu, BellChip, HowItWorks, ShareRun,
   type LedgerData, OpenInWallet, safeLocal, fmtMark, fmtMove} from "../shared";
@@ -296,7 +297,7 @@ export default function Game() {
     if (typeof window === "undefined") return;
     if (!new URLSearchParams(window.location.search).has("seat")) return;
     autoSeated.current = true;
-    const who = `climber${Math.floor(100 + Math.random() * 900)}`;
+    const who = randomName();
     setName(who);
     // A one-click visit is a practice seat: it must never spend a bankroll.
     void join(undefined, who, undefined, "practice").then(() => {
@@ -491,6 +492,13 @@ export default function Game() {
   // It refreshes on every bell (each bell can change it).
   const ledger = useLedger(playerKey, `${bell?.index ?? 0}-${runId}-${funded}-${verdict?.kind ?? ""}`);
 
+  // The name box starts filled: your name if you have one (a name is kept from
+  // the first seat), otherwise a random one, so nobody lands on "climber".
+  useEffect(() => {
+    if (ledger?.name) setName(ledger.name);
+    else setName((n) => n || randomName());
+  }, [ledger?.name]);
+
   // A finished run must not linger in storage. The wall, the bail bar and the
   // auto-bail control all key off runId; a dead one keeps a previous session
   // half-attached to this screen. The ledger is authoritative and carries ended
@@ -658,7 +666,7 @@ export default function Game() {
                       runId={endedRunId}
                       run={ledger?.runs?.find((r) => r.id === endedRunId && r.status !== "alive") ?? null}
                       climber={climber}
-                      name={ledger?.name ?? "climber"}
+                      name={ledger?.name ?? name}
                       daily={ledger?.daily?.runId === endedRunId}
                     />
                   ) : null
@@ -1916,7 +1924,7 @@ function LastRun({ ledger, climber }: { ledger: LedgerData | null; climber: Clim
           <span className="text-[var(--dim)]"> · {last.rounds}R</span>
         </span>
       </span>
-      <ShareRun runId={last.id} run={last} climber={climber} name={ledger?.name ?? "climber"} daily={ledger?.daily?.runId === last.id} />
+      <ShareRun runId={last.id} run={last} climber={climber} name={ledger?.name ?? "you"} daily={ledger?.daily?.runId === last.id} />
     </section>
   );
 }

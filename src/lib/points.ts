@@ -14,6 +14,7 @@ import { db } from "./db";
 import { endedRankedRuns, handleMap, longestOf, summitOf, weekBounds, type RankedRun } from "./boards";
 import { computeTrophies, TIER_POINTS, type TrophyState } from "./trophies";
 import { checkInsByWallet, STREAK, walk } from "./streak";
+import { nameFor } from "./names";
 
 export const SEASON = { id: 0, name: "SEASON 0", sub: "TESTNET" };
 
@@ -175,7 +176,7 @@ async function compute(now = new Date()) {
       const points = Math.round(nowRank.sum.get(wallet) ?? 0);
       return {
         wallet,
-        name: names.get(wallet) ?? "climber",
+        name: names.get(wallet) ?? nameFor(wallet),
         handle: handles.get(wallet) ?? null,
         points,
         day: Math.round(day.get(wallet) ?? 0),

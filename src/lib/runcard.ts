@@ -6,6 +6,7 @@
 import { db } from "./db";
 import { toUsd } from "./chain";
 import { dayStart, firstRoundIndexSince } from "./boards";
+import { shownName } from "./names";
 
 /** The eight climbers. Mirrors CAST in Cliff.tsx, which is a client module. */
 export const CLIMBER_IDS = ["green", "red", "gold", "blue", "violet", "orange", "teal", "pink"] as const;
@@ -35,7 +36,7 @@ export async function getRunCard(id: string): Promise<RunCard | null> {
   const r = await db.run.findUnique({
     where: { id },
     include: {
-      player: { select: { displayName: true } },
+      player: { select: { displayName: true, id: true } },
       positions: {
         select: { side: true, outcome: true, stackAfter: true, round: { select: { index: true } } },
       },
@@ -75,7 +76,7 @@ export async function getRunCard(id: string): Promise<RunCard | null> {
 
   return {
     id: r.id,
-    name: r.player.displayName,
+    name: shownName(r.player),
     status: r.status as RunCard["status"],
     multiple,
     peak,

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { toUsd } from "@/lib/chain";
 import { computeBadges } from "@/lib/badges";
+import { shownName } from "@/lib/names";
 
 /**
  * Everyone who has ever sat down, ranked by lifetime net gain. Reads the same
@@ -29,7 +30,7 @@ export async function GET() {
         // The db id, NOT p.wallet — the wallet field is the playerKey, which
         // acts as the player's credential and must never leave the server.
         id: p.id,
-        name: p.displayName,
+        name: shownName(p),
         games: p.runs.length,
         net: back - staked,
         best,

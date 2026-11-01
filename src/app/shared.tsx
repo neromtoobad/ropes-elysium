@@ -559,7 +559,7 @@ export function LedgerPanel({ ledger, climber }: { ledger: LedgerData | null; cl
                   </a>
                 )}
                 {r.status !== "alive" && (
-                  <ShareRun runId={r.id} run={r} climber={climber} name={ledger.name ?? "climber"} daily={ledger.daily?.runId === r.id} />
+                  <ShareRun runId={r.id} run={r} climber={climber} name={ledger.name ?? "you"} daily={ledger.daily?.runId === r.id} />
                 )}
               </span>
             </div>

@@ -16,6 +16,7 @@ import * as registry from "../lib/registry";
 import { fillingTable, STARTING_STACK, SEAT_PRICE, POT_CUT, MAX_SEATS } from "./tables";
 import { debitSeat, houseCollateralHttp } from "../lib/payments";
 import { RANKED_SEATS_PER_DAY, rankedSeatsToday } from "../lib/boards";
+import { isPlaceholderName, randomName } from "../lib/names";
 
 export { db };
 
@@ -591,11 +592,17 @@ export async function joinGame(
    *  (its proceeds credit the balance back when it ends). */
   funded?: boolean,
 ) {
-  const player = await db.player.upsert({
+  if (isPlaceholderName(displayName)) displayName = randomName();
+  let player = await db.player.upsert({
     where: { wallet },
     create: { wallet, displayName },
     update: {},
   });
+  // A name is kept from the first seat, so an old "climber" default (or a
+  // deposit made before any seat) takes the name this seat brought.
+  if (isPlaceholderName(player.displayName)) {
+    player = await db.player.update({ where: { id: player.id }, data: { displayName } });
+  }
   if (roundIndex < player.eligibleFromRoundIndex) {
     throw new Error(`${displayName} is sitting out until round ${player.eligibleFromRoundIndex}`);
   }

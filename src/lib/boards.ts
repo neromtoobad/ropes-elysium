@@ -14,6 +14,7 @@
  */
 import { db } from "./db";
 import { toUsd } from "./chain";
+import { shownName } from "./names";
 
 /** Ranked seats one wallet may buy per UTC day. Every call costs something. */
 export const RANKED_SEATS_PER_DAY = 20;
@@ -104,7 +105,7 @@ export async function endedRankedRuns(): Promise<RankedRun[]> {
   const ended = await db.run.findMany({
     where: { payoutAddress: { not: null }, status: { in: ["banked", "eliminated"] } },
     include: {
-      player: { select: { displayName: true } },
+      player: { select: { displayName: true, id: true } },
       table: { select: { finishedAt: true } },
       positions: { select: { stackAfter: true } },
     },
@@ -121,7 +122,7 @@ export async function endedRankedRuns(): Promise<RankedRun[]> {
 
   return ended.map((r) => ({
     wallet: r.payoutAddress!.toLowerCase(),
-    name: r.player.displayName,
+    name: shownName(r.player),
     net: toUsd(r.stack) - toUsd(r.buyIn),
     multiple: r.finalMultiple ?? toUsd(r.stack) / toUsd(r.buyIn),
     rounds: r.roundsSurvived,

@@ -12,6 +12,7 @@ import { fetchPrice, ASSET, HOUSE, COLLATERAL, MARKET } from "./chain";
 import { MAX_ENTRY_PRICE_PCT } from "./orders";
 import { MAX_SEATS } from "../executor/tables";
 import { ENTRY_WINDOW_S } from "../executor/game";
+import { shownName } from "./names";
 
 export interface SeatView {
   runId: string;
@@ -267,7 +268,7 @@ export async function getTableState(): Promise<TableState> {
       const pos = (r.positions ?? [])[0];
       return {
         runId: r.id,
-        name: r.player.displayName,
+        name: shownName(r.player),
         stack: toUsd(r.stack + (pos?.cost ?? 0n)),
         status: r.status as SeatView["status"],
         pick: (pos?.side ?? r.pendingSide ?? r.autoPick) as "UP" | "DOWN" | null,
@@ -361,12 +362,12 @@ export async function getTableState(): Promise<TableState> {
         redeemTx: settled.redeemTx,
         killed: settled.positions
           .filter((p) => p.outcome === "lost")
-          .map((p) => ({ runId: p.run.id, name: p.run.player.displayName })),
+          .map((p) => ({ runId: p.run.id, name: shownName(p.run.player) })),
         survived: settled.positions
           .filter((p) => p.outcome === "won" || p.outcome === "push")
           .map((p) => ({
             runId: p.run.id,
-            name: p.run.player.displayName,
+            name: shownName(p.run.player),
             from: toUsd(p.stackBefore),
             to: toUsd(p.stackAfter ?? p.stackBefore),
           })),
@@ -403,7 +404,7 @@ export async function getTableState(): Promise<TableState> {
         | "died"
         | "banked"
         | "swept",
-      name: r.player.displayName,
+      name: shownName(r.player),
       round: r.endedRoundIndex ?? 0,
       multiple: r.finalMultiple ?? 0,
       rounds: r.roundsSurvived,
@@ -413,13 +414,13 @@ export async function getTableState(): Promise<TableState> {
   });
 
   const wallRecord = bestRun
-    ? { name: bestRun.player.displayName, multiple: bestRun.finalMultiple! }
+    ? { name: shownName(bestRun.player), multiple: bestRun.finalMultiple! }
     : null;
 
   const record =
     best && best.roundsSurvived > 0
       ? {
-          name: best.player.displayName,
+          name: shownName(best.player),
           rounds: best.roundsSurvived,
           multiple: best.finalMultiple ?? toUsd(best.stack) / toUsd(best.buyIn),
         }
@@ -427,7 +428,7 @@ export async function getTableState(): Promise<TableState> {
 
   const champion = champRun
     ? {
-        name: champRun.player.displayName,
+        name: shownName(champRun.player),
         multiple: champRun.finalMultiple ?? 0,
         rounds: champRun.roundsSurvived,
         pot: toUsd(champRun.table?.pot ?? 0n),
@@ -437,7 +438,7 @@ export async function getTableState(): Promise<TableState> {
 
   const board = boardRuns
     .map((r) => ({
-      name: r.player.displayName,
+      name: shownName(r.player),
       multiple: r.finalMultiple ?? 0,
       status: r.status,
       rounds: r.roundsSurvived,
