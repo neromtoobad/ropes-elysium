@@ -212,7 +212,6 @@ export function useLedger(playerKey: string | null, refreshKey?: unknown) {
 const TABS = [
   { href: "/play", label: "CLIMB" },
   { href: "/leaders", label: "LEADERS" },
-  { href: "/points", label: "POINTS" },
   { href: "/wallet", label: "WALLET" },
   { href: "/learn", label: "LEARN" },
   { href: "/feedback", label: "FEEDBACK" },

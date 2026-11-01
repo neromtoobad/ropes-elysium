@@ -24,7 +24,7 @@ Points can also be granted by hand, for things like a bug we confirm or an idea 
 
 ## Daily streak
 
-Check in once every UTC day on the [points page](/points#streak). Day 1 of a streak pays +5, day 2 +10, and so on up to +35 a day from day 7. Reaching 7 days pays a +50 bonus, 30 days +200 and 100 days +500.
+Check in once every UTC day on the [leaders page](/leaders#streak). Day 1 of a streak pays +5, day 2 +10, and so on up to +35 a day from day 7. Reaching 7 days pays a +50 bonus, 30 days +200 and 100 days +500.
 
 Every 7 days in a row banks a **freeze** (up to 2). Miss a day and a banked freeze covers it, so the streak carries on. Miss more days than you have freezes and it starts again at day 1.
 
@@ -50,11 +50,11 @@ Thirteen trophies, most in three tiers. Each tier pays once, the moment you reac
 | Recruiter: invited wallets that play ranked | 1 | 5 | 20 |
 | Bug Hunter: feedback posts rewarded | 1 | 3 | 10 |
 
-First Climb is a single tier and pays the bronze amount. The cabinet on the points page shows your progress to the next tier, and how many climbers hold each one.
+First Climb is a single tier and pays the bronze amount. The cabinet on the leaders page shows your progress to the next tier, and how many climbers hold each one.
 
 ## Live, not snapshots
 
-The table is computed straight from the ranked ledger every 30 seconds. **Last 24h** is what each climber earned in the past 24 hours, and the ▲▼ arrows are how far they moved compared with where they stood exactly a day ago. **NEW** means they weren't on the table a day ago.
+The table is computed straight from the ranked ledger every 30 seconds. The green **+N 24H** beside a climber is what they earned in the past 24 hours, and the ▲▼ arrows are how far they moved compared with where they stood exactly a day ago. **NEW** means they weren't on the table a day ago.
 
 ## Leagues
 
@@ -68,13 +68,13 @@ The table is computed straight from the ranked ledger every 30 seconds. **Last 2
 
 ## Your handle
 
-On the [points page](/points) you can put your X handle next to your wallet. It shows on the points table and the weekly boards instead of your seat name. One handle per wallet, one wallet per handle.
+On the [leaders page](/leaders) you can put your X handle next to your wallet. It shows on the points table and the weekly boards instead of your seat name. One handle per wallet, one wallet per handle.
 
 Handles are self-claimed. ROPES doesn't verify them, so before anything is paid out to a handle, the winner proves it by posting or messaging from that account.
 
 ## Invites
 
-Your invite link is on the points page: `playropes.xyz/r/YOURCODE`. When someone opens it, their browser keeps the code until they make their first deposit, and then their wallet is attached to yours. From then on you get 10% of the points they earn. They lose nothing.
+Your invite link is on the leaders page: `playropes.xyz/r/YOURCODE`. When someone opens it, their browser keeps the code until they make their first deposit, and then their wallet is attached to yours. From then on you get 10% of the points they earn. They lose nothing.
 
 - An invite counts only for a **new** wallet: one with no more than 3 ranked seats.
 - Once attached, it never changes.

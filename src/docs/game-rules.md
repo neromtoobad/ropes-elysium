@@ -36,7 +36,7 @@ Boards reset every **Monday 00:00 UTC**. A run counts in the week its last bell 
 - **The Summit:** net winnings this week (what your ranked runs paid out, minus what they cost).
 - **Longest Climb:** the most rounds one ranked run survived this week.
 
-The all-time ranked board sits under them on [the boards page](/leaders).
+Both sit on the [leaders page](/leaders) under **This week**. When the week closes, their top places pay into season points, and the season table is the one ranking.
 
 ## The wall goes to sleep
 

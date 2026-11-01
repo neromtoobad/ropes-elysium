@@ -17,7 +17,6 @@ import { ElysiumBadge } from "./Elysium";
 const NAV = [
   { href: "/play", label: "PLAY" },
   { href: "/leaders", label: "LEADERS" },
-  { href: "/points", label: "POINTS" },
   { href: "/transparency", label: "PROOF" },
   { href: "/learn", label: "LEARN" },
   { href: "/feedback", label: "FEEDBACK" },

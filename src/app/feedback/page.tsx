@@ -105,7 +105,7 @@ export default function Feedback() {
           <h2 className="display mt-1 text-3xl leading-none sm:text-4xl">Tell us what&apos;s broken.</h2>
           <p className="mt-2 max-w-xl text-[12px] leading-relaxed text-[var(--dim)]">
             Bugs, ideas, anything. Vote up what matters to you. Bugs we confirm and ideas we ship can earn{" "}
-            <Link href="/points" className="font-bold text-[var(--text)] underline decoration-dotted hover:text-[var(--gold)]">ROPES Points</Link>
+            <Link href="/leaders" className="font-bold text-[var(--text)] underline decoration-dotted hover:text-[var(--gold)]">ROPES Points</Link>
             , at the team&apos;s call.
           </p>
         </div>

@@ -387,7 +387,7 @@ export const LESSONS: Lesson[] = [
       answer: 1,
       why: "Points follow the same rule as the boards: only seats paid from your own bankroll count.",
     },
-    cta: { label: "Open your points card", href: "/points" },
+    cta: { label: "Open your points card", href: "/leaders" },
   },
   {
     slug: "tables",

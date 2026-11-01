@@ -17,7 +17,7 @@ import { checkInsByWallet, STREAK, walk } from "./streak";
 
 export const SEASON = { id: 0, name: "SEASON 0", sub: "TESTNET" };
 
-/** The table, in one place: the /points page prints it straight from here. */
+/** The table, in one place: the /leaders page prints it straight from here. */
 export const RULES = {
   seat: 10, // every ranked seat that ends
   round: 5, // every round that seat survived

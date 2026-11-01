@@ -73,7 +73,7 @@ export function StreakChip() {
   const open = !streak.claimedToday;
   return (
     <Link
-      href="/points#streak"
+      href="/leaders#streak"
       title={open ? "Check in today to keep your streak" : "Streak claimed today"}
       className="gametab relative flex shrink-0 items-center gap-1"
       style={open ? { borderColor: "#ff8a1f", color: "#ffb35c" } : undefined}

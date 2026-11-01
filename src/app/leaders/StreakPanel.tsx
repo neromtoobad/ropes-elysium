@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * The daily streak on the points page: the flame and its number, the last
+ * The daily streak on the leaders page: the flame and its number, the last
  * seven days, the milestones, and the button that claims today.
  */
 import { useEffect, useState } from "react";
