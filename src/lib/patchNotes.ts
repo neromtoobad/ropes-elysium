@@ -7,6 +7,14 @@ export type PatchNote = { date: string; title: string; items: string[] };
 
 export const PATCH_NOTES: PatchNote[] = [
   {
+    date: "2026-11-02",
+    title: "Season 0 starts",
+    items: [
+      "Every board starts clean. Points, the Summit, the Longest Climb, trophies and the records on the wall count only climbs from 2 Nov, 15:00 UTC.",
+      "Your own history and bankroll are untouched.",
+    ],
+  },
+  {
     date: "2026-10-30",
     title: "Points, invites, feedback and lessons",
     items: [

@@ -11,7 +11,7 @@
  * nothing (same rule as the boards).
  */
 import { db } from "./db";
-import { endedRankedRuns, handleMap, longestOf, summitOf, weekBounds, type RankedRun } from "./boards";
+import { endedRankedRuns, handleMap, longestOf, SEASON_START, summitOf, weekBounds, type RankedRun } from "./boards";
 import { computeTrophies, TIER_POINTS, type TrophyState } from "./trophies";
 import { checkInsByWallet, STREAK, walk } from "./streak";
 import { nameFor } from "./names";
@@ -150,7 +150,7 @@ async function compute(now = new Date()) {
     ...trophies.events,
     ...streakEvents,
     ...grants.map((g) => ({ wallet: g.address.toLowerCase(), points: g.points, at: g.createdAt, kind: "grant" })),
-  ];
+  ].filter((e) => e.at >= SEASON_START); // runs are already the season's; streak days and grants are dated
   // The inviter's cut, as events of its own at the same moments — so it
   // lands in the inviter's 24h column exactly when the invitee earned it.
   const invites = base

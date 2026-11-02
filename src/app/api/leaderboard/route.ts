@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { toUsd } from "@/lib/chain";
 import { computeBadges } from "@/lib/badges";
 import { shownName } from "@/lib/names";
+import { seasonFromIndex } from "@/lib/boards";
 
 /**
  * Everyone who has ever sat down, ranked by lifetime net gain. Reads the same
@@ -10,9 +11,10 @@ import { shownName } from "@/lib/names";
  * the game's accounting IS the backend.
  */
 export async function GET() {
+  const from = await seasonFromIndex(); // this season's runs only
   const players = await db.player.findMany({
     include: {
-      runs: { include: { positions: { include: { round: true } } } },
+      runs: { where: { startedRoundIndex: { gte: from } }, include: { positions: { include: { round: true } } } },
     },
   });
 

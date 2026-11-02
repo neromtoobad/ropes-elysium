@@ -13,6 +13,7 @@ import { MAX_ENTRY_PRICE_PCT } from "./orders";
 import { MAX_SEATS } from "../executor/tables";
 import { ENTRY_WINDOW_S } from "../executor/game";
 import { shownName } from "./names";
+import { seasonFromIndex } from "./boards";
 
 export interface SeatView {
   runId: string;
@@ -220,6 +221,7 @@ export async function getTableState(): Promise<TableState> {
    * awaits turned ~13 network hops into multi-second responses, which froze
    * the wall and tipped slow requests into 500s.
    */
+  const season = await seasonFromIndex(); // the board and the records are this season's
   const [sealedTable, fillingTable, runs, boardRuns, bests, priceNow] = await Promise.all([
     db.table.findFirst({ where: { status: "sealed" }, orderBy: { index: "desc" } }),
     db.table.findFirst({ where: { status: "filling" }, orderBy: { index: "desc" } }),
@@ -237,7 +239,7 @@ export async function getTableState(): Promise<TableState> {
       orderBy: { stack: "desc" },
     }),
     db.run.findMany({
-      where: { status: { not: "alive" }, finalMultiple: { not: null } },
+      where: { status: { not: "alive" }, finalMultiple: { not: null }, startedRoundIndex: { gte: season } },
       orderBy: { finalMultiple: "desc" },
       take: 10,
       include: { player: true },
@@ -334,11 +336,12 @@ export async function getTableState(): Promise<TableState> {
       }),
       // Longest run ever seen at this table, alive or dead.
       db.run.findFirst({
+        where: { startedRoundIndex: { gte: season } },
         include: { player: true },
         orderBy: [{ roundsSurvived: "desc" }, { finalMultiple: "desc" }],
       }),
       db.run.findFirst({
-        where: { status: { in: ["banked", "eliminated"] }, finalMultiple: { gt: 1 } },
+        where: { status: { in: ["banked", "eliminated"] }, finalMultiple: { gt: 1 }, startedRoundIndex: { gte: season } },
         orderBy: { finalMultiple: "desc" },
         include: { player: true },
       }),

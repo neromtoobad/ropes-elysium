@@ -59,8 +59,8 @@ export default function Landing() {
       ]).then(([b, l]) => {
         const toWall = (rs: { wallet: string; name: string; handle?: string | null; best: number }[]) => rs.map((r) => ({ id: r.wallet, name: r.handle ? `@${r.handle}` : r.name, best: r.best }));
         if (b?.week?.best?.length >= 3) setWall({ rows: toWall(b.week.best), label: "THIS WEEK · RANKED" });
-        else if (b?.allTime?.best?.length >= 3) setWall({ rows: toWall(b.allTime.best), label: "ALL-TIME · RANKED" });
-        else if (Array.isArray(l?.rows)) setWall({ rows: (l.rows as LeaderRow[]).map((r) => ({ id: r.id, name: r.name, best: r.best })), label: "ALL-TIME" });
+        else if (b?.allTime?.best?.length >= 3) setWall({ rows: toWall(b.allTime.best), label: "SEASON 0 · RANKED" });
+        else if (Array.isArray(l?.rows)) setWall({ rows: (l.rows as LeaderRow[]).map((r) => ({ id: r.id, name: r.name, best: r.best })), label: "SEASON 0" });
       });
     };
     load();

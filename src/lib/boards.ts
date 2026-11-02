@@ -51,6 +51,21 @@ export async function firstRoundIndexSince(at: Date) {
   return r?.index ?? null;
 }
 
+/** Season 0 opened with the launch thread, 2 Nov 2026 16:00 WAT. Runs from
+ *  before it stay in the ledger, but no board, points table or record counts
+ *  them: every climber starts the season at zero. */
+export const SEASON_START = new Date("2026-11-02T15:00:00Z");
+
+let seasonFrom: number | null = null;
+/** The first round of the season. Cached once found; until a round opens
+ *  after the start, nothing counts yet. */
+export async function seasonFromIndex() {
+  if (seasonFrom !== null) return seasonFrom;
+  const i = await firstRoundIndexSince(SEASON_START);
+  if (i !== null) seasonFrom = i;
+  return i ?? Number.MAX_SAFE_INTEGER;
+}
+
 /** Ranked seats this wallet has bought today (UTC). */
 export async function rankedSeatsToday(address: string) {
   const from = await firstRoundIndexSince(dayStart());
@@ -103,7 +118,7 @@ export type RankedRun = {
  *  The boards and the points table are both views of this one list. */
 export async function endedRankedRuns(): Promise<RankedRun[]> {
   const ended = await db.run.findMany({
-    where: { payoutAddress: { not: null }, status: { in: ["banked", "eliminated"] } },
+    where: { payoutAddress: { not: null }, status: { in: ["banked", "eliminated"] }, startedRoundIndex: { gte: await seasonFromIndex() } },
     include: {
       player: { select: { displayName: true, id: true } },
       table: { select: { finishedAt: true } },
