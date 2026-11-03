@@ -20,10 +20,12 @@ import { db } from "./db";
 import { publicClient } from "./chain";
 import { elysium, RPC_URL } from "./elysium";
 
-/** ~200 transactions at Elysium's gas price. */
-export const DRIP = parseEther("0.002");
+/** ~40 transactions at Elysium's 0.1 gwei: a mint, a deposit and every
+ *  withdrawal for weeks. Small on purpose: test HYPE is hard to come by, so
+ *  one faucet claim from Kinetiq should serve hundreds of players. */
+export const DRIP = parseEther("0.0002");
 /** A wallet already holding this much has gas; it doesn't need a drip. */
-const ALREADY_FUNDED = parseEther("0.0002");
+const ALREADY_FUNDED = parseEther("0.00005");
 const PER_WALLET_MS = 7 * 86_400_000;
 export const DRIPS_PER_DAY = 300;
 
