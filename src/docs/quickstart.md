@@ -23,7 +23,7 @@ Practice seats play the same real on-chain market, but they never count on the b
 | Currency | HYPE |
 | Explorer | `https://elysium.kinetiq.xyz/testnet-explorer` |
 
-2. Get a little testnet HYPE for gas from the [Elysium faucet](https://elysium.kinetiq.xyz/testnet-faucet). A transaction costs about 0.00001 HYPE.
+2. Gas is on us: a wallet with no testnet HYPE gets a drip the first time it taps **GET TEST tUSDC** (backup: the [Elysium faucet](https://elysium.kinetiq.xyz/testnet-faucet)). A transaction costs about 0.00001 HYPE.
 3. On the **Wallet** page, tap **GET TEST tUSDC**. That mints 10,000 test dollars to your wallet.
 4. **Deposit** what you want to play with. Ranked seats are 10 tUSDC each and come out of your bankroll with no wallet popup. Each wallet gets **20 ranked seats a day** (resets 00:00 UTC).
 5. Tap **RANKED** and play as above. Winnings go back to your bankroll, and the run counts on [the weekly boards](/leaders). **WITHDRAW ALL** sends everything back to your wallet.

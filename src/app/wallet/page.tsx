@@ -113,7 +113,13 @@ export default function Wallet() {
       const a = addr ?? (await connect());
       setAddr(a);
       if ((await gasBalance(a)) === 0n) {
-        throw new Error("this wallet has no testnet HYPE for gas — claim some from the Elysium testnet faucet first");
+        // No gas: take a drip from the team's reservoir (lib/faucet) first.
+        setBusy("gas");
+        const res = await fetch("/api/gas", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ address: a }) });
+        const j = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(j.error ?? "couldn't get gas — try the Elysium testnet faucet");
+        for (let i = 0; i < 20 && (await gasBalance(a)) === 0n; i++) await new Promise((r) => setTimeout(r, 1000));
+        setBusy("faucet");
       }
       await mintTestUsdc(a, state.pay.collateral as Address);
       setMinted(Number(FAUCET_TUSDC) / 1e6);
@@ -182,7 +188,7 @@ export default function Wallet() {
                 disabled={busy !== null}
                 className="chamfer-sm border border-[var(--up)] px-4 py-2.5 text-xs font-black tracking-[0.12em] text-[var(--up)] transition hover:bg-[var(--up)] hover:text-black disabled:opacity-40"
               >
-                {busy === "faucet" ? "MINTING…" : "GET TEST tUSDC · FREE"}
+                {busy === "gas" ? "SENDING YOU GAS…" : busy === "faucet" ? "MINTING…" : "GET TEST tUSDC · FREE"}
               </button>
             )}
             {walletReady &&
@@ -276,8 +282,8 @@ export default function Wallet() {
         {walletReady && (
           <p className="mt-3 max-w-2xl text-[10px] font-bold leading-relaxed tracking-[0.15em] text-[var(--dim)]">
             TEST tUSDC IS FREE AND UNLIMITED — IT IS THE COLLATERAL EVERY ROUND TRADES AGAINST. YOU
-            STILL NEED A SLIVER OF TESTNET HYPE FOR GAS (ELYSIUM GAS IS ~0.1 GWEI — A TRANSACTION COSTS A
-            HUNDRED-THOUSANDTH OF A HYPE), WHICH ONLY KINETIQ CAN ISSUE — GET IT FROM THE{" "}
+            STILL NEED A SLIVER OF TESTNET HYPE FOR GAS (A TRANSACTION COSTS A HUNDRED-THOUSANDTH OF A
+            HYPE). A WALLET WITH NONE GETS A DRIP FROM US WHEN IT MINTS. IF THAT RUNS DRY, USE THE{" "}
             <a
               href="https://elysium.kinetiq.xyz/testnet-faucet"
               target="_blank"

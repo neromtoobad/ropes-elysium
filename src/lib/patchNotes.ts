@@ -7,6 +7,15 @@ export type PatchNote = { date: string; title: string; items: string[] };
 
 export const PATCH_NOTES: PatchNote[] = [
   {
+    date: "2026-11-03",
+    title: "Even odds, no surprise bets, free gas",
+    items: [
+      "A round now pays about 2x. Entries fill in the first 10 seconds, only near even odds. Late entries were buying long shots at 5-7x, which isn't the game.",
+      "A pick is for one round. If it can't fill, it's dropped instead of waiting and entering later on its own.",
+      "No testnet HYPE? Tap GET TEST tUSDC on the wallet page and we send you gas first.",
+    ],
+  },
+  {
     date: "2026-11-02",
     title: "Season 0 starts",
     items: [

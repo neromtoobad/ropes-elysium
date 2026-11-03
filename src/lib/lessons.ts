@@ -84,7 +84,7 @@ export const LESSONS: Lesson[] = [
       {
         h: "2. Get gas, then test dollars",
         steps: [
-          "Claim a little testnet HYPE from the Elysium faucet. A transaction costs about 0.00001 HYPE, so a tiny amount lasts.",
+          "You need a little testnet HYPE for gas. If your wallet has none, ROPES sends a drip the first time you tap GET TEST tUSDC. A transaction costs about 0.00001 HYPE, so it lasts.",
           "On the ROPES **Wallet** page, tap **GET TEST tUSDC**. Your own wallet mints 10,000 test dollars. Free.",
           "**Deposit** what you want to play with. That's one transfer plus one plain-text signature that proves the deposit is yours.",
         ],

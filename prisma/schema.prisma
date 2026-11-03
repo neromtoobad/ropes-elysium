@@ -333,3 +333,13 @@ model CheckIn {
 
   @@id([address, day])
 }
+
+/// One drip of testnet HYPE from the faucet wallet (lib/faucet): enough gas
+/// for a few hundred transactions. One row per wallet; the timestamp gates a
+/// second drip.
+model GasDrip {
+  /// Lowercased wallet address.
+  address String   @id
+  at      DateTime @default(now())
+  tx      String?
+}

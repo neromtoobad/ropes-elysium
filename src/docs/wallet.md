@@ -19,4 +19,4 @@ Your wallet is used for exactly two things: funding your bankroll and receiving 
 
 ## Gas
 
-You need a little **testnet HYPE** in your wallet for the mint and deposit transactions. Get it from the [Elysium faucet](https://elysium.kinetiq.xyz/testnet-faucet). A transaction costs about 0.00001 HYPE.
+You need a little **testnet HYPE** in your wallet for the mint and deposit transactions. A wallet with none gets a free drip from ROPES the first time it taps **GET TEST tUSDC**; the [Elysium faucet](https://elysium.kinetiq.xyz/testnet-faucet) is the backup. A transaction costs about 0.00001 HYPE.
