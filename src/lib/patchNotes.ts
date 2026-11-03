@@ -13,6 +13,7 @@ export const PATCH_NOTES: PatchNote[] = [
       "A round now pays about 2x. Entries fill in the first 10 seconds, only near even odds. Late entries were buying long shots at 5-7x, which isn't the game.",
       "A pick is for one round. If it can't fill, it's dropped instead of waiting and entering later on its own.",
       "No testnet HYPE? Tap GET TEST tUSDC on the wallet page and we send you gas first.",
+      "Change your name: type a new one in the box before your next seat, or on the points page. 2-12 letters, numbers or underscores, and it has to be yours alone.",
     ],
   },
   {

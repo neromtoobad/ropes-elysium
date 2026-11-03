@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { joinGame } from "@/executor/game";
 import { creditDeposit } from "@/lib/payments";
 import { SEAT_PRICE } from "@/executor/tables";
+import { nameOf, rename } from "@/lib/rename";
 
 /**
  * Buy a seat. One join path, ever (via joinGame).
@@ -31,6 +32,16 @@ export async function POST(req: Request) {
       await creditDeposit(playerKey, depositTx as `0x${string}`, signature);
     } catch (err) {
       return NextResponse.json({ error: String(err).replace("Error: ", "") }, { status: 402 });
+    }
+  }
+
+  // A returning climber who typed a new name into the box is renaming.
+  const current = await nameOf(playerKey);
+  if (current && String(name).trim() !== current) {
+    try {
+      await rename(playerKey, name);
+    } catch (err) {
+      return NextResponse.json({ error: String(err).replace("Error: ", "") }, { status: 400 });
     }
   }
 

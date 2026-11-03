@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getPoints, leagueOf } from "@/lib/points";
 import { ensureClimber, walletOf } from "@/lib/climber";
+import { nameOf } from "@/lib/rename";
 
 export const dynamic = "force-dynamic";
 
@@ -11,12 +12,13 @@ export async function POST(req: Request) {
   const wallet = await walletOf(playerKey);
   if (!wallet) return NextResponse.json({ wallet: null });
 
-  const [c, { rows, fromInvites, invitedCount, trophies }] = await Promise.all([ensureClimber(wallet), getPoints()]);
+  const [c, { rows, fromInvites, invitedCount, trophies }, name] = await Promise.all([ensureClimber(wallet), getPoints(), nameOf(playerKey)]);
   const row = rows.find((r) => r.wallet === wallet) ?? null;
   const points = row?.points ?? 0;
   const league = leagueOf(points);
   return NextResponse.json({
     wallet,
+    name,
     handle: c.handle,
     inviteCode: c.inviteCode,
     invitedBy: Boolean(c.referredBy),

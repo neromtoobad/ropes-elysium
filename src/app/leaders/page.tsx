@@ -40,6 +40,7 @@ type League = { id: string; name: string; min: number };
 type Table = { season: { name: string; sub: string }; at: string; rules: Rules; leagues: League[]; trophies: TrophyDef[]; total: number; rows: Row[] };
 type Me = {
   wallet: string | null;
+  name?: string | null;
   handle?: string | null;
   inviteCode?: string;
   points?: number;
@@ -428,6 +429,11 @@ function MyCard({ me, leagues, playerKey, onSaved }: { me: Me | null; leagues: L
   const [handle, setHandle] = useState("");
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+  const [nm, setNm] = useState("");
+  const [nmMsg, setNmMsg] = useState<string | null>(null);
+  useEffect(() => {
+    if (me?.name) setNm(me.name);
+  }, [me?.name]);
   const [copied, setCopied] = useState(false);
   const shown = useCountUp(me?.points ?? 0);
   useEffect(() => setHandle(me?.handle ?? ""), [me?.handle]);
@@ -487,6 +493,22 @@ function MyCard({ me, leagues, playerKey, onSaved }: { me: Me | null; leagues: L
       onSaved();
     } catch (err) {
       setMsg(String(err).replace("Error: ", "").toUpperCase());
+    } finally {
+      setSaving(false);
+    }
+  };
+  const saveName = async () => {
+    if (!playerKey) return;
+    setSaving(true);
+    setNmMsg(null);
+    try {
+      const r = await fetch("/api/name", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ playerKey, name: nm }) });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.error ?? "could not save");
+      setNmMsg(`YOU'RE ${j.name} NOW`);
+      onSaved();
+    } catch (err) {
+      setNmMsg(String(err).replace("Error: ", "").toUpperCase());
     } finally {
       setSaving(false);
     }
@@ -556,6 +578,31 @@ function MyCard({ me, leagues, playerKey, onSaved }: { me: Me | null; leagues: L
       </div>
 
       <div className="min-w-0 space-y-4">
+        <div>
+          <label htmlFor="climber-name" className="text-[10px] font-bold tracking-[0.25em] text-[var(--dim)]">
+            YOUR NAME ON THE WALL
+          </label>
+          <div className="mt-1.5 flex gap-2">
+            <input
+              id="climber-name"
+              value={nm}
+              onChange={(e) => setNm(e.target.value.replace(/[^A-Za-z0-9_]/g, "").slice(0, 12))}
+              onKeyDown={(e) => e.key === "Enter" && saveName()}
+              placeholder="YourName"
+              className="chamfer-sm w-full min-w-0 flex-1 border border-[var(--edge)] px-3 py-2 font-bold outline-none"
+              style={{ background: "var(--bg)" }}
+            />
+            <button
+              onClick={saveName}
+              disabled={saving || nm.length < 2 || nm === (me.name ?? "")}
+              className="chamfer-sm bg-[var(--gold)] px-4 text-[11px] font-black tracking-[0.2em] text-black transition hover:brightness-110 disabled:opacity-40"
+            >
+              {saving ? "…" : "SAVE"}
+            </button>
+          </div>
+          {nmMsg && <p className="mt-1 text-[10px] font-bold tracking-[0.15em] text-[var(--gold)]">{nmMsg}</p>}
+        </div>
+
         <div>
           <label htmlFor="handle" className="text-[10px] font-bold tracking-[0.25em] text-[var(--dim)]">
             YOUR X HANDLE ON THE BOARDS

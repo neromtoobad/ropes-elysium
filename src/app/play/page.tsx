@@ -1528,7 +1528,7 @@ function Join({
           gold is RANKED on yours. Practice stays open to everyone. */}
       <input
         value={name}
-        onChange={(e) => setName(e.target.value)}
+        onChange={(e) => setName(e.target.value.replace(/[^A-Za-z0-9_]/g, ""))}
         onKeyDown={(e) => e.key === "Enter" && primary()}
         placeholder="your name"
         maxLength={12}
