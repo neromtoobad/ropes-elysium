@@ -121,7 +121,7 @@ export const LESSONS: Lesson[] = [
         steps: [
           "Choose a climber and a name.",
           "Tap **PRACTICE** or **RANKED**.",
-          "When the clock says **BETS OPEN**, tap **▲ UP** or **▼ DOWN**. Picks close 35 seconds into the minute.",
+          "When the clock says **BETS OPEN**, tap **▲ UP** or **▼ DOWN**. Picks close 10 seconds into the minute.",
           "Watch your climber. **BAIL** at any second to keep what it's worth now, or ride to the bell.",
         ],
       },

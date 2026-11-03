@@ -6,7 +6,7 @@
 1. Open [playropes.xyz/play](https://playropes.xyz/play).
 2. Choose a climber and type a name.
 3. Tap **PRACTICE**. The house stakes 10 tUSDC for you.
-4. When the clock says **BETS OPEN**, tap **▲ UP** or **▼ DOWN**. Entries close 35 seconds into the minute.
+4. When the clock says **BETS OPEN**, tap **▲ UP** or **▼ DOWN**. Entries close 10 seconds into the minute, so everyone starts near even odds.
 5. Watch your climber. Tap **BAIL** at any second to take what the market pays right now, or ride to the bell.
 
 Practice seats play the same real on-chain market, but they never count on the boards and their winnings don't credit a balance.

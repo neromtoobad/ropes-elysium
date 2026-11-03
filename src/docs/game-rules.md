@@ -14,7 +14,7 @@
 
 ## Picking
 
-- Pick **UP** or **DOWN** in the first **35 seconds** of a round. A pick made while you're already riding queues for the next round, so there's no dead time between minutes.
+- Pick **UP** or **DOWN** before a round opens or in its first **10 seconds**. Entries only fill near even odds, so a round pays about 2x. A pick made while you're already riding queues for the next round, so there's no dead time between minutes.
 - No pick means you sit the round out and your stack is untouched.
 
 ## When a run ends

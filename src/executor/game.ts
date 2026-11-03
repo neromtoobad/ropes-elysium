@@ -10,8 +10,8 @@
  */
 import { db } from "../lib/db";
 import { fmtUsd, fmtProb, ONE , INTERVAL_SEC } from "../lib/chain";
-import { currentMarket, settlement, type LiveMarket } from "../lib/market";
-import { buy, redeemAll, sellPosition, type Side } from "../lib/orders";
+import { currentMarket, liveQuote, settlement, type LiveMarket } from "../lib/market";
+import { buy, MIN_ENTRY_PRICE_PCT, redeemAll, sellPosition, type Side } from "../lib/orders";
 import * as registry from "../lib/registry";
 import { fillingTable, STARTING_STACK, SEAT_PRICE, POT_CUT, MAX_SEATS } from "./tables";
 import { debitSeat, houseCollateralHttp } from "../lib/payments";
@@ -112,8 +112,14 @@ function sideFor(run: { pendingSide: string | null; autoPick: string | null }): 
  * taking three rounds to fill, which reads as a broken game rather than a thin
  * market. 35s still leaves a real ride (25s minimum) and roughly doubles the
  * number of retries a pick gets inside the window it was placed for.
+ *
+ * Now 10s. RopeMarket always quotes, so the empty-book problem above is gone,
+ * and a long window had become the bigger bug: 35 seconds in, the mark has
+ * moved enough that one side trades at 0.2 and a single round paid 5-7x.
+ * Entries land at the open, at even odds, and the price band in orders.ts
+ * refuses anything that slips past it.
  */
-export const ENTRY_WINDOW_S = 35;
+export const ENTRY_WINDOW_S = 10;
 /** Rounds already registered on the scoreboard by this process. */
 const registered = new Set<number>();
 let lockedLogFor = -1;
@@ -128,6 +134,7 @@ export async function enterRound(roundId: string, market: LiveMarket) {
   if (remaining < round.intervalSec - entryWindow) {
     if (lockedLogFor !== round.index) {
       lockedLogFor = round.index;
+      await expireStalePicks(roundId, round.index);
       log(`  entries locked for round ${round.index} — late bets ride the next window`);
     }
     return [];
@@ -174,6 +181,17 @@ export async function enterRound(roundId: string, market: LiveMarket) {
 
     const totalBudget = group.reduce((sum, p) => sum + p.run.stack, 0n);
 
+    // The floor of the even-odds band. The contract enforces the ceiling; a
+    // side priced under the floor is the long shot, so check a fresh quote.
+    const q = await liveQuote(market.strike, market.expiresAt.getTime() / 1000);
+    const price = q ? (side === "UP" ? q.yesAsk : ONE - q.yesBid) : null;
+    if (price === null || price * 100n < ONE * MIN_ENTRY_PRICE_PCT) {
+      const who = group.map((g) => g.run.player.displayName).join(", ");
+      log(`  ${side} x${group.length} declined @ ${price === null ? "no quote" : fmtProb(price)} (off even odds) — ${who} sit out`);
+      await missedPick(group.map((g) => g.run), round.index);
+      continue;
+    }
+
     let fill;
     try {
       fill = await buy(market, side, totalBudget);
@@ -186,6 +204,7 @@ export async function enterRound(roundId: string, market: LiveMarket) {
       log(fill.tooExpensive
         ? `  ${side} x${group.length} declined @ ${fmtProb(fill.priceRaw)} (above cap) — ${who} sit out`
         : `  ${side} x${group.length} no fill — ${who} sit out`);
+      if (fill.tooExpensive) await missedPick(group.map((g) => g.run), round.index);
       continue;
     }
 
@@ -246,6 +265,33 @@ export async function enterRound(roundId: string, market: LiveMarket) {
     }
   }
   return entered;
+}
+
+/**
+ * A pick is for one round, never a standing order. A pick the band refused
+ * gets the next open, where both sides start at even odds; one that misses
+ * the round it was aimed at is dropped. Before this, an unfilled pick stayed
+ * on the run, kept the seat from retiring as idle, and filled whenever the
+ * price next allowed it, hours later for a player who had gone to bed.
+ */
+async function missedPick(runs: { id: string; pickedForRound: number | null }[], roundIndex: number) {
+  const retry = runs.filter((r) => r.pickedForRound === null).map((r) => r.id);
+  const drop = runs.filter((r) => r.pickedForRound !== null).map((r) => r.id);
+  if (retry.length) await db.run.updateMany({ where: { id: { in: retry } }, data: { pickedForRound: roundIndex + 1 } });
+  if (drop.length) await db.run.updateMany({ where: { id: { in: drop } }, data: { pendingSide: null, pickedForRound: null } });
+}
+
+/** At the lock: picks aimed at this round that never filled are dropped, and
+ *  picks with no round named (placed before the table sealed) get the next
+ *  open and nothing after it. */
+async function expireStalePicks(roundId: string, roundIndex: number) {
+  const unfilled = { status: "alive", pendingSide: { not: null }, positions: { none: { roundId } } };
+  const dropped = await db.run.updateMany({
+    where: { ...unfilled, pickedForRound: { lte: roundIndex } },
+    data: { pendingSide: null, pickedForRound: null },
+  });
+  await db.run.updateMany({ where: { ...unfilled, pickedForRound: null }, data: { pickedForRound: roundIndex + 1 } });
+  if (dropped.count) log(`  dropped ${dropped.count} pick${dropped.count > 1 ? "s" : ""} that missed round ${roundIndex}`);
 }
 
 /**

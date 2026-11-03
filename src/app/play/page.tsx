@@ -1315,8 +1315,10 @@ function Sides({
   const pickPrice = shownPick === "UP" ? state.price.up : shownPick === "DOWN" ? state.price.down : null;
   const pickCapped = shownPick === "UP" ? state.capped.up : shownPick === "DOWN" ? state.capped.down : false;
   const windowOpen = (state.round?.betsCloseIn ?? 0) > 0;
-  const pickStatus = pickCapped
-    ? "TOO PRICEY — HOLDING FOR A BETTER QUOTE"
+  // Entries only fill near even odds. Once the mark has moved off them this
+  // window, the pick waits for the next open, where both sides start even.
+  const pickStatus = pickCapped && windowOpen
+    ? "ODDS MOVED — RIDES THE NEXT OPEN"
     : pickPrice === null
       ? windowOpen
         ? `WAITING FOR THE BOOK · ${clock(state.round?.betsCloseIn ?? 0)}`

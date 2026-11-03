@@ -9,7 +9,7 @@
 import { db } from "./db";
 import { ONE, toUsd, INTERVAL_SEC } from "./chain";
 import { fetchPrice, ASSET, HOUSE, COLLATERAL, MARKET } from "./chain";
-import { MAX_ENTRY_PRICE_PCT } from "./orders";
+import { MAX_ENTRY_PRICE_PCT, MIN_ENTRY_PRICE_PCT } from "./orders";
 import { MAX_SEATS } from "../executor/tables";
 import { ENTRY_WINDOW_S } from "../executor/game";
 import { shownName } from "./names";
@@ -150,6 +150,7 @@ export interface TableState {
 }
 
 const CAP = Number(MAX_ENTRY_PRICE_PCT) / 100;
+const FLOOR = Number(MIN_ENTRY_PRICE_PCT) / 100;
 
 /**
  * The Hyperliquid mark, cached for a beat.
@@ -468,7 +469,7 @@ export async function getTableState(): Promise<TableState> {
       : null,
     price: { up, down },
     pays: { up: up ? 1 / up : null, down: down ? 1 / down : null },
-    capped: { up: up !== null && up > CAP, down: down !== null && down > CAP },
+    capped: { up: up !== null && (up > CAP || up < FLOOR), down: down !== null && (down > CAP || down < FLOOR) },
     crowd,
     locked,
     table: activeTable

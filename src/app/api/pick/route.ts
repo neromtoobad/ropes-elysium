@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { ownedRun } from "@/lib/owned";
+import { INTERVAL_SEC } from "@/lib/chain";
+import { ENTRY_WINDOW_S } from "@/executor/game";
 
 /**
  * Choose a side. Not riding yet: the executor enters it in the open window on
@@ -25,6 +27,19 @@ export async function POST(req: Request) {
       where: { runId_roundId: { runId: owned.run.id, roundId: round.id } },
     });
     if (filled) {
+      await db.run.update({
+        where: { id: owned.run.id },
+        data: { pendingSide: side, pickedForRound: round.index + 1 },
+      });
+      return NextResponse.json({ ok: true, side, queuedFor: round.index + 1 });
+    }
+  }
+
+  // Entries close a few seconds into the round. A pick after that is for the
+  // next open, named explicitly, so it can never drift into a later round.
+  if (round) {
+    const closesAt = round.opensAt.getTime() + Math.round((ENTRY_WINDOW_S / INTERVAL_SEC) * round.intervalSec) * 1000;
+    if (Date.now() >= closesAt && round.expiresAt.getTime() > Date.now()) {
       await db.run.update({
         where: { id: owned.run.id },
         data: { pendingSide: side, pickedForRound: round.index + 1 },

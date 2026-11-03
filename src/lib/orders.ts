@@ -13,11 +13,15 @@ import { ropeAbi } from "./ropeAbi";
 import { readMark } from "./hyperliquid";
 
 /**
- * Refuse to enter above this probability. At 0.99 a player risks their whole
- * stack for a 1% gain — strictly bad, and it happens often on a 1m window that
- * has already made its mind up. Sitting the round out preserves the stack.
+ * Entries only fill near even odds, so one round pays about 2x and never much
+ * more. A win pays 1/price: at the open both sides sit near 0.5, but a bet
+ * placed after the mark has moved could buy the side the market had written
+ * off at 0.13 and turn one coin flip into 7.6x (seen live on 2 Nov). The
+ * ceiling is enforced by the contract itself; the floor is checked against a
+ * fresh quote just before the order (enterRound).
  */
-export const MAX_ENTRY_PRICE_PCT = 90n;
+export const MAX_ENTRY_PRICE_PCT = 55n;
+export const MIN_ENTRY_PRICE_PCT = 45n;
 
 export type Side = "UP" | "DOWN";
 
