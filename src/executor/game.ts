@@ -11,7 +11,7 @@
 import { db } from "../lib/db";
 import { fmtUsd, fmtProb, ONE , INTERVAL_SEC } from "../lib/chain";
 import { currentMarket, liveQuote, settlement, type LiveMarket } from "../lib/market";
-import { buy, MIN_ENTRY_PRICE_PCT, redeemAll, sellPosition, type Side } from "../lib/orders";
+import { buy, MAX_ENTRY_PRICE_PCT, MIN_ENTRY_PRICE_PCT, redeemAll, sellPosition, type Side } from "../lib/orders";
 import * as registry from "../lib/registry";
 import { fillingTable, STARTING_STACK, SEAT_PRICE, POT_CUT, MAX_SEATS } from "./tables";
 import { debitSeat, houseCollateralHttp } from "../lib/payments";
@@ -181,14 +181,15 @@ export async function enterRound(roundId: string, market: LiveMarket) {
 
     const totalBudget = group.reduce((sum, p) => sum + p.run.stack, 0n);
 
-    // The floor of the even-odds band. The contract enforces the ceiling; a
-    // side priced under the floor is the long shot, so check a fresh quote.
+    // The even-odds band, against a fresh quote. The contract enforces the
+    // ceiling too; checking it here first saves a doomed send. A refusal is
+    // not final: the pick tries again every tick until the lock, and only
+    // then does expireStalePicks drop or roll it.
     const q = await liveQuote(market.strike, market.expiresAt.getTime() / 1000);
     const price = q ? (side === "UP" ? q.yesAsk : ONE - q.yesBid) : null;
-    if (price === null || price * 100n < ONE * MIN_ENTRY_PRICE_PCT) {
+    if (price === null || price * 100n < ONE * MIN_ENTRY_PRICE_PCT || price * 100n > ONE * MAX_ENTRY_PRICE_PCT) {
       const who = group.map((g) => g.run.player.displayName).join(", ");
-      log(`  ${side} x${group.length} declined @ ${price === null ? "no quote" : fmtProb(price)} (off even odds) — ${who} sit out`);
-      await missedPick(group.map((g) => g.run), round.index);
+      log(`  ${side} x${group.length} waiting @ ${price === null ? "no quote" : fmtProb(price)} (off even odds) — ${who}`);
       continue;
     }
 
@@ -204,7 +205,6 @@ export async function enterRound(roundId: string, market: LiveMarket) {
       log(fill.tooExpensive
         ? `  ${side} x${group.length} declined @ ${fmtProb(fill.priceRaw)} (above cap) — ${who} sit out`
         : `  ${side} x${group.length} no fill — ${who} sit out`);
-      if (fill.tooExpensive) await missedPick(group.map((g) => g.run), round.index);
       continue;
     }
 
@@ -268,22 +268,15 @@ export async function enterRound(roundId: string, market: LiveMarket) {
 }
 
 /**
- * A pick is for one round, never a standing order. A pick the band refused
- * gets the next open, where both sides start at even odds; one that misses
- * the round it was aimed at is dropped. Before this, an unfilled pick stayed
- * on the run, kept the seat from retiring as idle, and filled whenever the
- * price next allowed it, hours later for a player who had gone to bed.
+ * A pick is for one round, never a standing order. Before this, an unfilled
+ * pick stayed on the run, kept the seat from retiring as idle, and filled
+ * whenever the price next allowed it, hours later for a player who had gone
+ * to bed.
+ *
+ * At the lock: picks aimed at this round that never filled are dropped, and
+ * picks with no round named (placed inside this window, or before the table
+ * sealed) get the next open and nothing after it.
  */
-async function missedPick(runs: { id: string; pickedForRound: number | null }[], roundIndex: number) {
-  const retry = runs.filter((r) => r.pickedForRound === null).map((r) => r.id);
-  const drop = runs.filter((r) => r.pickedForRound !== null).map((r) => r.id);
-  if (retry.length) await db.run.updateMany({ where: { id: { in: retry } }, data: { pickedForRound: roundIndex + 1 } });
-  if (drop.length) await db.run.updateMany({ where: { id: { in: drop } }, data: { pendingSide: null, pickedForRound: null } });
-}
-
-/** At the lock: picks aimed at this round that never filled are dropped, and
- *  picks with no round named (placed before the table sealed) get the next
- *  open and nothing after it. */
 async function expireStalePicks(roundId: string, roundIndex: number) {
   const unfilled = { status: "alive", pendingSide: { not: null }, positions: { none: { roundId } } };
   const dropped = await db.run.updateMany({

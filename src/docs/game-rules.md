@@ -14,7 +14,7 @@
 
 ## Picking
 
-- Pick **UP** or **DOWN** before a round opens or in its first **10 seconds**. Entries only fill near even odds, so a round pays about 2x. A pick made while you're already riding queues for the next round, so there's no dead time between minutes.
+- Pick **UP** or **DOWN** before a round opens or in its first **10 seconds**. Entries only fill near even odds (each side priced 0.35 to 0.65), so a win pays 1.5x to 2.9x, usually about 2x. If the odds are outside that, your pick keeps trying until entries close, then rides the next open. A pick made while you're already riding queues for the next round, so there's no dead time between minutes.
 - No pick means you sit the round out and your stack is untouched.
 
 ## When a run ends

@@ -113,6 +113,8 @@ export default function Game() {
    * next round, 2–4 s — it polls faster so the new round shows up promptly.
    */
   const newestRound = useRef<number>(-1);
+  /** The side this seat is waiting to enter with, as of the last frame. */
+  const waitingPick = useRef<"UP" | "DOWN" | null>(null);
   useEffect(() => {
     let alive = true;
     let timer: ReturnType<typeof setTimeout> | undefined;
@@ -157,6 +159,17 @@ export default function Game() {
           setOptimisticPick(null);
         }
         if (lastBellIndex.current === null || (bellIdx !== null && bellIdx > lastBellIndex.current)) lastBellIndex.current = bellIdx;
+
+        // A pick the executor could not fill inside its window is dropped at
+        // the lock. Say so, or the bet just vanishes and the player waits on
+        // a round they are not in.
+        const mine = next!.seats.find((x) => x.runId === runIdRef.current);
+        const had = waitingPick.current;
+        waitingPick.current = mine?.status === "alive" ? (mine.inRound ? mine.nextPick : mine.pick) : null;
+        if (had && mine?.status === "alive" && !mine.inRound && mine.pick === null) {
+          setOptimisticPick(null);
+          setErr("Your pick didn't go in: the odds moved too far from even before it could fill. Pick again and it rides the next open.");
+        }
       }
       if (!alive) return;
       // Seconds until this round's bell, as of now.
@@ -1315,10 +1328,10 @@ function Sides({
   const pickPrice = shownPick === "UP" ? state.price.up : shownPick === "DOWN" ? state.price.down : null;
   const pickCapped = shownPick === "UP" ? state.capped.up : shownPick === "DOWN" ? state.capped.down : false;
   const windowOpen = (state.round?.betsCloseIn ?? 0) > 0;
-  // Entries only fill near even odds. Once the mark has moved off them this
-  // window, the pick waits for the next open, where both sides start even.
+  // Entries only fill near even odds. Off them, the pick keeps trying until
+  // entries close, then gets the next open, where both sides start even.
   const pickStatus = pickCapped && windowOpen
-    ? "ODDS MOVED — RIDES THE NEXT OPEN"
+    ? `ODDS OFF EVEN — RETRYING · ${clock(state.round?.betsCloseIn ?? 0)}`
     : pickPrice === null
       ? windowOpen
         ? `WAITING FOR THE BOOK · ${clock(state.round?.betsCloseIn ?? 0)}`

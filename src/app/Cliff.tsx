@@ -207,6 +207,13 @@ export function Cliff({
   }, []);
   const small = wallBox.w < 640;
   /**
+   * On a phone the climber holds still. A short wall turned every tick into a
+   * visible bob — the body riding the mark, a jolt per tick, the sway and the
+   * climb cycle all at once — and it read as the game shaking. The numbers
+   * still move; the body only changes at the bell (win, fall, bail).
+   */
+  const still = !wallBox.lg;
+  /**
    * Height of a cycle frame (the rope-carrying sprite), in px — from the
    * wall's HEIGHT on every screen. The desktop used to be a fixed 225px with
    * ±34% of travel, which only fits a tall wall: a 1000×650 window gives the
@@ -280,6 +287,10 @@ export function Cliff({
     sway.current.v += degPerSec;
   };
   useEffect(() => {
+    if (still) {
+      if (swayRef.current) swayRef.current.style.transform = "";
+      return;
+    }
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     let raf = 0;
     let last = 0;
@@ -296,9 +307,9 @@ export function Cliff({
     };
     raf = requestAnimationFrame(step);
     return () => cancelAnimationFrame(raf);
-  }, []);
+  }, [still]);
   useEffect(() => {
-    if (mark.price === null || markRef.current.dir === 0) return;
+    if (still || mark.price === null || markRef.current.dir === 0) return;
     setNudge(-markRef.current.dir * 12);
     kick((Math.random() < 0.5 ? -1 : 1) * (1.2 + Math.random()));
     const t = setTimeout(() => setNudge(0), 380);
@@ -342,7 +353,7 @@ export function Cliff({
    * The line is real whether or not their money is on it yet.
    */
   const rawOffset =
-    mark.price !== null && mark.strike !== null
+    !still && mark.price !== null && mark.strike !== null
       ? travel * Math.tanh((mark.price - mark.strike) / ref)
       : 0;
   const offset = useSmoothed(rawOffset, 300, 200);
@@ -410,7 +421,7 @@ export function Cliff({
   // ~61% of a cycle frame to keep the CHARACTER the same size.
   const spriteH = onRope ? ropeH : Math.round(ropeH * 0.61);
   const [frame, setFrame] = useState(0);
-  const cycleActive = onRope && !hanging && (rising || sinking);
+  const cycleActive = !still && onRope && !hanging && (rising || sinking);
   useEffect(() => {
     if (!cycleActive) return;
     // Rising plays the cycle forward, sinking plays it backward (hand under
@@ -779,7 +790,7 @@ export function Cliff({
               // While moving, the frames ARE the animation; holding still
               // gets the dangle sway, barely-alive gets the scrabble.
               className={`w-auto ${onRope ? "h-[150px] sm:h-[225px]" : "h-[92px] sm:h-[140px]"} ${
-                cycleActive ? "" : onRope ? (hanging ? "hanging" : "dangling") : grip
+                cycleActive || (still && onRope) ? "" : onRope ? (hanging ? "hanging" : "dangling") : grip
               }`}
               style={{
                 // measured, not breakpointed: the figure scales with the

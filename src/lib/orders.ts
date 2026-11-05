@@ -19,9 +19,14 @@ import { readMark } from "./hyperliquid";
  * off at 0.13 and turn one coin flip into 7.6x (seen live on 2 Nov). The
  * ceiling is enforced by the contract itself; the floor is checked against a
  * fresh quote just before the order (enterRound).
+ *
+ * The band was 0.45-0.55 and that refused most entries: a 1-minute book is so
+ * sensitive near the open that a few cents of HYPE puts one side at 0.41 or
+ * 0.59 within seconds. Picks bounced round after round and were dropped. At
+ * 0.35-0.65 a win pays 1.5x to 2.9x and the long shots stay out.
  */
-export const MAX_ENTRY_PRICE_PCT = 55n;
-export const MIN_ENTRY_PRICE_PCT = 45n;
+export const MAX_ENTRY_PRICE_PCT = 65n;
+export const MIN_ENTRY_PRICE_PCT = 35n;
 
 export type Side = "UP" | "DOWN";
 

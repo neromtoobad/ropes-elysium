@@ -7,6 +7,16 @@ export type PatchNote = { date: string; title: string; items: string[] };
 
 export const PATCH_NOTES: PatchNote[] = [
   {
+    date: "2026-11-05",
+    title: "Picks that actually go in, and a still climber on phones",
+    items: [
+      "Entries fill at odds from 0.35 to 0.65, so a win pays 1.5x to 2.9x. The old 0.45-0.55 band refused most picks a few seconds into the minute.",
+      "A pick the odds refuse keeps trying until entries close instead of giving up on the first try, then gets one more go at the next open.",
+      "If a pick can't go in at all, the play screen tells you, instead of it quietly disappearing.",
+      "On a phone the climber and rope hold still during the round. The numbers still move live.",
+    ],
+  },
+  {
     date: "2026-11-03",
     title: "Even odds, no surprise bets, free gas",
     items: [
