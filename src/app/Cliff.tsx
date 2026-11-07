@@ -207,10 +207,11 @@ export function Cliff({
   }, []);
   const small = wallBox.w < 640;
   /**
-   * On a phone the climber holds still. A short wall turned every tick into a
+   * On a phone the climber is calm. A short wall turned every tick into a
    * visible bob — the body riding the mark, a jolt per tick, the sway and the
-   * climb cycle all at once — and it read as the game shaking. The numbers
-   * still move; the body only changes at the bell (win, fall, bail).
+   * climb cycle all at once — and it read as the game shaking. So phones get
+   * no sway, no per-tick nudge and no climb-cycle frames, and the body follows
+   * the price in steps with a slow glide (see PHONE_STEP below).
    */
   const still = !wallBox.lg;
   /**
@@ -352,11 +353,21 @@ export function Cliff({
    * `inRound` false — and the gate pinned them dead centre for all of it.
    * The line is real whether or not their money is on it yet.
    */
-  const rawOffset =
-    !still && mark.price !== null && mark.strike !== null
+  const liveOffset =
+    mark.price !== null && mark.strike !== null
       ? travel * Math.tanh((mark.price - mark.strike) / ref)
       : 0;
-  const offset = useSmoothed(rawOffset, 300, 200);
+  /**
+   * Phones still climb with the price, but without the per-tick bob that read
+   * as shaking: the body only moves once the price has moved it by a visible
+   * step (PHONE_STEP % of the wall) and then glides there slowly. Ticks
+   * smaller than a step don't move it at all.
+   */
+  const PHONE_STEP = 2.5;
+  const phoneTarget = useRef(0);
+  if (Math.abs(liveOffset - phoneTarget.current) >= PHONE_STEP || liveOffset === 0) phoneTarget.current = liveOffset;
+  const rawOffset = still ? phoneTarget.current : liveOffset;
+  const offset = useSmoothed(rawOffset, still ? 700 : 300, 200);
 
   // Direction of travel, in screen truth: the BTC offset while it moves, the
   // anchor glide while it settles, the last tick when both are quiet.

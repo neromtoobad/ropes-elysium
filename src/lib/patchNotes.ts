@@ -7,6 +7,14 @@ export type PatchNote = { date: string; title: string; items: string[] };
 
 export const PATCH_NOTES: PatchNote[] = [
   {
+    date: "2026-11-07",
+    title: "Climbers climb again on phones",
+    items: [
+      "On a phone the climber goes up and down with the price again. The last update held it in one place for the whole round.",
+      "It still doesn't shake: it moves in clear steps and glides there, with no sway or per-tick bob.",
+    ],
+  },
+  {
     date: "2026-11-05",
     title: "Picks that actually go in, and a still climber on phones",
     items: [
