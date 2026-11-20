@@ -1,0 +1,58 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Geist+Mono:wght@400;500&display=block">
+<link rel="stylesheet" href="shared.css"><script src="shared.js"></script><style>
+body { min-height: 1000px; }
+.top { display: flex; align-items: center; gap: 28px; padding: 18px 48px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.top .u { display: flex; align-items: center; gap: 12px; font: 500 22px "DM Sans"; } .top .u img { height: 30px; }
+.top .stat small { display: block; font: 400 11px "Geist Mono"; color: var(--faint); } .top .stat b { font: 500 16px "DM Sans"; }
+.main { display: grid; grid-template-columns: 1fr 380px; gap: 20px; padding: 20px 48px; }
+.chain { padding: 0; overflow: hidden; }
+.chain .head { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--line); }
+table.c { width: 100%; border-collapse: collapse; font: 400 14px "Geist Mono"; font-variant-numeric: tabular-nums; }
+table.c th { font: 500 11px "Geist Mono"; color: var(--faint); text-align: right; padding: 10px 12px; }
+table.c td { text-align: right; padding: 11px 12px; border-top: 1px solid rgba(147,217,238,.08); }
+table.c td.k { position: relative; text-align: center; width: 130px; font: 500 15px "DM Sans"; color: var(--ink); }
+table.c td.k:before { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 3px; transform: translateX(-50%); background: linear-gradient(var(--gold), var(--gold2), var(--gold)); opacity: .55; z-index: 0; }
+table.c td.k span { position: relative; z-index: 1; padding: 3px 10px; border-radius: 8px; background: var(--bg); border: 1px solid rgba(201,162,74,.5); }
+table.c tr.itm-c td.cs { background: rgba(63,211,160,.045); } table.c tr.itm-p td.ps { background: rgba(255,107,122,.045); }
+table.c tr.spot td { padding: 0; border: 0; height: 0; }
+.spotline { position: relative; height: 34px; } .spotline:after { content: ""; position: absolute; left: 0; right: 0; top: 17px; border-top: 1px dashed rgba(52,183,221,.6); }
+.spotline .tag { position: absolute; left: 50%; top: 4px; transform: translateX(-50%); z-index: 2; display: flex; align-items: center; gap: 8px; }
+.spotline .tag img { height: 44px; margin-top: -10px; }
+.sel td { box-shadow: inset 0 1px 0 var(--cyan), inset 0 -1px 0 var(--cyan); } .sel td.cs.ask { background: rgba(52,183,221,.2); color: var(--ink); }
+.side { display: grid; gap: 20px; align-content: start; }
+.ticket { padding: 20px; display: grid; gap: 14px; }
+.payoff { padding: 20px; }
+.bottom { margin: 0 48px 40px; padding: 0; }
+.bottom .head { display: flex; gap: 22px; padding: 16px 20px; border-bottom: 1px solid var(--line); font: 500 14px "DM Sans"; color: var(--mute); } .bottom .head .on { color: var(--ink); }
+.bottom table { width: 100%; border-collapse: collapse; font: 400 14px "Geist Mono"; } .bottom td, .bottom th { padding: 13px 20px; text-align: left; } .bottom th { font-size: 11px; color: var(--faint); font-weight: 500; } .bottom td { border-top: 1px solid rgba(147,217,238,.08); }
+</style></head><body><div class="wrap"><div class="grid-bg"></div>
+<nav class="nav"><a class="logo"><img src="../../public/knot.webp">ROPES</a><span class="pill" style="padding:5px 10px;font-size:11px">testnet</span><div class="links"><a class="on">Trade</a><a class="">Climb</a><a>Portfolio</a><a>Vault</a><a>Docs</a></div><div class="right"><span class="pill mono"><i></i>HYPE $65.65</span><a class="btn">Connect wallet</a></div></nav>
+<div class="top"><div class="u"><img src="../../../brand-kit/assets/ely-hero-a.png" style="border-radius:8px;width:30px;object-fit:cover">HYPE options</div>
+ <div class="stat"><small>index · Hyperliquid</small><b class="num">$65.65 <span class="up">+2.4%</span></b></div>
+ <div class="stat"><small>implied vol</small><b class="num">78%</b></div><div class="stat"><small>24h volume</small><b class="num">$412K</b></div>
+ <div style="margin-left:auto" class="tabs"><span>1m</span><span>5m</span><span class="on">15m · 08:42</span><span>1h</span><span>1d</span></div></div>
+<div class="main">
+ <div class="chain panel"><div class="head"><div><span class="kicker">expires 14:45 UTC · in 8m 42s</span></div><div class="mono faint" style="font-size:12px">calls ← strike → puts</div></div>
+  <table class="c" id="t"></table></div>
+ <div class="side">
+  <div class="ticket panel"><div style="display:flex;justify-content:space-between;align-items:baseline"><b style="font:500 20px 'DM Sans'">HYPE 65.70 call</b><span class="mono faint" style="font-size:12px">15m</span></div>
+   <div class="seg"><span class="buy">Buy</span><span>Sell</span></div>
+   <div><label>order type</label><div class="seg"><span class="on">Limit</span><span>Market</span></div></div>
+   <div><label>price per option</label><div class="field"><span class="num" id="px"></span><small>tUSDC</small></div></div>
+   <div><label>size</label><div class="field"><span class="num">100</span><small>options</small></div></div>
+   <div style="border-top:1px solid var(--line);padding-top:10px"><div class="row"><span>you pay</span><b class="num" id="pay"></b></div><div class="row"><span>max loss</span><b class="num" id="ml"></b></div><div class="row"><span>break-even at expiry</span><b class="num" id="be"></b></div><div class="row"><span>fee</span><b class="num">0.05%</b></div></div>
+   <a class="btn big" style="justify-content:center">Buy 100 calls</a></div>
+  <div class="payoff panel"><div class="kicker">payoff at expiry</div><svg viewBox="0 0 340 150" width="100%" style="margin-top:10px"><line x1="0" y1="110" x2="340" y2="110" stroke="rgba(147,217,238,.25)"/><polyline points="0,124 170,124 340,30" fill="none" stroke="#C9A24A" stroke-width="3"/><line x1="150" y1="10" x2="150" y2="140" stroke="#34B7DD" stroke-dasharray="4 4"/><text x="156" y="22" fill="#93D9EE" font-family="Geist Mono" font-size="11">now 65.65</text><text x="250" y="60" fill="#3FD3A0" font-family="Geist Mono" font-size="11">profit</text><text x="20" y="142" fill="#FF6B7A" font-family="Geist Mono" font-size="11">max loss = premium</text></svg></div>
+ </div></div>
+<div class="bottom panel"><div class="head"><span class="on">Positions · 2</span><span>Open orders · 1</span><span>Settled</span></div>
+ <table><tr><th>series</th><th>side</th><th>size</th><th>entry</th><th>mark</th><th>P&amp;L</th><th>expires</th><th></th></tr>
+ <tr><td>HYPE 66.00 call · 1h</td><td class="up">long</td><td>50</td><td>0.214</td><td>0.262</td><td class="up">+$2.40</td><td>in 41m</td><td><a class="btn ghost" style="padding:6px 12px;font-size:13px">Close</a></td></tr>
+ <tr><td>HYPE 65.40 put · 15m</td><td class="down">short</td><td>120</td><td>0.088</td><td>0.061</td><td class="up">+$3.24</td><td>in 8m</td><td><a class="btn ghost" style="padding:6px 12px;font-size:13px">Close</a></td></tr></table></div>
+<div class="foot"><span><b style="color:var(--ink);font-weight:500">playropes.xyz</b> &nbsp;·&nbsp; @PlayRopes &nbsp;·&nbsp; We never DM first</span><span class="builton">built on <img src="../../../brand-kit/assets/elysium-lockup-light.svg"></span></div></div>
+<script>
+const rows = chain('15m', 13); let html = '<tr><th>Δ</th><th>size</th><th>bid</th><th>ask</th><th>size</th><th style="text-align:center">strike</th><th>size</th><th>bid</th><th>ask</th><th>size</th><th>Δ</th></tr>'; let placed = false;
+rows.forEach(r => { if (!placed && r.K < SPOT) { html += '<tr class="spot"><td colspan="11"><div class="spotline"><div class="tag"><span class="pill mono" style="padding:5px 11px;font-size:12px"><i></i>HYPE 65.65</span></div></div></td></tr>'; placed = true; }
+  const sel = Math.abs(r.K - 65.70) < 0.01; html += '<tr class="' + (r.K < SPOT ? 'itm-c ' : 'itm-p ') + (sel ? 'sel' : '') + '"><td class="cs faint">' + f(r.dc, 2) + '</td><td class="cs faint">' + r.cq + '</td><td class="cs up">' + f(r.cb) + '</td><td class="cs ask">' + f(r.ca) + '</td><td class="cs faint">' + Math.round(r.cq * .7) + '</td><td class="k"><span>' + f(r.K, 2) + '</span></td><td class="ps faint">' + r.pq + '</td><td class="ps down">' + f(r.pb) + '</td><td class="ps">' + f(r.pa) + '</td><td class="ps faint">' + Math.round(r.pq * .6) + '</td><td class="ps faint">' + f(r.dp, 2) + '</td></tr>'; });
+document.getElementById('t').innerHTML = html; const s = rows.find(r => Math.abs(r.K - 65.70) < 0.01);
+px.textContent = f(s.ca); pay.textContent = usd(s.ca * 100); ml.textContent = usd(s.ca * 100); be.textContent = '$' + f(65.70 + s.ca, 2);
+</script></body></html>

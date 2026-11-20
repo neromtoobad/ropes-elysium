@@ -1,0 +1,54 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Geist+Mono:wght@400;500&display=block">
+<link rel="stylesheet" href="shared.css"><script src="shared.js"></script><style>
+.band { position: absolute; left: 0; right: 0; top: 0; height: 900px; overflow: hidden; }
+.band img { position: absolute; right: -80px; top: -40px; width: 1100px; opacity: .3; mask-image: linear-gradient(270deg, #000 30%, transparent 85%), linear-gradient(0deg, transparent, #000 40%); -webkit-mask-composite: source-in; }
+.hero { position: relative; display: grid; grid-template-columns: 1fr 640px; gap: 40px; padding: 90px 48px 0; }
+.hero h1 { font: 500 88px/1 "DM Sans"; letter-spacing: -.035em; margin-top: 20px; }
+.hero p { margin-top: 24px; font: 400 21px/1.5 "DM Sans"; color: var(--mute); width: 560px; } .hero p b { color: var(--ink); font-weight: 500; }
+.hero .ctas { margin-top: 34px; display: flex; gap: 12px; }
+.kpis { margin-top: 56px; display: grid; grid-template-columns: repeat(3, auto); gap: 44px; justify-content: start; }
+.kpis strong { display: block; font: 500 36px "DM Sans"; letter-spacing: -.03em; } .kpis span { font: 400 12px "Geist Mono"; color: var(--faint); }
+.term { padding: 0; overflow: hidden; margin-top: 10px; box-shadow: 0 30px 80px rgba(0,0,0,.45); }
+.term .hd { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; border-bottom: 1px solid var(--line); }
+.term svg { display: block; }
+table.c { width: 100%; border-collapse: collapse; font: 400 13px "Geist Mono"; font-variant-numeric: tabular-nums; }
+table.c td, table.c th { padding: 8px 14px; text-align: right; } table.c th { font-size: 10px; color: var(--faint); font-weight: 500; } table.c td { border-top: 1px solid rgba(147,217,238,.07); }
+table.c td.k { text-align: center; color: var(--gold2); }
+.tape { border-top: 1px solid var(--line); padding: 10px 18px; display: grid; gap: 6px; font: 400 12px "Geist Mono"; color: var(--mute); }
+.tape div { display: flex; justify-content: space-between; }
+.trust { margin: 110px 48px 0; display: flex; justify-content: space-between; align-items: center; padding: 22px 30px; font: 400 14px "Geist Mono"; color: var(--mute); }
+.who { margin: 110px 48px 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.who .panel { padding: 26px; } .who h3 { font: 500 26px "DM Sans"; letter-spacing: -.02em; margin-top: 12px; } .who p { margin-top: 10px; color: var(--mute); font-size: 16px; line-height: 1.5; }
+.flow { margin: 110px 48px 0; padding: 40px; }
+.flow .steps { margin-top: 28px; display: grid; grid-template-columns: 1fr 40px 1fr 40px 1fr 40px 1fr; align-items: center; }
+.flow .box { padding: 20px; border-radius: 14px; border: 1px solid var(--line2); background: rgba(4,24,28,.7); } .flow .box b { font: 500 19px "DM Sans"; } .flow .box small { display: block; margin-top: 6px; font: 400 12px "Geist Mono"; color: var(--mute); }
+.flow .ar { height: 2px; background: var(--gold); opacity: .6; margin: 0 6px; }
+h2 { font: 500 52px/1.05 "DM Sans"; letter-spacing: -.03em; margin-top: 12px; }
+</style></head><body><div class="wrap"><div class="band"><img src="../../../brand-kit/assets/ely-hero-a.png"></div><div class="grid-bg"></div>
+<nav class="nav"><a class="logo"><img src="../../public/knot.webp">ROPES</a><span class="pill" style="padding:5px 10px;font-size:11px">testnet</span><div class="links"><a class="">Trade</a><a class="">Climb</a><a>Portfolio</a><a>Vault</a><a>Docs</a></div><div class="right"><span class="pill mono"><i></i>HYPE $65.65</span><a class="btn">Connect wallet</a></div></nav>
+<div class="hero"><div><span class="pill"><i></i>Opens December 1 · testnet</span>
+  <h1>The onchain options<br>book for <em>Hyperliquid</em>.</h1>
+  <p>Calls and puts on HYPE from <b>one minute to one day</b>. Orders match inside the contract on Elysium and settle on <b>Hyperliquid's price</b>. No servers in the middle.</p>
+  <div class="ctas"><a class="btn big">Open the book</a><a class="btn big ghost">API docs</a><a class="btn big ghost">Play Climb</a></div>
+  <div class="kpis"><div><strong class="num">13,172</strong><span>options settled onchain</span></div><div><strong class="num">100%</strong><span>settlements match Hyperliquid</span></div><div><strong class="num">100 ms</strong><span>block time on Elysium</span></div></div></div>
+ <div class="term panel"><div class="hd"><span class="mono" style="font-size:13px">HYPE · 15m · <span class="cy">expires 08:42</span></span><div class="tabs"><span>5m</span><span class="on">15m</span><span>1h</span><span>1d</span></div></div>
+  <svg id="ch" width="640" height="230"></svg>
+  <table class="c" id="t"></table>
+  <div class="tape"><div><span class="up">buy · 65.70 call × 100</span><span>0.090 · 2s ago</span></div><div><span class="down">sell · 65.40 put × 120</span><span>0.088 · 9s ago</span></div><div><span class="up">buy · 66.00 call × 40</span><span>0.017 · 14s ago</span></div></div></div></div>
+<div class="trust panel"><span>settles on Hyperliquid's price</span><span class="faint">·</span><span>matched in the contract</span><span class="faint">·</span><span>fully collateralised, no liquidations</span><span class="faint">·</span><span>open API for makers and apps</span></div>
+<div style="margin:110px 48px 0"><div class="kicker">built for</div><h2>Everyone who trades <em>HYPE</em>.</h2></div>
+<div class="who" style="margin-top:36px"><div class="panel"><div class="kicker">traders</div><h3>Protect a position</h3><p>Buy a put on your Hyperliquid long for the next hour.</p></div>
+ <div class="panel"><div class="kicker">holders</div><h3>Earn on HYPE</h3><p>Sell calls above the price and keep the premium.</p></div>
+ <div class="panel"><div class="kicker">market makers</div><h3>Quote the book</h3><p>Cancel-replace in one call, 100 ms blocks, hedge on HyperCore.</p></div>
+ <div class="panel"><div class="kicker">builders</div><h3>Plug in</h3><p>Positions are ERC-1155. Vaults, lenders and games can hold or write them.</p></div></div>
+<div class="flow panel"><div class="kicker">how a trade settles</div><h2 style="font-size:40px">From Hyperliquid to your wallet, <em>onchain</em>.</h2>
+ <div class="steps"><div class="box"><b>Hyperliquid</b><small>HYPE oracle price</small></div><div class="ar"></div><div class="box"><b>Elysium precompile</b><small>read inside the contract</small></div><div class="ar"></div><div class="box"><b>ROPES book</b><small>settles every position</small></div><div class="ar"></div><div class="box"><b>Your wallet</b><small>payout, no claim form</small></div></div></div>
+<div style="height:110px"></div><div class="foot"><span><b style="color:var(--ink);font-weight:500">playropes.xyz</b> &nbsp;·&nbsp; @PlayRopes &nbsp;·&nbsp; We never DM first</span><span class="builton">built on <img src="../../../brand-kit/assets/elysium-lockup-light.svg"></span></div></div>
+<script>function path(n, seed) { let x = 65.1, a = []; for (let i = 0; i < n; i++) { x += Math.sin(i * 0.37 + seed) * 0.016 + Math.sin(i * 0.11 + seed * 2) * 0.012 + (i > n * .7 ? 0.006 : 0.0015); a.push(x); } const k = SPOT - a[n - 1]; return a.map(v => v + k); }
+function chart(svg, W, Hh, strikes) { const p = path(160, 1.3), lo = Math.min(...p, ...strikes) - .08, hi = Math.max(...p, ...strikes) + .08, xw = (W - 70) / (p.length + 40);
+ const y = v => Hh - 24 - (v - lo) / (hi - lo) * (Hh - 48); let s = "";
+ strikes.forEach(k => { s += `<line x1="0" x2="${W - 70}" y1="${y(k)}" y2="${y(k)}" stroke="rgba(201,162,74,.28)" stroke-dasharray="3 5"/><text x="${W - 64}" y="${y(k) + 4}" fill="rgba(226,194,122,.8)" font-family="Geist Mono" font-size="11">${k.toFixed(2)}</text>`; });
+ [[160, "now"], [160 + 13, "14:45"], [160 + 35, "15:00"]].forEach(([i, l], j) => { const xx = i * xw; s += `<line x1="${xx}" x2="${xx}" y1="10" y2="${Hh - 20}" stroke="${j ? "rgba(147,217,238,.35)" : "rgba(52,183,221,.7)"}" stroke-dasharray="${j ? "2 4" : "0"}"/><text x="${xx + 6}" y="20" fill="#93D9EE" font-family="Geist Mono" font-size="11">${l}</text>`; });
+ const pts = p.map((v, i) => `${i * xw},${y(v)}`).join(" "); s += `<polyline points="${pts} ${(p.length - 1) * xw},${Hh} 0,${Hh}" fill="url(#g)" stroke="none"/><polyline points="${pts}" fill="none" stroke="#E2C27A" stroke-width="2.4"/><circle cx="${(p.length - 1) * xw}" cy="${y(SPOT)}" r="5" fill="#34B7DD"/>`;
+ svg.innerHTML = `<defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgba(201,162,74,.18)"/><stop offset="1" stop-color="rgba(201,162,74,0)"/></linearGradient></defs>` + s; }; const rows = chain('15m', 7); chart(document.getElementById('ch'), 640, 230, rows.map(r => r.K).filter((k, i) => i % 2 == 0));
+document.getElementById('t').innerHTML = '<tr><th>bid</th><th>ask</th><th style="text-align:center">strike</th><th>bid</th><th>ask</th></tr>' + rows.map(r => '<tr><td class="up">' + f(r.cb) + '</td><td>' + f(r.ca) + '</td><td class="k">' + f(r.K, 2) + '</td><td class="down">' + f(r.pb) + '</td><td>' + f(r.pa) + '</td></tr>').join('');</script></body></html>

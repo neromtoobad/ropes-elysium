@@ -112,3 +112,12 @@ export async function candleOpen(asset: string, minuteStartMs: number, waitMs = 
     await new Promise((r) => setTimeout(r, 300));
   }
 }
+
+/** Live mark, oracle and yesterday's price for a main-dex perp, for display (24h change). */
+export async function assetCtx(asset: string): Promise<{ mark: number; oracle: number; prevDay: number }> {
+  const [meta, ctxs] = await info<[{ universe: { name: string }[] }, { markPx: string; oraclePx: string; prevDayPx: string }[]]>({ type: "metaAndAssetCtxs" });
+  const i = meta.universe.findIndex((u) => u.name === asset);
+  if (i < 0) throw new Error(`hyperliquid lists no perp ${asset}`);
+  const c = ctxs[i];
+  return { mark: Number(c.markPx), oracle: Number(c.oraclePx), prevDay: Number(c.prevDayPx) };
+}

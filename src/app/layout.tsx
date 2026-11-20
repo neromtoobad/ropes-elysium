@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
-import { Russo_One, Chakra_Petch } from "next/font/google";
+import { Russo_One, Chakra_Petch, DM_Sans, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import "./rb.css";
 import InviteCatcher from "./InviteCatcher";
 
 /**
@@ -23,6 +24,10 @@ const body = Chakra_Petch({
   variable: "--font-body",
   display: "swap",
 });
+
+/** The rebrand pair (Dec 2026): DM Sans for UI and headings, Geist Mono for prices, labels and kickers. */
+const sans = DM_Sans({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-sans", display: "swap" });
+const mono = Geist_Mono({ subsets: ["latin"], weight: ["400", "500"], variable: "--font-mono", display: "swap" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000"),
@@ -51,7 +56,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${display.variable} ${body.variable}`}>
+    <html lang="en" className={`${display.variable} ${body.variable} ${sans.variable} ${mono.variable}`}>
       <body>
         {children}
         <InviteCatcher />

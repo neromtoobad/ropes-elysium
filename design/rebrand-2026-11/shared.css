@@ -1,0 +1,49 @@
+/* ROPES rebrand mockups — tokens taken from the Dec 1 teaser card (brand-kit/ely-card.html). */
+:root {
+  --bg: #04181C; --bg2: #071317; --panel: rgba(9,26,31,.78); --panel2: rgba(12,34,40,.9);
+  --line: rgba(147,217,238,.16); --line2: rgba(147,217,238,.28);
+  --ink: #F8F7F4; --mute: rgba(248,247,244,.62); --faint: rgba(248,247,244,.38);
+  --cyan: #34B7DD; --cyan2: #93D9EE; --gold: #C9A24A; --gold2: #E2C27A;
+  --up: #3FD3A0; --down: #FF6B7A;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { background: var(--bg); color: var(--ink); font-family: "DM Sans", sans-serif; -webkit-font-smoothing: antialiased; }
+.mono { font-family: "Geist Mono", monospace; }
+.num { font-variant-numeric: tabular-nums; }
+a { color: inherit; text-decoration: none; }
+.wrap { width: 1440px; margin: 0 auto; position: relative; }
+
+/* nav */
+.nav { height: 72px; display: flex; align-items: center; gap: 36px; padding: 0 48px; position: relative; z-index: 10; }
+.nav .logo { display: flex; align-items: center; gap: 10px; font: 600 21px "DM Sans"; letter-spacing: -.01em; }
+.nav .logo img { height: 22px; filter: brightness(0) invert(1); }
+.nav .links { display: flex; gap: 28px; font: 500 15px "DM Sans"; color: var(--mute); }
+.nav .links .on { color: var(--ink); }
+.nav .right { margin-left: auto; display: flex; gap: 12px; align-items: center; }
+.pill { display: inline-flex; align-items: center; gap: 9px; font: 500 13px "Geist Mono"; color: var(--ink); padding: 8px 14px; border-radius: 999px;
+  background: rgba(7,19,23,.6); border: 1px solid var(--line2); backdrop-filter: blur(8px); white-space: nowrap; }
+.pill i { width: 7px; height: 7px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 10px var(--cyan); }
+.btn { display: inline-flex; align-items: center; gap: 10px; font: 500 15px "DM Sans"; color: #04181C; padding: 11px 20px; border-radius: 12px;
+  background: linear-gradient(180deg, #6FCDE8, #34B7DD); box-shadow: inset 0 0 0 1px rgba(255,255,255,.25), 0 8px 30px rgba(52,183,221,.25); border: 0; }
+.btn.big { font-size: 18px; padding: 15px 26px; border-radius: 14px; }
+.btn.ghost { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1px var(--line2); }
+.kicker { font: 500 14px "Geist Mono"; color: var(--cyan2); letter-spacing: .01em; }
+h1 em, h2 em { font-style: normal; color: var(--cyan); }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; backdrop-filter: blur(12px); }
+.grid-bg { position: absolute; inset: 0; background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 64px 64px; opacity: .35; mask-image: radial-gradient(900px 500px at 60% 0%, #000, transparent); pointer-events: none; }
+.up { color: var(--up); } .down { color: var(--down); } .mute { color: var(--mute); } .faint { color: var(--faint); } .cy { color: var(--cyan); } .gold { color: var(--gold2); }
+.tabs { display: inline-flex; gap: 4px; padding: 4px; border-radius: 12px; background: rgba(7,19,23,.7); border: 1px solid var(--line); }
+.tabs span { font: 500 13px "Geist Mono"; padding: 7px 12px; border-radius: 9px; color: var(--mute); }
+.tabs span.on { background: rgba(52,183,221,.16); color: var(--ink); box-shadow: inset 0 0 0 1px rgba(52,183,221,.45); }
+.foot { display: flex; justify-content: space-between; align-items: center; padding: 28px 48px; border-top: 1px solid var(--line); font: 400 13px "Geist Mono"; color: var(--mute); }
+.foot .builton { display: flex; align-items: center; gap: 12px; } .foot .builton img { height: 24px; }
+.ticket label { display: block; font: 500 12px "Geist Mono"; color: var(--faint); margin-bottom: 7px; }
+.field { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border-radius: 11px; background: rgba(4,24,28,.8); border: 1px solid var(--line); font: 500 16px "DM Sans"; }
+.field small { font: 400 12px "Geist Mono"; color: var(--faint); }
+.seg { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 4px; border-radius: 12px; background: rgba(4,24,28,.8); border: 1px solid var(--line); }
+.seg span { text-align: center; padding: 9px; border-radius: 9px; font: 600 14px "DM Sans"; color: var(--mute); }
+.seg span.buy { background: rgba(63,211,160,.14); color: var(--up); box-shadow: inset 0 0 0 1px rgba(63,211,160,.4); }
+.seg span.on { background: rgba(52,183,221,.14); color: var(--ink); box-shadow: inset 0 0 0 1px rgba(52,183,221,.4); }
+.row { display: flex; justify-content: space-between; font: 400 13px "Geist Mono"; color: var(--mute); padding: 4px 0; }
+.row b { color: var(--ink); font-weight: 500; }

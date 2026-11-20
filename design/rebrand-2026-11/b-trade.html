@@ -1,0 +1,57 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Geist+Mono:wght@400;500&display=block">
+<link rel="stylesheet" href="shared.css"><script src="shared.js"></script><style>
+.ladder { position: relative; }
+.ladder .rope { position: absolute; left: 50%; top: 0; bottom: 0; width: 8px; transform: translateX(-50%); border-radius: 4px;
+  background: repeating-linear-gradient(160deg, #8a6a2c 0 5px, #d9b56a 5px 9px, #a9853f 9px 13px); box-shadow: 0 0 0 1px rgba(0,0,0,.25), 0 0 24px rgba(201,162,74,.18); }
+.rung { position: relative; display: grid; grid-template-columns: minmax(0,1fr) 150px minmax(0,1fr); align-items: center; height: 54px; }
+.rung .bar { position: absolute; left: calc(50% - 75px); width: 150px; top: 50%; height: 2px; background: linear-gradient(90deg, transparent, rgba(226,194,122,.7), transparent); }
+.rung .k { grid-column: 2; justify-self: center; position: relative; z-index: 2; font: 500 16px "DM Sans"; padding: 5px 12px; border-radius: 9px; background: var(--bg); border: 1px solid rgba(201,162,74,.55); font-variant-numeric: tabular-nums; }
+.chip { display: inline-flex; align-items: baseline; gap: 10px; padding: 9px 14px; border-radius: 11px; border: 1px solid var(--line); background: var(--panel); font: 500 15px "Geist Mono"; font-variant-numeric: tabular-nums; }
+.chip small { font: 400 11px "Geist Mono"; color: var(--faint); }
+.rung .l { grid-column: 1; justify-self: end; display: flex; gap: 10px; align-items: center; padding-right: 14px; }
+.rung .r { grid-column: 3; justify-self: start; display: flex; gap: 10px; align-items: center; padding-left: 14px; }
+.depth { height: 6px; border-radius: 3px; }
+.rung.sel .l .chip.ask { border-color: var(--cyan); background: rgba(52,183,221,.16); }
+.spotmark { position: relative; height: 70px; display: grid; grid-template-columns: minmax(0,1fr) 150px minmax(0,1fr); align-items: center; }
+.spotmark img { grid-column: 2; justify-self: center; height: 92px; position: relative; z-index: 3; margin-top: -8px; }
+.spotmark .lab { grid-column: 3; padding-left: 8px; } .spotmark:before { content: ""; position: absolute; left: 6%; right: 6%; top: 50%; border-top: 1px dashed rgba(52,183,221,.55); }
+
+.main { display: grid; grid-template-columns: 250px minmax(0,1fr) 350px; gap: 20px; padding: 20px 48px 40px; }
+.exps { display: grid; gap: 10px; align-content: start; }
+.exp { padding: 16px 18px; border-radius: 14px; border: 1px solid var(--line); background: var(--panel); }
+.exp b { font: 500 20px "DM Sans"; } .exp .t { float: right; font: 500 14px "Geist Mono"; color: var(--mute); } .exp small { display: block; margin-top: 6px; font: 400 12px "Geist Mono"; color: var(--faint); }
+.exp.on { border-color: rgba(52,183,221,.6); background: rgba(52,183,221,.1); } .exp.on .t { color: var(--cyan2); }
+.bar { height: 3px; border-radius: 2px; background: var(--line); margin-top: 10px; overflow: hidden; } .bar i { display: block; height: 100%; background: var(--gold2); }
+.center { padding: 22px 26px; overflow: hidden; } .center .depth { max-width: 34px; } .center .hd { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+.center h1 { font: 500 34px "DM Sans"; letter-spacing: -.025em; }
+.ticket { padding: 20px; display: grid; gap: 14px; }
+.mine { padding: 20px; } .mine .p { display: flex; justify-content: space-between; padding: 12px 0; border-top: 1px solid var(--line); font: 400 14px "Geist Mono"; }
+</style></head><body><div class="wrap"><div class="grid-bg"></div>
+<nav class="nav"><a class="logo"><img src="../../public/knot.webp">ROPES</a><span class="pill" style="padding:5px 10px;font-size:11px">testnet</span><div class="links"><a class="on">Trade</a><a class="">Climb</a><a>Portfolio</a><a>Vault</a><a>Docs</a></div><div class="right"><span class="pill mono"><i></i>HYPE $65.65</span><a class="btn">Connect wallet</a></div></nav>
+<div class="main">
+ <div class="exps"><div class="kicker" style="margin:4px 0 4px">expiries · HYPE</div>
+  <div class="exp"><b>1 min</b><span class="t">00:37</span><small>Climb · up or down</small><div class="bar"><i style="width:38%"></i></div></div>
+  <div class="exp"><b>5 min</b><span class="t">03:42</span><small>11 strikes · $38K open</small><div class="bar"><i style="width:26%"></i></div></div>
+  <div class="exp on"><b>15 min</b><span class="t">08:42</span><small>13 strikes · $121K open</small><div class="bar"><i style="width:42%"></i></div></div>
+  <div class="exp"><b>1 hour</b><span class="t">41:10</span><small>13 strikes · $204K open</small><div class="bar"><i style="width:31%"></i></div></div>
+  <div class="exp"><b>1 day</b><span class="t">17:31:00</span><small>15 strikes · $96K open</small><div class="bar"><i style="width:27%"></i></div></div>
+  <div class="panel" style="padding:16px 18px;margin-top:8px"><div class="kicker">index</div><div style="font:500 30px 'DM Sans';letter-spacing:-.03em;margin-top:6px" class="num">$65.65</div><div class="mono up" style="font-size:13px">+2.4% today</div><div class="mono faint" style="font-size:12px;margin-top:10px">Hyperliquid oracle · settles at expiry</div></div></div>
+ <div class="center panel"><div class="hd"><h1>HYPE · <em style="font-style:normal;color:var(--cyan)">15 min</em></h1><span class="mono faint" style="font-size:13px">calls on the left · puts on the right · tap a price</span></div>
+  <div class="ladder" id="L"></div></div>
+ <div style="display:grid;gap:20px;align-content:start">
+  <div class="ticket panel"><div style="display:flex;justify-content:space-between;align-items:baseline"><b style="font:500 20px 'DM Sans'">Buy · 65.70 call</b><span class="mono faint" style="font-size:12px">15m</span></div>
+   <p class="mute" style="font-size:15px;line-height:1.5">Pays out if HYPE is above <b style="color:var(--ink)">$65.70</b> at 14:45 UTC. You can sell it back before then.</p>
+   <div class="seg"><span class="buy">Buy</span><span>Sell</span></div>
+   <div><label>price per option</label><div class="field"><span class="num" id="px"></span><small>tUSDC · limit</small></div></div>
+   <div><label>how many</label><div class="field"><span class="num">100</span><small>options</small></div></div>
+   <div style="border-top:1px solid var(--line);padding-top:10px"><div class="row"><span>you pay</span><b id="pay"></b></div><div class="row"><span>most you can lose</span><b id="ml"></b></div><div class="row"><span>break-even</span><b id="be"></b></div></div>
+   <a class="btn big" style="justify-content:center">Buy 100 calls</a></div>
+  <div class="mine panel"><div class="kicker">your rungs</div>
+   <div class="p"><span>66.00 call · 1h</span><span class="up">+$2.40</span></div><div class="p"><span>65.40 put · 15m · sold</span><span class="up">+$3.24</span></div><div class="p"><span>order · 65.50 put · 15m</span><span class="faint">resting</span></div></div></div></div>
+<div class="foot"><span><b style="color:var(--ink);font-weight:500">playropes.xyz</b> &nbsp;·&nbsp; @PlayRopes &nbsp;·&nbsp; We never DM first</span><span class="builton">built on <img src="../../../brand-kit/assets/elysium-lockup-light.svg"></span></div></div>
+<script>function ladder(el, exp, n, sel) { const rows = chain(exp, n); const maxq = Math.max(...rows.map(r => Math.max(r.cq, r.pq))); let h = "", placed = false;
+ rows.forEach(r => { if (!placed && r.K < SPOT) { h += "<div class=\"spotmark\"><img src=\"../../public/climbers/green/climb.webp\"><div class=\"lab\"><span class=\"pill mono\"><i></i>HYPE 65.65 · now</span></div></div>"; placed = true; }
+  const s = sel && Math.abs(r.K - sel) < .001;
+  h += "<div class=\"rung" + (s ? " sel" : "") + "\"><div class=\"bar\"></div><div class=\"l\"><div class=\"depth\" style=\"width:" + Math.round(70 * r.cq / maxq) + "px;background:rgba(63,211,160,.35)\"></div><span class=\"chip\"><small>bid</small><span class=\"up\">" + f(r.cb) + "</span></span><span class=\"chip ask\"><small>call</small>" + f(r.ca) + "</span></div><span class=\"k\">" + f(r.K, 2) + "</span><div class=\"r\"><span class=\"chip\"><small>put</small>" + f(r.pa) + "</span><span class=\"chip\"><small>bid</small><span class=\"down\">" + f(r.pb) + "</span></span><div class=\"depth\" style=\"width:" + Math.round(70 * r.pq / maxq) + "px;background:rgba(255,107,122,.35)\"></div></div></div>"; });
+ el.innerHTML = "<div class=\"rope\"></div>" + h; return rows; }; const rows = ladder(document.getElementById('L'), '15m', 13, 65.70); const s = rows.find(r => Math.abs(r.K - 65.70) < .001);
+px.textContent = f(s.ca); pay.textContent = usd(s.ca * 100); ml.textContent = usd(s.ca * 100); be.textContent = '$' + f(65.70 + s.ca, 2);</script></body></html>

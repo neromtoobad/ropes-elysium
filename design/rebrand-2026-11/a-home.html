@@ -1,0 +1,59 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Geist+Mono:wght@400;500&display=block">
+<link rel="stylesheet" href="shared.css"><script src="shared.js"></script><style>
+.hero { position: relative; height: 860px; overflow: hidden; }
+.hero .art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 70% 40%; }
+.hero .shade { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(4,24,28,.96) 0%, rgba(4,24,28,.8) 36%, rgba(4,24,28,.1) 64%, rgba(4,24,28,0) 78%), linear-gradient(0deg, var(--bg) 0%, rgba(4,24,28,0) 30%), linear-gradient(180deg, rgba(4,24,28,.7) 0%, rgba(4,24,28,0) 16%); }
+.hero .nav { position: absolute; top: 0; left: 0; right: 0; }
+.hero .copy { position: absolute; left: 48px; top: 220px; width: 720px; }
+.hero h1 { font: 500 116px/0.98 "DM Sans"; letter-spacing: -.035em; margin-top: 20px; }
+.hero p { margin-top: 28px; font: 400 23px/1.45 "DM Sans"; color: var(--mute); width: 600px; }
+.hero p b { color: var(--ink); font-weight: 500; }
+.hero .ctas { margin-top: 38px; display: flex; gap: 12px; }
+.strip { position: relative; margin: -70px 48px 0; display: grid; grid-template-columns: repeat(4, 1fr); z-index: 3; }
+.strip > div { padding: 22px 26px; border-right: 1px solid var(--line); } .strip > div:last-child { border: 0; }
+.strip small { font: 400 12px "Geist Mono"; color: var(--faint); } .strip strong { display: block; margin-top: 6px; font: 500 30px "DM Sans"; letter-spacing: -.03em; }
+section { padding: 120px 48px 0; }
+section h2 { font: 500 64px/1.02 "DM Sans"; letter-spacing: -.03em; margin-top: 14px; }
+.two { margin-top: 48px; display: grid; grid-template-columns: 1.25fr 1fr; gap: 20px; }
+.card { position: relative; overflow: hidden; padding: 34px; min-height: 500px; }
+.card h3 { font: 500 38px "DM Sans"; letter-spacing: -.025em; margin-top: 12px; }
+.card p { margin-top: 12px; font: 400 18px/1.5 "DM Sans"; color: var(--mute); width: 440px; }
+.mini { position: absolute; left: 34px; right: 34px; bottom: 30px; }
+.mini table { width: 100%; border-collapse: collapse; font: 400 14px "Geist Mono"; }
+.mini td { padding: 7px 8px; border-top: 1px solid var(--line); } .mini td.k { text-align: center; color: var(--ink); background: rgba(201,162,74,.08); }
+.mini tr.atm td { background: rgba(52,183,221,.08); }
+.climbcard img { position: absolute; right: 40px; bottom: 26px; height: 250px; }
+.steps { margin-top: 48px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.steps .panel { padding: 30px; } .steps b { font: 500 14px "Geist Mono"; color: var(--cyan2); } .steps h4 { margin-top: 18px; font: 500 26px "DM Sans"; letter-spacing: -.02em; } .steps p { margin-top: 10px; color: var(--mute); font-size: 17px; line-height: 1.5; }
+.proof { margin: 120px 48px 0; padding: 56px; display: grid; grid-template-columns: 1.1fr 1fr 1fr 1fr; gap: 40px; align-items: end; }
+.proof strong { display: block; font: 500 64px "DM Sans"; letter-spacing: -.04em; } .proof span { font: 400 14px "Geist Mono"; color: var(--mute); }
+.cta { margin: 120px 48px 80px; padding: 70px 56px; position: relative; overflow: hidden; border-radius: 24px; }
+.cta img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 60%; opacity: .55; }
+.cta .in { position: relative; } .cta h2 { font: 500 72px/1 "DM Sans"; letter-spacing: -.035em; }
+</style></head><body><div class="wrap">
+<div class="hero"><img class="art" src="../../../brand-kit/assets/ely-hero-a.png"><div class="shade"></div><nav class="nav"><a class="logo"><img src="../../public/knot.webp">ROPES</a><span class="pill" style="padding:5px 10px;font-size:11px">testnet</span><div class="links"><a class="">Trade</a><a class="">Climb</a><a>Portfolio</a><a>Vault</a><a>Docs</a></div><div class="right"><span class="pill mono"><i></i>HYPE $65.65</span><a class="btn">Connect wallet</a></div></nav>
+ <div class="copy"><span class="pill"><i></i>Book opens December 1 · testnet</span>
+  <h1>Every minute<br>is an <em>expiry</em>.</h1>
+  <p>Buy and sell <b>options on HYPE</b>, from one minute to one day. Every order is matched inside the contract and settled on <b>Hyperliquid's own price</b>.</p>
+  <div class="ctas"><a class="btn big">Open the book</a><a class="btn big ghost">Play Climb</a></div></div></div>
+<div class="strip panel">
+ <div><small>HYPE · Hyperliquid</small><strong class="num">$65.65 <span class="up" style="font-size:17px">+2.4%</span></strong></div>
+ <div><small>next expiry · 15m series</small><strong class="num mono" style="font-size:26px">08:42</strong></div>
+ <div><small>options settled onchain</small><strong class="num">13,172</strong></div>
+ <div><small>settlements checked vs Hyperliquid</small><strong class="num">100%</strong></div></div>
+<section><div class="kicker">two ways in</div><h2>One book. <em>Any</em> minute.</h2>
+ <div class="two">
+  <div class="card panel"><div class="kicker">the book</div><h3>Trade the full chain</h3><p>Calls and puts at every strike. Post a limit order or take the best price. Protect a position, earn on coins you hold, or take a view.</p>
+   <div class="mini"><table id="mini"></table></div></div>
+  <div class="card panel climbcard"><div class="kicker">climb</div><h3>Up or down, 60 seconds</h3><p style="width:300px">The one-tap way in. Same book, the shortest expiry. Bail any time before the bell.</p>
+   <img src="../../public/climbers/green/climb.webp"></div></div></section>
+<section><div class="kicker">how it works</div><h2>Three steps, all <em>onchain</em>.</h2>
+ <div class="steps"><div class="panel"><b>01</b><h4>Pick an expiry and strike</h4><p>New series open every 5 minutes, 15 minutes and hour. Strikes sit on a grid around the live price.</p></div>
+ <div class="panel"><b>02</b><h4>Buy or sell</h4><p>Orders rest and match in the contract. Buyers pay the premium. Sellers lock their maximum loss. No liquidations.</p></div>
+ <div class="panel"><b>03</b><h4>Settle on Hyperliquid</h4><p>At expiry the contract reads Hyperliquid's price and pays out. Every settlement is public on the transparency page.</p></div></div></section>
+<div class="proof panel"><div><div class="kicker">since october 18</div><h2 style="font:500 44px/1.05 'DM Sans';letter-spacing:-.03em;margin-top:12px">Already running on Elysium.</h2></div>
+ <div><strong class="num">13,172</strong><span>one-minute options settled</span></div><div><strong class="num">100%</strong><span>matched Hyperliquid candles</span></div><div><strong class="num">100 ms</strong><span>Elysium block time</span></div></div>
+<div class="cta"><img src="../../../brand-kit/assets/ely-hero-b.png"><div class="in"><div class="kicker">december 1</div><h2 style="margin-top:14px">The book opens.<br>Climb with us.</h2><div style="margin-top:34px;display:flex;gap:12px"><a class="btn big">Get notified</a><a class="btn big ghost">Read the docs</a></div></div></div>
+<div class="foot"><span><b style="color:var(--ink);font-weight:500">playropes.xyz</b> &nbsp;·&nbsp; @PlayRopes &nbsp;·&nbsp; We never DM first</span><span class="builton">built on <img src="../../../brand-kit/assets/elysium-lockup-light.svg"></span></div></div>
+<script>document.getElementById('mini').innerHTML = '<tr class="faint"><td>bid</td><td>ask</td><td style="text-align:center">strike · 15m</td><td>bid</td><td>ask</td></tr>' + chain('15m',7).slice(1,6).map(r=>'<tr class="'+(Math.abs(r.K-SPOT)<0.06?'atm':'')+'"><td class="up">'+f(r.cb)+'</td><td>'+f(r.ca)+'</td><td class="k">'+f(r.K,2)+'</td><td class="down">'+f(r.pb)+'</td><td>'+f(r.pa)+'</td></tr>').join('');</script>
+</body></html>

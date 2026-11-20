@@ -1,0 +1,50 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Geist+Mono:wght@400;500&display=block">
+<link rel="stylesheet" href="shared.css"><script src="shared.js"></script><style>
+.nav { height: 60px; border-bottom: 1px solid var(--line); }
+.main { display: grid; grid-template-columns: 220px minmax(0,1fr) 330px; min-height: 940px; }
+.mk { border-right: 1px solid var(--line); padding: 14px 10px; }
+.mk .m { display: flex; justify-content: space-between; align-items: center; padding: 11px 12px; border-radius: 10px; font: 500 15px "DM Sans"; }
+.mk .m small { font: 400 12px "Geist Mono"; color: var(--faint); } .mk .m.on { background: rgba(52,183,221,.12); box-shadow: inset 0 0 0 1px rgba(52,183,221,.35); }
+.mk .soon { opacity: .45; }
+.mid { display: grid; grid-template-rows: auto 340px auto 1fr; min-width: 0; }
+.mid .hd { display: flex; align-items: center; gap: 26px; padding: 14px 20px; border-bottom: 1px solid var(--line); }
+.mid .hd small { display: block; font: 400 11px "Geist Mono"; color: var(--faint); } .mid .hd b { font: 500 15px "DM Sans"; }
+.mid svg { display: block; border-bottom: 1px solid var(--line); }
+table.c { width: 100%; border-collapse: collapse; font: 400 13px "Geist Mono"; font-variant-numeric: tabular-nums; }
+table.c td, table.c th { padding: 7px 14px; text-align: right; } table.c th { font-size: 10px; color: var(--faint); font-weight: 500; position: sticky; } table.c td { border-top: 1px solid rgba(147,217,238,.06); }
+table.c td.k { text-align: center; color: var(--gold2); background: rgba(201,162,74,.06); } table.c tr.sel td { background: rgba(52,183,221,.1); }
+.rt { border-left: 1px solid var(--line); display: grid; grid-template-rows: auto auto 1fr; }
+.book { padding: 14px 16px; border-bottom: 1px solid var(--line); } .book .l { display: grid; grid-template-columns: 1fr 1fr 1fr; font: 400 13px "Geist Mono"; padding: 3px 0; position: relative; font-variant-numeric: tabular-nums; }
+.book .l i { position: absolute; right: 0; top: 1px; bottom: 1px; z-index: 0; border-radius: 2px; } .book .l span { position: relative; z-index: 1; } .book .l span:nth-child(n+2) { text-align: right; }
+.ticket { padding: 16px; display: grid; gap: 12px; }
+.pos { border-top: 1px solid var(--line); }
+</style></head><body><div class="wrap">
+<nav class="nav"><a class="logo"><img src="../../public/knot.webp">ROPES</a><span class="pill" style="padding:5px 10px;font-size:11px">testnet</span><div class="links"><a class="on">Trade</a><a class="">Climb</a><a>Portfolio</a><a>Vault</a><a>Docs</a></div><div class="right"><span class="pill mono"><i></i>HYPE $65.65</span><a class="btn">Connect wallet</a></div></nav>
+<div class="main">
+ <div class="mk"><div class="kicker" style="padding:4px 12px 10px">markets</div>
+  <div class="m on"><span>HYPE</span><small class="up">65.65</small></div><div class="m soon"><span>BTC</span><small>soon</small></div><div class="m soon"><span>ETH</span><small>soon</small></div><div class="m soon"><span>SOL</span><small>soon</small></div>
+  <div class="kicker" style="padding:24px 12px 10px">expiries</div>
+  <div class="m"><span>1m · Climb</span><small>00:37</small></div><div class="m"><span>5m</span><small>03:42</small></div><div class="m on"><span>15m</span><small class="cy">08:42</small></div><div class="m"><span>1h</span><small>41:10</small></div><div class="m"><span>1d</span><small>17:31:00</small></div></div>
+ <div class="mid"><div class="hd"><b style="font-size:22px;letter-spacing:-.02em">HYPE options</b><div><small>index</small><b class="num">$65.65 <span class="up">+2.4%</span></b></div><div><small>iv</small><b>78%</b></div><div><small>open interest</small><b>$459K</b></div><div><small>24h volume</small><b>$412K</b></div><div style="margin-left:auto" class="tabs"><span>chart</span><span class="on">chain</span><span>both</span></div></div>
+  <svg id="ch" width="890" height="340"></svg>
+  <table class="c" id="t"></table></div>
+ <div class="rt"><div class="book"><div style="display:flex;justify-content:space-between;margin-bottom:8px"><span class="kicker">order book · 65.70 call · 15m</span></div><div id="bk"></div></div>
+  <div class="ticket"><div class="seg"><span class="buy">Buy</span><span>Sell</span></div><div class="seg"><span class="on">Limit</span><span>Market</span></div>
+   <div><label>price</label><div class="field"><span class="num">0.090</span><small>tUSDC</small></div></div><div><label>size</label><div class="field"><span class="num">100</span><small>options</small></div></div>
+   <div><div class="row"><span>cost</span><b>$9.00</b></div><div class="row"><span>max loss</span><b>$9.00</b></div><div class="row"><span>break-even</span><b>$65.79</b></div><div class="row"><span>fee · maker / taker</span><b>0.02% / 0.05%</b></div></div>
+   <a class="btn big" style="justify-content:center">Place buy order</a></div>
+  <div class="pos" style="padding:14px 16px"><span class="kicker">positions · 2</span><div class="row" style="margin-top:8px"><span>66.00 C · 1h · +50</span><b class="up">+$2.40</b></div><div class="row"><span>65.40 P · 15m · −120</span><b class="up">+$3.24</b></div></div></div></div>
+<div class="foot"><span><b style="color:var(--ink);font-weight:500">playropes.xyz</b> &nbsp;·&nbsp; @PlayRopes &nbsp;·&nbsp; We never DM first</span><span class="builton">built on <img src="../../../brand-kit/assets/elysium-lockup-light.svg"></span></div></div>
+<script>function path(n, seed) { let x = 65.1, a = []; for (let i = 0; i < n; i++) { x += Math.sin(i * 0.37 + seed) * 0.016 + Math.sin(i * 0.11 + seed * 2) * 0.012 + (i > n * .7 ? 0.006 : 0.0015); a.push(x); } const k = SPOT - a[n - 1]; return a.map(v => v + k); }
+function chart(svg, W, Hh, strikes) { const p = path(160, 1.3), lo = Math.min(...p, ...strikes) - .08, hi = Math.max(...p, ...strikes) + .08, xw = (W - 70) / (p.length + 40);
+ const y = v => Hh - 24 - (v - lo) / (hi - lo) * (Hh - 48); let s = "";
+ strikes.forEach(k => { s += `<line x1="0" x2="${W - 70}" y1="${y(k)}" y2="${y(k)}" stroke="rgba(201,162,74,.28)" stroke-dasharray="3 5"/><text x="${W - 64}" y="${y(k) + 4}" fill="rgba(226,194,122,.8)" font-family="Geist Mono" font-size="11">${k.toFixed(2)}</text>`; });
+ [[160, "now"], [160 + 13, "14:45"], [160 + 35, "15:00"]].forEach(([i, l], j) => { const xx = i * xw; s += `<line x1="${xx}" x2="${xx}" y1="10" y2="${Hh - 20}" stroke="${j ? "rgba(147,217,238,.35)" : "rgba(52,183,221,.7)"}" stroke-dasharray="${j ? "2 4" : "0"}"/><text x="${xx + 6}" y="20" fill="#93D9EE" font-family="Geist Mono" font-size="11">${l}</text>`; });
+ const pts = p.map((v, i) => `${i * xw},${y(v)}`).join(" "); s += `<polyline points="${pts} ${(p.length - 1) * xw},${Hh} 0,${Hh}" fill="url(#g)" stroke="none"/><polyline points="${pts}" fill="none" stroke="#E2C27A" stroke-width="2.4"/><circle cx="${(p.length - 1) * xw}" cy="${y(SPOT)}" r="5" fill="#34B7DD"/>`;
+ svg.innerHTML = `<defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgba(201,162,74,.18)"/><stop offset="1" stop-color="rgba(201,162,74,0)"/></linearGradient></defs>` + s; }; const rows = chain('15m', 9); chart(document.getElementById('ch'), 890, 340, rows.map(r => r.K));
+document.getElementById('t').innerHTML = '<tr><th>Δ</th><th>size</th><th>bid</th><th>ask</th><th>size</th><th style="text-align:center">strike</th><th>size</th><th>bid</th><th>ask</th><th>size</th><th>Δ</th></tr>' + rows.map(r => '<tr class="' + (Math.abs(r.K - 65.70) < .001 ? 'sel' : '') + '"><td class="faint">' + f(r.dc, 2) + '</td><td class="faint">' + r.cq + '</td><td class="up">' + f(r.cb) + '</td><td>' + f(r.ca) + '</td><td class="faint">' + Math.round(r.cq * .7) + '</td><td class="k">' + f(r.K, 2) + '</td><td class="faint">' + r.pq + '</td><td class="down">' + f(r.pb) + '</td><td>' + f(r.pa) + '</td><td class="faint">' + Math.round(r.pq * .6) + '</td><td class="faint">' + f(r.dp, 2) + '</td></tr>').join('');
+let b = '<div class="l faint" style="font-size:11px"><span>price</span><span>size</span><span>total</span></div>'; const asks = [0.098, 0.096, 0.094, 0.092, 0.090], bids = [0.082, 0.080, 0.078, 0.076, 0.074]; let t = 0;
+asks.forEach((p, i) => { const q = [60, 140, 90, 220, 631][i]; b += '<div class="l"><i style="width:' + q / 7 + '%;background:rgba(255,107,122,.13)"></i><span class="down">' + p.toFixed(3) + '</span><span>' + q + '</span><span>' + (p * q).toFixed(2) + '</span></div>'; });
+b += '<div class="l" style="padding:8px 0"><span class="cy">spread 0.008</span><span></span><span class="faint">mark 0.086</span></div>';
+bids.forEach((p, i) => { const q = [901, 310, 180, 95, 70][i]; b += '<div class="l"><i style="width:' + Math.min(100, q / 9) + '%;background:rgba(63,211,160,.13)"></i><span class="up">' + p.toFixed(3) + '</span><span>' + q + '</span><span>' + (p * q).toFixed(2) + '</span></div>'; });
+document.getElementById('bk').innerHTML = b;</script></body></html>

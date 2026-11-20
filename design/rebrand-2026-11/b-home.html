@@ -1,0 +1,59 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Geist+Mono:wght@400;500&display=block">
+<link rel="stylesheet" href="shared.css"><script src="shared.js"></script><style>
+.ladder { position: relative; }
+.ladder .rope { position: absolute; left: 50%; top: 0; bottom: 0; width: 8px; transform: translateX(-50%); border-radius: 4px;
+  background: repeating-linear-gradient(160deg, #8a6a2c 0 5px, #d9b56a 5px 9px, #a9853f 9px 13px); box-shadow: 0 0 0 1px rgba(0,0,0,.25), 0 0 24px rgba(201,162,74,.18); }
+.rung { position: relative; display: grid; grid-template-columns: minmax(0,1fr) 150px minmax(0,1fr); align-items: center; height: 54px; }
+.rung .bar { position: absolute; left: calc(50% - 75px); width: 150px; top: 50%; height: 2px; background: linear-gradient(90deg, transparent, rgba(226,194,122,.7), transparent); }
+.rung .k { grid-column: 2; justify-self: center; position: relative; z-index: 2; font: 500 16px "DM Sans"; padding: 5px 12px; border-radius: 9px; background: var(--bg); border: 1px solid rgba(201,162,74,.55); font-variant-numeric: tabular-nums; }
+.chip { display: inline-flex; align-items: baseline; gap: 10px; padding: 9px 14px; border-radius: 11px; border: 1px solid var(--line); background: var(--panel); font: 500 15px "Geist Mono"; font-variant-numeric: tabular-nums; }
+.chip small { font: 400 11px "Geist Mono"; color: var(--faint); }
+.rung .l { grid-column: 1; justify-self: end; display: flex; gap: 10px; align-items: center; padding-right: 14px; }
+.rung .r { grid-column: 3; justify-self: start; display: flex; gap: 10px; align-items: center; padding-left: 14px; }
+.depth { height: 6px; border-radius: 3px; }
+.rung.sel .l .chip.ask { border-color: var(--cyan); background: rgba(52,183,221,.16); }
+.spotmark { position: relative; height: 70px; display: grid; grid-template-columns: minmax(0,1fr) 150px minmax(0,1fr); align-items: center; }
+.spotmark img { grid-column: 2; justify-self: center; height: 92px; position: relative; z-index: 3; margin-top: -8px; }
+.spotmark .lab { grid-column: 3; padding-left: 8px; } .spotmark:before { content: ""; position: absolute; left: 6%; right: 6%; top: 50%; border-top: 1px dashed rgba(52,183,221,.55); }
+
+.sky { position: absolute; left: 0; right: 0; top: 0; height: 1300px; overflow: hidden; }
+.sky img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; opacity: .32; }
+.sky:after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(4,24,28,.5), var(--bg) 92%); }
+.hero { position: relative; text-align: center; padding-top: 70px; }
+.hero h1 { font: 500 104px/1 "DM Sans"; letter-spacing: -.035em; margin-top: 18px; }
+.hero p { margin: 24px auto 0; width: 700px; font: 400 22px/1.45 "DM Sans"; color: var(--mute); }
+.hero .ctas { margin-top: 32px; display: flex; gap: 12px; justify-content: center; }
+.stage { position: relative; width: 980px; margin: 64px auto 0; padding: 26px 30px 30px; }
+.stage .bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.rail { position: relative; margin: 110px 48px 0; padding: 40px 50px; }
+.rail .line { position: absolute; left: 90px; right: 90px; top: 98px; height: 2px; background: linear-gradient(90deg, var(--gold), var(--gold2), var(--gold)); opacity: .6; }
+.rail .pts { display: grid; grid-template-columns: repeat(5, 1fr); text-align: center; margin-top: 26px; position: relative; }
+.rail .dot { width: 22px; height: 22px; border-radius: 50%; margin: 0 auto; background: var(--bg); border: 2px solid var(--gold2); }
+.rail .on .dot { background: var(--cyan); border-color: var(--cyan); box-shadow: 0 0 18px var(--cyan); }
+.rail b { display: block; margin-top: 16px; font: 500 28px "DM Sans"; letter-spacing: -.02em; } .rail span { font: 400 13px "Geist Mono"; color: var(--mute); }
+.uses { margin: 110px 48px 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.uses .panel { padding: 32px; min-height: 260px; } .uses h3 { font: 500 34px "DM Sans"; letter-spacing: -.025em; margin-top: 14px; } .uses p { margin-top: 12px; color: var(--mute); font-size: 18px; line-height: 1.5; }
+.uses .ex { margin-top: 22px; font: 400 13px "Geist Mono"; color: var(--cyan2); }
+h2.c { text-align: center; font: 500 60px/1.05 "DM Sans"; letter-spacing: -.03em; margin-top: 14px; }
+</style></head><body><div class="wrap"><div class="sky"><img src="../../../brand-kit/assets/ely-hero-b.png"></div>
+<nav class="nav"><a class="logo"><img src="../../public/knot.webp">ROPES</a><span class="pill" style="padding:5px 10px;font-size:11px">testnet</span><div class="links"><a class="">Trade</a><a class="">Climb</a><a>Portfolio</a><a>Vault</a><a>Docs</a></div><div class="right"><span class="pill mono"><i></i>HYPE $65.65</span><a class="btn">Connect wallet</a></div></nav>
+<div class="hero"><span class="pill"><i></i>The book opens December 1 · testnet</span>
+ <h1>Every minute<br>is an <em>expiry</em>.</h1>
+ <p>ROPES is an options exchange for HYPE. Pick a price on the rope, buy or sell, and get paid on Hyperliquid's price at expiry. All onchain.</p>
+ <div class="ctas"><a class="btn big">Open the book</a><a class="btn big ghost">Play Climb</a></div></div>
+<div class="stage panel"><div class="bar"><span class="kicker">live · HYPE 15-minute series · expires in 08:42</span><div class="tabs"><span>1m</span><span>5m</span><span class="on">15m</span><span>1h</span><span>1d</span></div></div>
+ <div class="ladder" id="L"></div></div>
+<div style="text-align:center;margin-top:110px"><div class="kicker">from one minute to one day</div><h2 class="c">Pick your <em>expiry</em>.</h2></div>
+<div class="rail panel"><div class="line"></div><div class="pts">
+ <div><div class="dot"></div><b>1 min</b><span>Climb · up or down</span></div><div><div class="dot"></div><b>5 min</b><span>new every 5 minutes</span></div>
+ <div class="on"><div class="dot"></div><b>15 min</b><span>new every 15 minutes</span></div><div><div class="dot"></div><b>1 hour</b><span>new every hour</span></div><div><div class="dot"></div><b>1 day</b><span>new daily at 08:00 UTC</span></div></div></div>
+<div style="text-align:center;margin-top:110px"><div class="kicker">what people use it for</div><h2 class="c">Protect. Earn. <em>Bet.</em></h2></div>
+<div class="uses"><div class="panel"><div class="kicker">protect</div><h3>Insure a position</h3><p>Long HYPE on Hyperliquid? Buy a put for the next hour. If it dumps, the put pays.</p><div class="ex">65.00 put · 1h · costs 0.31 each</div></div>
+ <div class="panel"><div class="kicker">earn</div><h3>Get paid to wait</h3><p>Sell a call above the price on HYPE you already hold and keep the premium.</p><div class="ex">67.00 call · 1d · pays 0.62 each</div></div>
+ <div class="panel"><div class="kicker">bet</div><h3>Take a quick view</h3><p>Think HYPE climbs in the next 15 minutes? Buy a call. The most you can lose is what you paid.</p><div class="ex">65.70 call · 15m · costs 0.090 each</div></div></div>
+<div style="height:110px"></div><div class="foot"><span><b style="color:var(--ink);font-weight:500">playropes.xyz</b> &nbsp;·&nbsp; @PlayRopes &nbsp;·&nbsp; We never DM first</span><span class="builton">built on <img src="../../../brand-kit/assets/elysium-lockup-light.svg"></span></div></div>
+<script>function ladder(el, exp, n, sel) { const rows = chain(exp, n); const maxq = Math.max(...rows.map(r => Math.max(r.cq, r.pq))); let h = "", placed = false;
+ rows.forEach(r => { if (!placed && r.K < SPOT) { h += "<div class=\"spotmark\"><img src=\"../../public/climbers/green/climb.webp\"><div class=\"lab\"><span class=\"pill mono\"><i></i>HYPE 65.65 · now</span></div></div>"; placed = true; }
+  const s = sel && Math.abs(r.K - sel) < .001;
+  h += "<div class=\"rung" + (s ? " sel" : "") + "\"><div class=\"bar\"></div><div class=\"l\"><div class=\"depth\" style=\"width:" + Math.round(70 * r.cq / maxq) + "px;background:rgba(63,211,160,.35)\"></div><span class=\"chip\"><small>bid</small><span class=\"up\">" + f(r.cb) + "</span></span><span class=\"chip ask\"><small>call</small>" + f(r.ca) + "</span></div><span class=\"k\">" + f(r.K, 2) + "</span><div class=\"r\"><span class=\"chip\"><small>put</small>" + f(r.pa) + "</span><span class=\"chip\"><small>bid</small><span class=\"down\">" + f(r.pb) + "</span></span><div class=\"depth\" style=\"width:" + Math.round(70 * r.pq / maxq) + "px;background:rgba(255,107,122,.35)\"></div></div></div>"; });
+ el.innerHTML = "<div class=\"rope\"></div>" + h; return rows; }; ladder(document.getElementById('L'), '15m', 9, 65.70);</script></body></html>
