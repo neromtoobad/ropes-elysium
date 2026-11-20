@@ -183,3 +183,56 @@ body:has(.rb)::after { display: none; }
   .rb-spot .lab .rb-pill { font-size: 11px; padding: 5px 9px; }
   .rb-spot .now { display: none; }
 }
+
+/* ---------- trade (direction C) ---------- */
+.rb-trade .main { display: grid; grid-template-columns: 220px minmax(0, 1fr) 340px; min-height: calc(100vh - 60px); border-bottom: 1px solid var(--rb-line); }
+.rb-trade .mk { border-right: 1px solid var(--rb-line); padding: 14px 10px; display: flex; flex-direction: column; gap: 2px; }
+.rb-trade .mk .hd { padding: 10px 12px 8px; font-size: 12px; }
+.rb-trade .mk .hd + .m { margin-top: 0; } .rb-trade .mk .m + .hd { margin-top: 18px; }
+.rb-trade .mk .m { display: flex; justify-content: space-between; align-items: center; padding: 11px 12px; border-radius: 10px; font: 500 15px var(--font-sans); color: var(--rb-ink);
+  background: none; border: 0; cursor: pointer; text-align: left; width: 100%; }
+.rb-trade .mk .m:hover { background: rgba(147, 217, 238, 0.06); }
+.rb-trade .mk .m small { font: 400 12px var(--font-mono); color: var(--rb-faint); font-variant-numeric: tabular-nums; }
+.rb-trade .mk .m.on { background: rgba(52, 183, 221, 0.12); box-shadow: inset 0 0 0 1px rgba(52, 183, 221, 0.35); }
+.rb-trade .aside-note { font-size: 11px; line-height: 1.5; padding: 16px 12px 0; }
+.rb-trade .mid { min-width: 0; display: flex; flex-direction: column; }
+.rb-trade .hdr { display: flex; align-items: center; gap: 28px; padding: 14px 20px; border-bottom: 1px solid var(--rb-line); flex-wrap: wrap; }
+.rb-trade .hdr .title { font: 500 22px var(--font-sans); letter-spacing: -0.02em; }
+.rb-trade .stat small { display: block; font: 400 11px var(--font-mono); color: var(--rb-faint); margin-bottom: 2px; }
+.rb-trade .stat b { font: 500 15px var(--font-sans); } .rb-trade .stat b span { font: 400 12px var(--font-mono); margin-left: 4px; }
+.rb-trade .views { margin-left: auto; }
+.rb-trade .chart { position: relative; border-bottom: 1px solid var(--rb-line); }
+.rb-trade .chart svg { display: block; }
+.rb-trade .loading { height: 100%; min-height: 200px; display: grid; place-items: center; font-size: 13px; }
+.rb-trade .chainwrap { overflow-x: auto; }
+.rb-trade .rb-chain td.px.on { box-shadow: inset 0 0 0 1px var(--rb-cyan); background: rgba(52, 183, 221, 0.18); }
+.rb-trade .note { font-size: 11px; line-height: 1.5; padding: 14px 20px 20px; }
+.rb-trade .rt { border-left: 1px solid var(--rb-line); display: flex; flex-direction: column; }
+.rb-trade .book { padding: 16px; border-bottom: 1px solid var(--rb-line); }
+.rb-trade .book .rb-kicker { font-size: 12px; }
+.rb-trade .lvls { margin-top: 10px; font-size: 13px; }
+.rb-trade .lvls .l { display: grid; grid-template-columns: 1fr 1fr; padding: 5px 0; }
+.rb-trade .lvls .l span:last-child { text-align: right; }
+.rb-trade .lvls .l.faint { font-size: 11px; color: var(--rb-faint); }
+.rb-trade .lvls .l.mid { border-top: 1px dashed var(--rb-line); border-bottom: 1px dashed var(--rb-line); margin: 4px 0; padding: 8px 0; }
+.rb-trade .book .empty { font-size: 11px; line-height: 1.5; margin-top: 10px; }
+.rb-trade .ticket { padding: 16px; display: grid; gap: 12px; border-bottom: 1px solid var(--rb-line); }
+.rb-trade .ticket .rb-field input:disabled { color: var(--rb-mute); }
+.rb-trade .ticket .rb-btn:disabled { cursor: not-allowed; filter: saturate(0.4) brightness(0.8); }
+.rb-trade .payoff svg { display: block; margin-top: 4px; border-radius: 8px; background: rgba(4, 24, 28, 0.6); }
+.rb-trade .pos { padding: 16px; } .rb-trade .pos .rb-kicker { font-size: 12px; } .rb-trade .pos p { font-size: 12px; line-height: 1.5; margin-top: 8px; }
+
+@media (max-width: 1100px) {
+  .rb-trade .main { grid-template-columns: minmax(0, 1fr); }
+  .rb-trade .mk { border-right: 0; border-bottom: 1px solid var(--rb-line); flex-direction: row; flex-wrap: wrap; gap: 6px; padding: 10px 16px; }
+  .rb-trade .mk .hd, .rb-trade .aside-note { display: none; }
+  .rb-trade .mk .m { width: auto; gap: 10px; padding: 8px 12px; font-size: 14px; }
+  .rb-trade .mk .m + .hd { margin: 0; }
+  .rb-trade .rt { border-left: 0; }
+}
+@media (max-width: 700px) {
+  .rb-trade .rb-chain .opt { display: none; }
+  .rb-trade .rb-chain td, .rb-trade .rb-chain th { padding: 8px 8px; }
+  .rb-trade .hdr { gap: 16px; padding: 12px 16px; }
+  .rb-trade .views { margin-left: 0; }
+}

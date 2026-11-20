@@ -55,28 +55,27 @@ export interface ChainRow extends Quote {
   putAsk: number;
 }
 
-/**
- * Strikes on the expiry's grid around spot, highest first, quoted with the
- * vault's ±1% half-spread (never tighter than a 0.001 tick).
- */
+/** One strike, quoted with the vault's ±half-spread (never tighter than a 0.001 tick). */
+export function row(spot: number, strike: number, expiry: Expiry, sigma: number, halfSpread = 0.01): ChainRow {
+  const q = quote(spot, strike, expiryOf(expiry).minutes, sigma);
+  const s = (x: number) => Math.max(0.001, x * halfSpread);
+  return {
+    ...q,
+    strike,
+    callBid: Math.max(0, q.call - s(q.call)),
+    callAsk: q.call + s(q.call),
+    putBid: Math.max(0, q.put - s(q.put)),
+    putAsk: q.put + s(q.put),
+  };
+}
+
+/** Strikes on the expiry's grid around spot, highest first. */
 export function chain(spot: number, expiry: Expiry, sigma: number, count = 11, halfSpread = 0.01): ChainRow[] {
-  const { minutes, step } = expiryOf(expiry);
+  const { step } = expiryOf(expiry);
   const mid = Math.round(spot / step) * step;
   const half = Math.floor(count / 2);
   const rows: ChainRow[] = [];
-  for (let i = half; i >= -half; i--) {
-    const strike = +(mid + i * step).toFixed(2);
-    const q = quote(spot, strike, minutes, sigma);
-    const s = (x: number) => Math.max(0.001, x * halfSpread);
-    rows.push({
-      ...q,
-      strike,
-      callBid: Math.max(0, q.call - s(q.call)),
-      callAsk: q.call + s(q.call),
-      putBid: Math.max(0, q.put - s(q.put)),
-      putAsk: q.put + s(q.put),
-    });
-  }
+  for (let i = half; i >= -half; i--) rows.push(row(spot, +(mid + i * step).toFixed(2), expiry, sigma, halfSpread));
   return rows;
 }
 
