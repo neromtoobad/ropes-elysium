@@ -1,0 +1,15 @@
+{
+  "chainId": 99801,
+  "deployedAt": "2026-11-26",
+  "KeeperOracle": "0xFdEA1f8729F4b6f365F5D141A96183881eD8405c",
+  "OptionsBook": "0xCB6d85D69c2011D9A0c76496f3fdDCa89bab8616",
+  "BackstopVault": null,
+  "collateral_tUSDC": "0x46397dA50c05AfA43cBfcA712215eD1E02A9F57d",
+  "owner": "0xD6B5Adf4eE823f5B77917022742f2CA0e239CF01",
+  "operator_keeper": "0x1fABaEb15bcdf03f87A2821e46f182A401C9dD60",
+  "feeRecipient": "0xD6B5Adf4eE823f5B77917022742f2CA0e239CF01",
+  "makerFeeBps": 5,
+  "takerFeeBps": 30,
+  "minQty": 10,
+  "note": "BackstopVault not deployed yet: owner wallet needs ~0.0005 more testnet HYPE."
+}
