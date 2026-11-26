@@ -1,29 +1,8 @@
 import type { Metadata, Viewport } from "next";
-import { Russo_One, Chakra_Petch, DM_Sans, Geist_Mono } from "next/font/google";
+import { DM_Sans, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import "./rb.css";
 import InviteCatcher from "./InviteCatcher";
-
-/**
- * The esports pairing: Russo One for anything the player shouts about (the
- * clock, the multiplier, the verdict), Chakra Petch for everything else.
- *
- * Loaded through next/font so they are self-hosted with font-display: swap —
- * a webfont that arrives late would reflow the countdown mid-round.
- */
-const display = Russo_One({
-  weight: "400",
-  subsets: ["latin"],
-  variable: "--font-display",
-  display: "swap",
-});
-
-const body = Chakra_Petch({
-  weight: ["400", "500", "600", "700"],
-  subsets: ["latin"],
-  variable: "--font-body",
-  display: "swap",
-});
 
 /** The rebrand pair (Dec 2026): DM Sans for UI and headings, Geist Mono for prices, labels and kickers. */
 const sans = DM_Sans({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-sans", display: "swap" });
@@ -51,12 +30,12 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#0d0a1c",
+  themeColor: "#04181c",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${display.variable} ${body.variable} ${sans.variable} ${mono.variable}`}>
+    <html lang="en" className={`${sans.variable} ${mono.variable}`}>
       <body>
         {children}
         <InviteCatcher />

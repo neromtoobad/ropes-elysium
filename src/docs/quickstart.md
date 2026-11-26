@@ -1,5 +1,5 @@
 # Quickstart
-> Play your first round in two minutes, with or without a wallet.
+> Play Climb, the one-minute game, in two minutes, with or without a wallet. The book opens December 1.
 
 ## Practice (no wallet)
 

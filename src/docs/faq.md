@@ -26,7 +26,7 @@ The spread: you buy at fair value + 1% and sell at fair value − 1%. There's no
 Until prices come straight from HyperCore, trading is operator-only so nobody can front-run the price relay. It opens to everyone after the precompile ships.
 
 **Is there a token?**
-Not yet. $ROPES launches on Ascend after mainnet. Anything else claiming to be ROPES is a scam.
+Not yet. $ROPES will launch in one fair-launch pool on Elysium, with no presale. The only real address will be on [playropes.xyz/token](/token) and in a pinned post from @PlayRopes. Anything else claiming to be ROPES is a scam. See [$ROPES](/docs/token).
 
 **Who builds ROPES?**
 [neromtoobad](https://nerom.site), solo.

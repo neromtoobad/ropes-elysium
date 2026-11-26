@@ -17,12 +17,13 @@ export const metadata: Metadata = {
 };
 
 const STEPS: { when: string; what: string; detail: string; state: "done" | "next" | "later" }[] = [
-  { when: "Now", what: "Live on Elysium testnet", detail: "A round every live minute, struck and settled at Hyperliquid's candle open, checked in public.", state: "done" },
-  { when: MAINNET_LABEL, what: "Elysium mainnet goes live", detail: "Kinetiq's Hyperliquid L2 opens. ROPES keeps running on testnet that day.", state: "next" },
-  { when: "Before real money", what: "Security review and per-player custody", detail: "The review report is published, and every player's position is held on-chain in their own name.", state: "later" },
-  { when: "ROPES mainnet", what: "One-minute HYPE rounds on real USDC", detail: "The same contracts and rules, with a seeded house vault and the round risk cap in force.", state: "later" },
-  { when: "Launch", what: "$ROPES on Ascend", detail: "The token goes live; house-vault spread income funds buybacks.", state: "later" },
-  { when: "≈ 4 weeks after", what: "No keeper", detail: "Prices read on-chain through the HyperCore precompile, so anyone can trade without a relayer.", state: "later" },
+  { when: "Oct 18, 2026", what: "Climb live on Elysium testnet", detail: "A round every live minute, struck and settled at Hyperliquid's candle open, checked in public.", state: "done" },
+  { when: MAINNET_LABEL, what: "Elysium mainnet", detail: "Kinetiq's Hyperliquid L2 opened. ROPES keeps running on testnet while the book is built and reviewed.", state: "done" },
+  { when: "Dec 1, 2026", what: "The ROPES Book on testnet", detail: "An onchain options order book for HYPE: 5-minute to 1-day calls and puts, with a backstop vault quoting both sides.", state: "next" },
+  { when: "≈ Dec 7, 2026", what: "No keeper in the price path", detail: "Expiries settle from Hyperliquid's oracle through the HyperCore precompile.", state: "later" },
+  { when: "Before real money", what: "Outside audit", detail: "The report is published before any real USDC touches the contracts.", state: "later" },
+  { when: "ROPES mainnet", what: "The book on real USDC, with caps", detail: "Per-series and total caps at first. Buybacks and trading rewards start with real fees.", state: "later" },
+  { when: "Announced on /token", what: "$ROPES fair launch", detail: "One pool on Elysium, no presale, liquidity locked forever.", state: "later" },
 ];
 
 const WORKS = [

@@ -236,3 +236,52 @@ body:has(.rb)::after { display: none; }
   .rb-trade .hdr { gap: 16px; padding: 12px 16px; }
   .rb-trade .views { margin-left: 0; }
 }
+
+/* ---------- $ROPES (token page) ---------- */
+.rb-token .hero { text-align: center; padding: 70px 16px 0; }
+.rb-token .hero h1 { font: 500 128px/1 var(--font-sans); letter-spacing: -0.04em; margin-top: 18px; }
+.rb-token .hero p { margin: 20px auto 0; max-width: 680px; font: 400 21px/1.45 var(--font-sans); color: var(--rb-mute); }
+.rb-token .chips { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-top: 28px; }
+.rb-token .chips span { padding: 12px 18px; border-radius: 14px; border: 1px solid var(--rb-line); background: var(--rb-panel); font: 500 17px var(--font-sans); text-align: left; }
+.rb-token .chips small { display: block; font: 400 11px var(--font-mono); color: var(--rb-faint); margin-bottom: 3px; }
+.rb-token .ctas { margin-top: 28px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.rb-token .warn { max-width: 980px; margin: 48px auto 0; padding: 20px 24px; font: 400 16px/1.55 var(--font-sans); color: var(--rb-mute); border-color: rgba(255, 107, 122, 0.4); }
+.rb-token .warn b { color: var(--rb-ink); font-weight: 600; }
+.rb-token .warn.live { border-color: rgba(63, 211, 160, 0.5); }
+.rb-token .warn code { color: var(--rb-cyan2); word-break: break-all; }
+.rb-token .gap { margin-top: 110px; margin-bottom: 30px; }
+.rb-token .alloc { max-width: 1100px; margin: 0 auto; padding: 32px; display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 40px; align-items: center; }
+.rb-token .alloc .donut { width: 100%; height: auto; }
+.rb-token .alloc table { width: 100%; border-collapse: collapse; }
+.rb-token .alloc td { padding: 13px 10px; border-bottom: 1px solid var(--rb-line); font: 400 14px/1.45 var(--font-sans); color: var(--rb-mute); vertical-align: top; }
+.rb-token .alloc td:first-child { font: 500 16px var(--font-sans); color: var(--rb-ink); white-space: nowrap; }
+.rb-token .alloc td:nth-child(2) { font-size: 16px; color: var(--rb-ink); text-align: right; }
+.rb-token .alloc td i { display: inline-block; width: 11px; height: 11px; border-radius: 3px; margin-right: 10px; }
+.rb-token .split { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.rb-token .split > div { padding: 26px; }
+.rb-token .split strong { display: block; font: 500 56px/1 var(--font-sans); letter-spacing: -0.04em; }
+.rb-token .split b { display: block; margin-top: 14px; font: 500 19px var(--font-sans); }
+.rb-token .split p { margin-top: 6px; font: 400 15px/1.5 var(--font-sans); color: var(--rb-mute); }
+.rb-token .note { max-width: 1100px; margin: 18px auto 0; font-size: 12px; line-height: 1.6; text-align: center; }
+.rb-token .launch { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.rb-token .launch > div { padding: 24px; }
+.rb-token .launch .n { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 8px; background: var(--rb-gold2); color: var(--rb-bg); font-size: 13px; }
+.rb-token .launch b { display: block; margin-top: 14px; font: 500 18px var(--font-sans); }
+.rb-token .launch p { margin-top: 6px; font: 400 15px/1.5 var(--font-sans); color: var(--rb-mute); }
+.rb-token .checks { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 0 40px; }
+.rb-token .checks > div { display: grid; grid-template-columns: 30px 1fr; column-gap: 14px; padding: 18px 0; border-bottom: 1px solid var(--rb-line); }
+.rb-token .checks i { grid-row: span 2; width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--rb-up); display: grid; place-items: center; color: var(--rb-up); font: 600 13px var(--font-sans); font-style: normal; }
+.rb-token .checks b { font: 500 18px var(--font-sans); }
+.rb-token .checks p { margin-top: 3px; font: 400 15px/1.5 var(--font-sans); color: var(--rb-mute); }
+.rb-token .risk { max-width: 900px; margin: 60px auto 0; text-align: center; font-size: 12px; line-height: 1.6; }
+@media (max-width: 900px) {
+  .rb-token .hero h1 { font-size: 72px; }
+  .rb-token .hero p { font-size: 18px; }
+  .rb-token .warn { margin: 36px 16px 0; }
+  .rb-token .gap { margin-top: 72px; }
+  .rb-token .alloc { margin: 0 16px; grid-template-columns: 1fr; padding: 22px; }
+  .rb-token .alloc .donut { max-width: 260px; margin: 0 auto; }
+  .rb-token .alloc td:last-child { display: none; }
+  .rb-token .split, .rb-token .launch, .rb-token .checks { grid-template-columns: 1fr; margin: 0 16px; }
+  .rb-token .note, .rb-token .risk { margin-left: 16px; margin-right: 16px; }
+}

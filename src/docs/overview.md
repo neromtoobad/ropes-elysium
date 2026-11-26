@@ -1,42 +1,41 @@
 # Overview
-> One minute of Hyperliquid, on a rope. What ROPES is, what works today, and what doesn't yet.
+> The onchain options exchange for Hyperliquid. What ROPES is, what works today, and what doesn't yet.
 
-ROPES is a one-minute prediction game on the **HYPE** price, running on **Elysium**, Kinetiq's Hyperliquid L2.
+ROPES is an **options exchange for HYPE**, built on **Elysium**, Kinetiq's Hyperliquid L2. You buy or sell calls and puts that expire anywhere from five minutes to one day out, and get paid on Hyperliquid's own price at expiry.
 
-Every minute a new round opens. You pick **UP** or **DOWN**, and your climber's height on the wall *is* your position's live value, second by second. **BAIL** at any second and the contract buys your position back at the live price. Ride to the bell: if your side is right, your stack multiplies and rolls straight into the next minute. If it's wrong, you fall.
+Everything that touches money happens inside the contracts: the order book matches, the collateral is locked, and every expiry settles there. Nobody runs a matching engine on a server.
 
-There is no order book. **The contract itself is the market maker.** On every trade it prices the round from the Hyperliquid mark, so you're in from the first second and you can always get out.
+## Two products, one book
+
+- **ROPES Book**: the options exchange. Pick an expiry and a strike, then buy or sell with a limit or market order. Every series has a [backstop vault](/docs/backstop-vault) quoting both sides, so the book is never empty.
+- **Climb**: the one-minute game. Up or down on HYPE every minute, with a climber on a rope showing your position live. Climb has been running on Elysium testnet since October 18, 2026. See [How a round works](/docs/how-a-round-works).
 
 ## Why this exists
 
-Hyperliquid has prediction markets, but the shortest native recurring one lasts **a day**, and listing a new one takes a 500k HYPE stake. Nothing in the ecosystem trades at the speed of a minute, because a one-minute market is a binary option that has to be re-priced every time the price moves. That only works on a chain with ~100 ms blocks and near-zero gas. That chain is Elysium.
+Options are how traders protect a position, earn on what they already hold, or take a quick view without risking more than they paid. Hyperliquid has the deepest perp markets onchain but no native options. The options venues that exist match orders on their own servers.
+
+A fully onchain book needs fast blocks, cheap gas, and a trustworthy Hyperliquid price inside the chain. Elysium has all three: 100 ms blocks, gas in HYPE, and a [HyperCore precompile](/docs/hypercore-precompile) that reads Hyperliquid's oracle directly.
 
 ## What works today
 
 On Elysium testnet (chain 99801), at [playropes.xyz](https://playropes.xyz):
 
-- A round opens every minute, struck at the open of Hyperliquid's own 1-minute candle.
-- Buy UP or DOWN, BAIL at any second, settle at the bell, redeem. All on-chain, against `RopeMarket`.
-- The price of every trade is computed by the contract: `fair(UP) = Φ(ln(S/K) ÷ σ√τ)` plus a 1% spread.
-- A house vault takes the other side, with a per-round risk cap.
-- The scoreboard (`ArenaRegistry`) settles inside the same transaction as the money.
-- A missed bell voids the round and refunds every player exactly what they paid.
-- Free seats with no wallet, or your own wallet with a test-dollar bankroll.
-- A public audit: every strike and close equals Hyperliquid's published candle open. See the live check on [/transparency](/transparency).
-- 37 contract tests. Sources verified on the Elysium explorer.
+- **Climb** runs every minute. More than 13,000 one-minute options have settled onchain, and every strike and close matches Hyperliquid's published candle open ([live check](/transparency)).
+- **The trade screen** shows live HYPE options priced by the vault's model on the real Hyperliquid price, with the payoff of any order before you place it.
+- **Prices are computed in the contract**: the same Black-Scholes model the vault quotes from is public and checkable.
 
-## What does not work yet
+## What's coming
 
-- **Mainnet and real USDC.** Elysium mainnet goes live **Nov 9, 2026**. ROPES follows once a security review is done.
-- **Per-player custody.** On testnet, players' stakes sit in one pooled house wallet run by the game server, with a ledger of who owns what. Per-player on-chain positions come before real money.
-- **Reading Hyperliquid directly.** Until the HyperCore precompile ships (about four weeks after mainnet), a keeper relays the price. See [Price source & audit](/docs/price-source).
-- **Open trading.** Only the operator can trade today, so nobody can front-run the relay.
-- **More markets.** HYPE only for now. BTC, SOL and the 24/7 S&P are next.
-- **$ROPES.** The token launches through Ascend after mainnet. See [$ROPES](/docs/token).
+- **Dec 1, 2026**: the order book opens on testnet, with 5-minute, 15-minute, 1-hour and 1-day HYPE series.
+- **About Dec 7**: expiries settle from the HyperCore oracle through the Elysium precompile, so no keeper sits in the price path.
+- **After an outside audit**: mainnet with real USDC, with caps at first.
+- **Then**: more markets (BTC, SOL, the 24/7 S&P), chosen by holder vote.
+
+ROPES takes no real money until the audit is done.
 
 ## Read next
 
-- [Quickstart](/docs/quickstart): play in two minutes
-- [How a round works](/docs/how-a-round-works)
-- [Pricing](/docs/pricing)
-- [Trust model & admin keys](/docs/trust-model)
+- [What an option is](/docs/options-101)
+- [Series & expiries](/docs/series)
+- [The order book](/docs/the-book)
+- [Collateral & payouts](/docs/collateral)

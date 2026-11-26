@@ -1,20 +1,51 @@
 # $ROPES
-> The plan for the ROPES token. Not launched yet.
+> The token of the ROPES options book. Supply, allocation, how it launches, and where fees go.
 
-> **$ROPES has not launched.** Any "ROPES token" you see today is not ours. It will launch through **Ascend** after Elysium mainnet, and the only announcement will come from **@PlayRopes** and **playropes.xyz**.
+> **Only trust the address on [playropes.xyz/token](/token) and in a pinned post from @PlayRopes.** If either is missing, it isn't us. We never DM first, and there is no presale, private round or whitelist.
 
-## Role
+The full token paper (PDF) is linked from [/token](/token).
 
-- **Backed by game volume.** House-vault spread income funds $ROPES buybacks. The vault's edge is the spread, so more rounds played means more buybacks.
-- **Holders pick the next rope.** Which Hyperliquid market gets a ROPES wall next: BTC, SOL, the weekend S&P.
-- **Seasons and skins.** Seasonal leaderboards and climber skins use $ROPES.
+## Supply
 
-## Launch
+**1,000,000,000 $ROPES**, fixed. The mint is renounced at launch, so nobody, including the team, can make more.
 
-- **Where:** Ascend, the launchpad for Elysium projects.
-- **When (approximate):** after ROPES is live on Elysium mainnet with real USDC and a completed security review. Target: December 2026 to January 2027.
-- **Why Ascend:** ROPES is a game with many small repeat players and steady volume, the kind of "PVE coin" Ascend's holder and volume metrics reward.
+| Allocation | Share | How it unlocks |
+|---|---|---|
+| Fair launch pool | 45% | In the launch pool from day one. Only circulates when someone buys it at market. Liquidity locked forever. |
+| Trading rewards | 15% | Weekly over 36 months from mainnet, capped by the fees each wallet pays. |
+| Team | 15% | Nothing for 12 months, then monthly over 24 months, in a public vesting contract. |
+| Treasury & growth | 15% | Locked 6 months, then monthly over 24. Audits, grants, partners. Multisig, every spend posted. |
+| Season 0 airdrop | 5% | Testnet players, by ROPES Points. Claim 50% at once, or 100% streamed over 90 days. |
+| Liquidity reserve | 5% | Locked. Used only to seed new listings, announced 7 days ahead. |
 
-Supply, launch-pool size and the exact buyback routing are still being designed.
+## The launch
 
-The full plan, with the road to launch, is on [/token](/token). The mainnet countdown is on [/mainnet](/mainnet).
+- **Fair launch.** All 450M launch tokens sit in one $ROPES/HYPE pool on Elysium. Everyone buys from the same curve at the same price, the team included.
+- **No capital needed.** The pool starts with $ROPES only. Buyers bring the HYPE, and the price rises as they buy.
+- **Snipers pay the protocol.** The swap fee starts high and falls to 1% over the first minutes. What bots pay goes to the buyback.
+- **Liquidity locked forever.** The pool position can never be withdrawn.
+
+## Where fees go
+
+All protocol revenue goes to one revenue contract and is split every week:
+
+| Share | Goes to |
+|---|---|
+| **60%** | Buy $ROPES on the open market and burn it |
+| **10%** | Buy KNTQ and burn it: our share in the network we build on |
+| **30%** | Audits, bug bounty, keeper gas and running the book |
+
+Revenue is book trading fees, 20% of the backstop vault's profit, Climb fees, and the launch pool's 1% swap fee. Before mainnet the only real revenue is the pool fee. Every buy and burn is a public transaction listed on [/transparency](/transparency).
+
+## What holding it does
+
+- **Lower fees.** Stake $ROPES for a discount on book taker fees, up to 30%.
+- **Votes.** New markets, fee levels, vault limits and the revenue split, from mainnet.
+- **Bigger trading rewards** for stakers, still capped by the fees they pay.
+- **Climb seasons.** Season passes, skins and prize pools.
+
+Staking gives discounts and votes, not a share of revenue. Holders benefit through the buyback, and only when the book earns fees.
+
+## Risks
+
+$ROPES can lose most or all of its value. Buybacks depend on revenue. Contracts can have bugs even after an audit. Nothing here is an offer to sell or a promise of profit.

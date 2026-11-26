@@ -10,7 +10,7 @@ Elysium is Kinetiq's L2 for Hyperliquid: an Arbitrum Orbit chain that settles to
 | Fast blocks | Fair value moves every tick near the bell; a trade must land before its quote is stale | ~115 ms blocks (measured on testnet) |
 | Cheap writes | Every open, trade and settle is a transaction, every minute | ~0.1 gwei gas; a live minute costs ≈ 0.00003 HYPE |
 | Hyperliquid prices | Rounds are on Hyperliquid's own markets | The HyperCore read precompile (≈ 4 weeks after mainnet) |
-| A launch path | A token backed by game volume | Ascend, Elysium's launchpad |
+| A fair token launch | A token backed by trading fees | A $ROPES/HYPE pool on Elysium, open to everyone at the same price |
 
 On HyperEVM's small blocks, re-quoting an option on every trade isn't practical. On Elysium it costs a fraction of a cent.
 

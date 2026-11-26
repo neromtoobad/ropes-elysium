@@ -17,12 +17,13 @@ export function DocsHeader({ section }: { section: string }) {
           <Link href="/mainnet">Mainnet</Link>
           <Link href="/token">$ROPES</Link>
           <a href="https://x.com/PlayRopes" target="_blank" rel="noreferrer">X</a>
-          <Link href="/play" className="docs-cta">Play →</Link>
+          <Link href="/play">Climb</Link>
+          <Link href="/trade" className="docs-cta">Trade →</Link>
         </nav>
       </div>
       <div className="docs-banner">
-        <span className="dot" /> Elysium mainnet goes live <b>Nov 9, 2026</b>. ROPES is live on testnet now.{" "}
-        <Link href="/mainnet" className="docs-banner-link">Countdown →</Link>
+        <span className="dot" /> The options book opens on testnet <b>December 1</b>. Climb runs every minute now.{" "}
+        <Link href="/trade" className="docs-banner-link">See the book →</Link>
       </div>
     </header>
   );
@@ -31,7 +32,7 @@ export function DocsHeader({ section }: { section: string }) {
 export function DocsFooter() {
   return (
     <footer className="docs-foot">
-      <span>ROPES · one minute of Hyperliquid, on a rope</span>
+      <span>ROPES · the onchain options exchange for Hyperliquid</span>
       <span>
         Only trust <b>@PlayRopes</b> and <b>playropes.xyz</b>. $ROPES is not launched yet. We never DM first.
       </span>

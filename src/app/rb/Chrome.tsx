@@ -92,3 +92,9 @@ export function Footer() {
     </footer>
   );
 }
+
+/** The nav with the live HYPE pill, for server-rendered pages that can't call usePrice themselves. */
+export function LiveNav(props: { on?: string; tight?: boolean }) {
+  const price = usePrice(10_000);
+  return <Nav {...props} price={price} />;
+}

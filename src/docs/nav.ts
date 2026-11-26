@@ -16,19 +16,33 @@ export const NAV: DocSection[] = [
     title: "Start here",
     pages: [
       { slug: "overview", title: "Overview" },
+      { slug: "options-101", title: "What an option is" },
       { slug: "quickstart", title: "Quickstart" },
-      { slug: "how-a-round-works", title: "How a round works" },
     ],
   },
   {
-    title: "The market",
+    title: "The book",
     pages: [
+      { slug: "series", title: "Series & expiries" },
+      { slug: "the-book", title: "The order book" },
+      { slug: "collateral", title: "Collateral & payouts" },
+      { slug: "settlement", title: "Settlement" },
+      { slug: "backstop-vault", title: "The backstop vault" },
+    ],
+  },
+  {
+    title: "Climb",
+    pages: [
+      { slug: "how-a-round-works", title: "How a round works" },
       { slug: "pricing", title: "Pricing" },
       { slug: "bail", title: "BAIL" },
       { slug: "the-bell", title: "The bell & settlement" },
       { slug: "voids", title: "Voids & refunds" },
       { slug: "vault", title: "The house vault" },
       { slug: "risk-limits", title: "Risk limits" },
+      { slug: "game-rules", title: "Seats, tables & stacks" },
+      { slug: "wallet", title: "Wallet & bankroll" },
+      { slug: "points", title: "Points, handles & invites" },
     ],
   },
   {
@@ -45,14 +59,6 @@ export const NAV: DocSection[] = [
     pages: [
       { slug: "why-elysium", title: "Why Elysium" },
       { slug: "hypercore-precompile", title: "The HyperCore precompile" },
-    ],
-  },
-  {
-    title: "Playing",
-    pages: [
-      { slug: "game-rules", title: "Seats, tables & stacks" },
-      { slug: "wallet", title: "Wallet & bankroll" },
-      { slug: "points", title: "Points, handles & invites" },
     ],
   },
   {
