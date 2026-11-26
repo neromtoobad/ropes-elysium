@@ -13,8 +13,9 @@ import { useSmoothed } from "../useSmoothed";
 import { ElysiumBadge } from "../Elysium";
 import { randomName } from "@/lib/names";
 import {
-  usd, short, clock, bigClock, usePlayerKey, useLedger, useClimberTheme, SiteNav, NavMenu, BellChip, HowItWorks, ShareRun,
+  usd, short, clock, bigClock, usePlayerKey, useLedger, useClimberTheme, BellChip, HowItWorks, ShareRun,
   type LedgerData, OpenInWallet, safeLocal, fmtMark, fmtMove} from "../shared";
+import { SiteBar } from "../rb/Chrome";
 
 const SEAT = 10_000_000n; // 10 tUSDC, 6 decimals
 
@@ -809,58 +810,35 @@ function TopBar({
   const t = state?.table;
   const roping = t?.status === "filling" && t.seated > 0;
   return (
-    <header className="flex items-center justify-between gap-3">
-      <div className="flex shrink-0 items-center gap-3">
-        <Image src="/mark.webp" alt="" width={64} height={34} priority className="h-9 w-auto" />
-        {/* the mark IS the logo; on a phone the word and the subtitle cost
-            the nav its row, and the nameplate on the wall says whose money */}
-        <div className="hidden sm:block">
-          <h1 className="display whitespace-nowrap text-base leading-none tracking-[0.2em] sm:text-lg">ROPES</h1>
-          <p className="mt-0.5 text-[9px] font-bold tracking-[0.3em] text-[var(--dim)]">
-            {roping
-              ? `ROPING UP · ${clock(t!.sealsIn)}`
-              : me
-                ? (
-                  /* The title block and the clock together need 364px of a
-                     343px header at 375 wide, so the long form wrapped the
-                     clock onto its own row. The money bar and the nameplate
-                     both carry the qualifier; here the short form is enough. */
-                  <>
-                    {me.paid ? "RANKED" : "PRACTICE"}
-                    <span className="hidden sm:inline">
-                      {me.paid ? " · YOUR tUSDC" : " · HOUSE MONEY"}
-                    </span>
-                  </>
-                )
-                : `${state?.mark?.asset ?? "HYPE"} · ${Math.round((state?.round?.intervalSec ?? 60) / 60)} MINUTE`}
-          </p>
-        </div>
-      </div>
-
-      <div className="flex min-w-0 items-center gap-1.5 sm:gap-1">
-        <SiteNav from="lg" />
-        <NavMenu from="lg" />
-        <button
-          onClick={sound.toggle}
-          aria-label={sound.on ? "Mute sound" : "Unmute sound"}
-          aria-pressed={sound.on}
-          className="gametab flex items-center"
-        >
-          <SpeakerIcon on={sound.on} />
-        </button>
-      </div>
-
-      {/* lg and up only: below that the clock is drawn ON the wall, where
-          the crash games put the number that matters */}
-      <div className="hidden text-right lg:block">
-        <div className={`display tabular outline-num clock-num text-5xl leading-[0.85] sm:text-7xl ${urgent && !stalled ? "clock-urgent" : ""} `}
-          style={stalled ? { color: "var(--dim)" } : settling ? { color: "var(--gold)" } : undefined}>
-          {stalled || settling ? "··" : bigClock(secs)}
-        </div>
-        <p className="mt-0.5 text-[9px] font-bold tracking-[0.3em] text-[var(--dim)]">
-          {stalled ? "CLOCK PAUSED" : settling ? "SETTLING · NEXT ROPE" : "TO THE BELL"}
-        </p>
-      </div>
+    <header>
+      <SiteBar
+        inset
+        extra={
+          <>
+            {/* lg and up: the bell sits in the bar. Below that it is drawn ON the
+                wall, where the crash games put the number that matters. */}
+            <div className="hidden items-center gap-2.5 lg:flex" title={
+              roping ? "Roping up" : me ? (me.paid ? "Ranked, your tUSDC" : "Practice, house money") : "HYPE, one minute"}>
+              <span className={"display tabular outline-num clock-num text-4xl leading-none " + (urgent && !stalled ? "clock-urgent" : "")}
+                style={stalled ? { color: "var(--dim)" } : settling ? { color: "var(--gold)" } : undefined}>
+                {stalled || settling ? "··" : bigClock(secs)}
+              </span>
+              <span className="text-[10px] font-medium leading-tight text-[var(--dim)]">
+                {stalled ? "clock paused" : settling ? "settling" : roping ? <>roping up<br />{clock(t!.sealsIn)}</> : <>to the<br />bell</>}
+              </span>
+            </div>
+            <button
+              onClick={sound.toggle}
+              aria-label={sound.on ? "Mute sound" : "Unmute sound"}
+              aria-pressed={sound.on}
+              className="rbar-menu"
+              style={{ display: "inline-flex", padding: "0 12px" }}
+            >
+              <SpeakerIcon on={sound.on} />
+            </button>
+          </>
+        }
+      />
     </header>
   );
 }

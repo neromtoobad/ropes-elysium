@@ -14,6 +14,7 @@ import { isMobile, walletDeepLinks } from "./wallet";
 import type { ClimberId } from "./Cliff";
 import { txUrl } from "@/lib/elysium";
 import { StreakChip } from "./streak";
+import { SiteBar } from "./rb/Chrome";
 
 /**
  * A Hyperliquid mark, at the precision it actually moves in. HYPE at $95 moves
@@ -310,26 +311,11 @@ export function BellChip({ secs }: { secs: number | null }) {
   );
 }
 
-/** Header for the non-game pages: mark, title, nav. */
+/** Header for the non-game pages: the same site bar as every other page. */
 export function PageHeader({ title }: { title: string }) {
   return (
-    <header className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-      <div className="flex min-w-0 flex-1 items-center justify-between gap-3 sm:flex-none">
-        <Link href="/" className="flex min-w-0 items-center gap-3">
-          <Image src="/mark.webp" alt="" width={64} height={34} priority className="h-9 w-auto" />
-          <div className="min-w-0">
-            <h1 className="display whitespace-nowrap text-base leading-none tracking-[0.2em] sm:text-lg">
-              ROPES
-            </h1>
-            <p className="mt-0.5 truncate text-[9px] font-bold tracking-[0.3em] text-[var(--dim)]">{title}</p>
-          </div>
-        </Link>
-        <div className="flex shrink-0 items-center gap-1.5">
-          <StreakChip />
-          <NavMenu />
-        </div>
-      </div>
-      <SiteNav />
+    <header aria-label={title}>
+      <SiteBar inset extra={<StreakChip />} />
     </header>
   );
 }

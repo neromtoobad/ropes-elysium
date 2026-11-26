@@ -1,25 +1,12 @@
 import Link from "next/link";
-import Image from "next/image";
+import { SiteBar } from "../rb/Chrome";
 
-/** The top bar shared by /docs and /transparency. */
+/** The top bar for /docs, /transparency and /mainnet: the site bar plus the news line. */
 export function DocsHeader({ section }: { section: string }) {
   return (
-    <header className="docs-top">
+    <header className="docs-top" aria-label={section}>
       <div className="docs-top-in">
-        <Link href="/" className="docs-brand">
-          <Image src="/knot.webp" alt="" width={1200} height={629} className="h-7 w-auto" />
-          <span className="display">ROPES</span>
-          <span className="docs-crumb">{section}</span>
-        </Link>
-        <nav className="docs-top-nav">
-          <Link href="/docs/overview">Docs</Link>
-          <Link href="/transparency">Transparency</Link>
-          <Link href="/mainnet">Mainnet</Link>
-          <Link href="/token">$ROPES</Link>
-          <a href="https://x.com/PlayRopes" target="_blank" rel="noreferrer">X</a>
-          <Link href="/play">Climb</Link>
-          <Link href="/trade" className="docs-cta">Trade →</Link>
-        </nav>
+        <SiteBar inset />
       </div>
       <div className="docs-banner">
         <span className="dot" /> The options book opens on testnet <b>December 1</b>. Climb runs every minute now.{" "}

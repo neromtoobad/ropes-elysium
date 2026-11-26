@@ -616,7 +616,7 @@ a[href] {
 /* ───────────────────────────── docs + transparency ─────────────────────────── */
 .docs { min-height: 100dvh; background: radial-gradient(1200px 700px at 70% -10%, #0c3a45 0%, transparent 60%), var(--bg); }
 .docs-top { position: sticky; top: 0; z-index: 30; background: rgba(4,24,28,.86); backdrop-filter: blur(12px); border-bottom: 1px solid var(--edge); }
-.docs-top-in { max-width: 1280px; margin: 0 auto; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.docs-top-in { max-width: 1280px; margin: 0 auto; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .docs-brand { display: flex; align-items: center; gap: 10px; }
 .docs-brand .display { font-size: 18px; letter-spacing: .12em; }
 .docs-crumb { font: 600 12px var(--font-body); letter-spacing: .16em; text-transform: uppercase; color: var(--dim); padding-left: 10px; border-left: 1px solid var(--edge); }
