@@ -10,7 +10,7 @@ Each series has one limit order book. It trades the option against USDC: bids ar
 - **Market**: fills right away against the best prices, with a price limit you set so a thin book can't fill you somewhere silly. Anything that can't fill inside your limit is refunded.
 - **Cancel** and **cancel-replace** (move an order's price or size) are one transaction each.
 
-Prices are the premium per option, in steps of **0.001 USDC**. Sizes go down to **0.01** of an option.
+Prices are the premium per option, in steps of **0.001 USDC**. Sizes move in steps of **0.01** of an option, with a minimum order of **0.1** option so the book can't be filled with dust.
 
 ## Matching
 

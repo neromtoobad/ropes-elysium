@@ -8,7 +8,7 @@ An option is a contract that pays out depending on where a price ends up at a se
 - The **strike** is the line. The **expiry** is the moment the price is read.
 - The **premium** is what the option costs. It's the price you see on the book.
 
-One ROPES option is on **1 HYPE**. You can trade fractions down to 0.01 of an option.
+One ROPES option is on **1 HYPE**. You can trade fractions, from 0.1 of an option up, in steps of 0.01.
 
 ## Buying
 

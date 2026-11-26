@@ -8,7 +8,7 @@ A new options book has a cold-start problem: nobody wants to quote until there's
 The vault uses Black-Scholes with zero interest, the textbook model for European options:
 
 - the **spot** is Hyperliquid's live HYPE price;
-- **volatility** is measured from Hyperliquid's last hour of one-minute candles, with a floor so a quiet hour can't price risk at zero;
+- **volatility** is measured from Hyperliquid's last hour of one-minute candles and posted to the vault, which only accepts values inside fixed bounds, so a quiet hour can't price risk at zero;
 - the **time left** is the seconds to expiry.
 
 It quotes **fair value ± 1%** (never tighter than one tick), at a set size per series. The model is the same one that has priced every Climb round since October, and the maths runs in the contract so anyone can check a quote.
@@ -20,7 +20,7 @@ The vault is just another participant in the book. Anyone who quotes inside its 
 ## Limits
 
 - A cap per series and a cap on total exposure, so one series or one direction can't drain it.
-- It won't quote on a stale price: if the mark is too old, its quotes are pulled.
+- It won't quote on a stale price: the contract refuses new quotes when the mark is too old, and the keeper cancels the ones already resting.
 - When it sells options, it writes them like any other seller, fully collateralised.
 
 ## Who owns it
